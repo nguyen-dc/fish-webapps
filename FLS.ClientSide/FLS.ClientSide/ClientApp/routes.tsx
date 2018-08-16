@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Route, Switch } from 'react-router-dom';
-import { Layout } from './components/layout';
-import { Home } from "./components/home";
+import { Layout } from './components/Layout';
+import { Home } from "./components/Home";
 import { Code404 } from "./404";
 import { FarmRegions } from './components/farm-region/farm-region';
 import { FishPonds } from './components/fish-pond/fish-pond';
