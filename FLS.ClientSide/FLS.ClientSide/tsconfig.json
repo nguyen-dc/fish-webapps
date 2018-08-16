@@ -1,0 +1,38 @@
+//{
+//  "compilerOptions": {
+//    "baseUrl": ".",
+//    "module": "es6",
+//    "moduleResolution": "node",
+//    "target": "es2016",
+//    "jsx": "react",
+//    "sourceMap": true,
+//    "skipDefaultLibCheck": true,
+//    "strict": true,
+//    "types": [ "webpack-env" ],
+//    "noImplicitAny": false
+//  },
+//  "exclude": [
+//    "bin",
+//    "node_modules"
+//  ]
+//}
+
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "module": "es6",
+    "moduleResolution": "node",
+    "target": "es2016",
+    "jsx": "react",
+    "sourceMap": true,
+    "skipDefaultLibCheck": true,
+    "strict": false,
+    "lib": [ "es6", "dom" ],
+    "types": [ "webpack-env" ],
+    "experimentalDecorators": true
+  },
+  "exclude": [
+      "bin",
+      "node_modules"
+  ]
+}
