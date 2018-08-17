@@ -23,12 +23,12 @@ pipeline {
             sh "docker push $DOCKER_REGISTRY/$ORG/$APP_NAME:$PREVIEW_VERSION"
           }
 
-          dir ('./charts/preview') {
-           container('jx-base') {
-             sh "make preview"
-             sh "jx preview --app $APP_NAME --dir ../.."
-           }
-          }
+          // dir ('./charts/preview') {
+          //  container('jx-base') {
+          //    sh "make preview"
+          //    sh "jx preview --app $APP_NAME --dir ../.."
+          //  }
+          // }
         }
       }
       stage('Build Release') {
