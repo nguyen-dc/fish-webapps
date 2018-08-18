@@ -7,7 +7,7 @@ import { Select } from '../shared/Select';
 import { ProductModel } from "../../models/product";
 import { FormErrors } from "../shared/FormErrors";
 
-interface IProductFormProps {
+interface IProductEditProps {
     isShow: boolean,
     handleClose: any,
     title: string;
@@ -22,7 +22,7 @@ interface IProductFormProps {
     formErrors: {}
 }
 
-export class ProductForm extends React.Component<IProductFormProps, any>  {
+export class ProductEdit extends React.Component<IProductEditProps, any>  {
     constructor(props: any) {
         super(props)
     }

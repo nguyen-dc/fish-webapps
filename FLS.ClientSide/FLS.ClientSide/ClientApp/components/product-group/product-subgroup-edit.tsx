@@ -4,24 +4,22 @@ import { Modal, Button } from 'react-bootstrap';
 import { Input } from '../shared/SingleInput';
 import { TextArea } from '../shared/TextArea';
 import { Select } from '../shared/Select';
-import { ProductGroupModel } from "../../models/product-group";
+import { ProductSubGroupModel } from "../../models/product-subgroup";
 import { FormErrors } from "../shared/FormErrors";
-import { ProductGroups } from "./product-group";
-const urlCreate = 'api/product-groups/add';
-const urlUpdate = 'api/product-groups/modify';
 
-interface ProductGroupFormProps {
+interface ProductSubGroupEditProps {
     isShow: boolean,
     handleClose: any,
     title: string;
     handleFormSubmit: any;
     onFieldValueChange: any;
-    productGroup: ProductGroupModel;
+    productSubGroup: ProductSubGroupModel;
     isEdit: boolean;
+    options: any;
     formErrors: {}
 }
 
-export class ProductGroupForm extends React.Component<ProductGroupFormProps, any>  {
+export class ProductSubGroupEdit extends React.Component<ProductSubGroupEditProps, any>  {
     constructor(props: any) {
         super(props)
     }
@@ -29,7 +27,7 @@ export class ProductGroupForm extends React.Component<ProductGroupFormProps, any
         let handleClose = () => { this.props.handleClose };
         return (
             <Modal show={this.props.isShow} onHide={this.props.handleClose}
-                bsSize="large"
+                className="modal-medium"
                 aria-labelledby="contained-modal-title-lg">
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-lg">{this.props.title}</Modal.Title>
@@ -38,16 +36,30 @@ export class ProductGroupForm extends React.Component<ProductGroupFormProps, any
                     <form className="form-horizontal" onSubmit={this.props.handleFormSubmit}>
                         {this.props.formErrors ? <FormErrors formErrors={this.props.formErrors} /> : null}
                         <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Tên ngành hàng:</label>
+                            <label className="control-label col-xs-3" htmlFor="firstName">Tên nhóm hàng:</label>
                             <div className="col-xs-9">
                                 <Input
                                     inputType={'text'}
                                     name={'name'}
                                     onChange={this.props.onFieldValueChange}
-                                    value={this.props.productGroup.name}
+                                    value={this.props.productSubGroup.name}
                                     required={false}
                                     error={this.props.formErrors['name']}
-                                    placeholder={'Tên ngành hàng'} />
+                                    placeholder={'Tên nhóm hàng'} />
+                            </div>
+                        </div>
+                        <div className="form-group">
+                            <label className="control-label col-xs-3" htmlFor="firstName">Ngành hàng:</label>
+                            <div className="col-xs-9">
+                                <Select
+                                    name={'productGroupId'}
+                                    onChange={this.props.onFieldValueChange}
+                                    value={this.props.productSubGroup.name}
+                                    error={this.props.formErrors['productGroupId']}
+                                    placeholder={'chọn ngành hàng'}
+                                    selectedOption={this.props.productSubGroup.productGroupId}
+                                    options={this.props.options}
+                                />
                             </div>
                         </div>
                         <div className="form-group">
@@ -58,7 +70,7 @@ export class ProductGroupForm extends React.Component<ProductGroupFormProps, any
                                     onChange={this.props.onFieldValueChange}
                                     rows={5}
                                     error={this.props.formErrors['description']}
-                                    value={this.props.productGroup.description}
+                                    value={this.props.productSubGroup.description}
                                     placeholder={'Mô tả chi tiết'} />
                             </div>
                         </div>

@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { ProductGroupForm } from "./product-group-form";
+import { ProductGroupEdit } from "./product-group-edit";
 import { Button } from "react-bootstrap";
 import { Content } from "react-bootstrap/lib/Tab";
 import * as ReactDOM from "react-dom";
@@ -220,7 +220,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, Prod
                 <div className="row">
                     {renderPaging}
                 </div>
-                <ProductGroupForm
+                <ProductGroupEdit
                     isShow={this.state.modalShow}
                     handleClose={this.handleClose.bind(this)}
                     handleFormSubmit={this.handleFormSubmit.bind(this)}

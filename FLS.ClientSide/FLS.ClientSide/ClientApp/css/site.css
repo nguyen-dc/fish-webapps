@@ -58,11 +58,11 @@ body{
     align-items: flex-start;
 }
     .form-group-custom label {
-        margin-bottom: 0;
+        margin: 7px 0 0 0;
         font-weight: normal;
         text-align: right;
         padding-right: 10px;
-        align-self: center;
+        padding-top: 0 !important;
     }
 .form-group-custom> div{
     width: calc(100% - 152px);
@@ -337,3 +337,40 @@ body{
     }
 }
 /* ******* */
+
+/**/
+.modal-full-width .modal-dialog {
+    width: auto !important;
+    margin: 12px !important;
+}
+th.th-xs-1, td.td-xs-1 {
+    min-width: 42px;
+    max-width: 42px;
+    width: 42px;
+}
+
+th.th-sm-1, td.td-sm-1 {
+    min-width: 52px;
+    max-width: 52px;
+    width: 52px;
+}
+
+th.th-sm-2, td.td-sm-2 {
+    min-width: 84px;
+    max-width: 84px;
+    width: 84px;
+}
+
+th.th-sm-3, td.td-sm-3 {
+    min-width: 52px;
+    max-width: 52px;
+    width: 52px;
+}
+
+th.th-sm-4, td.td-sm-4 {
+    min-width: 52px;
+    max-width: 52px;
+    width: 52px;
+}
+/* ******* */
+
