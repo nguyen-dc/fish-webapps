@@ -175,7 +175,7 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="danger" onClick={() => this.onDelete(m.id)}>
+                                            <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>
                                         </ButtonGroup>
                                     </td>

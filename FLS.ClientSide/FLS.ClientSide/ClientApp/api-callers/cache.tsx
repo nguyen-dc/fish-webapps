@@ -80,4 +80,22 @@ export const CacheAPI = {
             console.log(`Error: ${err.stack}`);
         }
     },
+    StockReceiveDocketType: async () => {
+        try {
+            let request = await fetch('api/cache/stock-receive-docket-types');
+            return await request.json();
+        }
+        catch (err) {
+            console.log(`Error: ${err.stack}`);
+        }
+    },
+    StockIssueDocketType: async () => {
+        try {
+            let request = await fetch('api/cache/stock-issue-docket-types');
+            return await request.json();
+        }
+        catch (err) {
+            console.log(`Error: ${err.stack}`);
+        }
+    },
 }

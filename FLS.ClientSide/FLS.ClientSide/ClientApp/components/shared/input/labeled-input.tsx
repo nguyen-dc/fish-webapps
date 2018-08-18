@@ -46,7 +46,7 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
             model: model,
         };
     }
-    componentWillUpdate(nextProps) {
+    componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.value ? nextProps.value : '',
             title: nextProps.title ? nextProps.title : '',
@@ -58,7 +58,7 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
         const errorClass = '';
         let error = this.state.error;
         return error && error.length > 0 ?
-            `${errorClass} has-error` :
+            errorClass + " has-error" :
             errorClass;
     };
     inputChange(e) {
@@ -112,7 +112,7 @@ export class LabeledTextArea extends React.PureComponent<LabeledTextAreaProps & 
             model: model,
         };
     }
-    componentWillUpdate(nextProps) {
+    componentWillReceiveProps(nextProps) {
         this.setState({
             value: nextProps.value ? nextProps.value : '',
             title: nextProps.title ? nextProps.title : '',
@@ -124,7 +124,7 @@ export class LabeledTextArea extends React.PureComponent<LabeledTextAreaProps & 
         const errorClass = '';
         let error = this.state.error;
         return error && error.length > 0 ?
-            `${errorClass} has-error` :
+            errorClass + " has-error" :
             errorClass;
     };
     textChange(e) {
@@ -196,11 +196,17 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
             readOnly: nextProps.readOnly ? nextProps.readOnly : false
         });
     }
+    componentWillReceiveProps(nextProps) {
+        this.setState({
+            value: nextProps.value,
+            options: nextProps.options
+        });
+    }
     formatErrorClass = () => {
         const errorClass = '';
         let error = this.state.error;
         return error && error.length > 0 ?
-            `${errorClass} has-error` :
+            errorClass + " has-error" :
             errorClass;
     };
     valueChange(e) {
@@ -289,7 +295,7 @@ export class LabeledCheckBox extends React.PureComponent<LabeledCheckBoxProps, L
         const errorClass = '';
         let error = this.state.error;
         return error && error.length > 0 ?
-            `${errorClass} has-error` :
+            errorClass + " has-error" :
             errorClass;
     };
     checkChange(e) {

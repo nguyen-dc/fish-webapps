@@ -8,6 +8,7 @@ import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
 import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
+import { CacheAPI } from "../../api-callers/cache";
 const urlLoadList = 'api/stock-receive-dockets';
 export class ManageImports extends React.Component<RouteComponentProps<{}>, any> {
 
@@ -22,8 +23,17 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
             isTableLoading: true,
             editModalShow: false,
             editModalTitle: '',
-            isHidden: true
+            isHidden: true,
+            warehouses: [],
+            suppliers: [],
+            stockReceiveDocketTypes: []
         };
+    }
+    async componentWillMount() {
+        var warehouses = await CacheAPI.Warehouse();
+        var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
+        this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data });
+        await this.handlePageChange(1);
     }
     async loadData(page: number) {
         try {
@@ -75,13 +85,11 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
             this.setState({ isTableLoading: false });
         }
     }
-    async componentWillMount() {
-        await this.handlePageChange(1);
-    }
+
     render() {
         let dataTable = this.renderTable(this.state.listStockReceive);
         let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
-
+        let advanceSeach = this.renderSeach();
         return (
             <div className="content-wapper">
                 <div className="row">
@@ -117,7 +125,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                     </div>
                 </div>
-                {!this.state.isHidden && <AdvanceSearch />}
+                {!this.state.isHidden && advanceSeach }
                 {
                     this.state.lastedSearchKey ?
                         <div className="row">
@@ -258,63 +266,65 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
             </div>
         );
     }
-}
 
-const AdvanceSearch = () => (
-    <Well className="row">
-        <div className="col-md-4">
-            <LabeledSingleDatePicker
-                name={'fromDate'}
-                title={'Từ ngày'}
-                date={Moment()} />
-            <LabeledSingleDatePicker
-                name={'toDate'}
-                title={'Đến ngày'}
-                date={Moment()} />
-        </div>
-        <div className="col-md-4">
-            <LabeledSelect
-                name={'warehouses'}
-                value={0}
-                title={'Kho nhập'}
-                placeHolder={'Kho nhập'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Kho 1' }, { id: 2, name: 'Kho 2' }]} />
-            <LabeledSelect
-                name={'suppliers'}
-                value={0}
-                title={'Nhà cung cấp'}
-                placeHolder={'Nhà cung cấp'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Nhà CC 1' }, { id: 2, name: 'Nhà CC 2' }]} />
-        </div>
-        <div className="col-md-4">
-            <LabeledSelect
-                name={'input'}
-                value={0}
-                title={'Loại phiếu nhập'}
-                placeHolder={'Loại phiếu nhậpp'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Loại phiếu nhập 1' }, { id: 2, name: 'Loại phiếu nhập 2' }]} />
-            <div className='form-group-custom mg-bt-15'>
-                <label className="control-label min-w-140 float-left"></label>
-                <div>
-                    <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
+    private renderSeach() {
+        return (
+            <Well className="row">
+                <div className="col-md-4">
+                    <LabeledSingleDatePicker
+                        name={'fromDate'}
+                        title={'Từ ngày'}
+                        date={Moment()} />
+                    <LabeledSingleDatePicker
+                        name={'toDate'}
+                        title={'Đến ngày'}
+                        date={Moment()} />
                 </div>
-            </div>
-        </div>
-        <div className="col-md-12">
-            <div className="col-md-12">
-                <div className="text-right">
-                    <button type="submit" className="btn btn-primary">Tìm kiếm</button>
+                <div className="col-md-4">
+                    <LabeledSelect
+                        name={'warehouses'}
+                        value={0}
+                        title={'Kho nhập'}
+                        placeHolder={'Kho nhập'}
+                        valueKey={'id'}
+                        nameKey={'name'}
+                        options={this.state.warehouses} />
+                    <LabeledSelect
+                        name={'suppliers'}
+                        value={0}
+                        title={'Nhà cung cấp'}
+                        placeHolder={'Nhà cung cấp'}
+                        valueKey={'id'}
+                        nameKey={'name'}
+                        options={[{ id: 1, name: 'Nhà CC 1' }, { id: 2, name: 'Nhà CC 2' }]} />
                 </div>
-            </div>
-        </div>
-    </Well>
-)
+                <div className="col-md-4">
+                    <LabeledSelect
+                        name={'input'}
+                        value={0}
+                        title={'Loại phiếu nhập'}
+                        placeHolder={'Loại phiếu nhập'}
+                        valueKey={'id'}
+                        nameKey={'name'}
+                        options={this.state.stockReceiveDocketTypes} />
+                    <div className='form-group-custom mg-bt-15'>
+                        <label className="control-label min-w-140 float-left"></label>
+                        <div>
+                            <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-md-12">
+                    <div className="col-md-12">
+                        <div className="text-right">
+                            <button type="submit" className="btn btn-primary">Tìm kiếm</button>
+                        </div>
+                    </div>
+                </div>
+            </Well>
+        )
+    }
+}
 
 interface ManageImportState {
     listStockReceive: StockReceiveDocketModel[],
@@ -324,5 +334,6 @@ interface ManageImportState {
     editStockReceiveId: number,
     isTableLoading: boolean,
     editModalShow: boolean,
-    editModalTitle: string
+    editModalTitle: string,
+
 }

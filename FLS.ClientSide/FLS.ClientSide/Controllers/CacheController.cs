@@ -80,5 +80,17 @@ namespace FLS.ClientSide.Controllers
             APIResponse<List<WarehouseTypeModel>> response = await GetAsync<List<WarehouseTypeModel>>(URI_API.CACHE_WAREHOUSE_TYPE);
             return Ok(response);
         }
+        [HttpGet("stock-receive-docket-types")] //loại phiếu nhập
+        public async Task<ActionResult> StockReceiveDocketTypeList()
+        {
+            APIResponse<List<StockReceiveDocketTypeModel>> response = await GetAsync<List<StockReceiveDocketTypeModel>>(URI_API.CACHE_STOCK_RECEIVE_DOCKET_TYPE);
+            return Ok(response);
+        }
+        [HttpGet("stock-issue-docket-types")] // loại phiếu xuất
+        public async Task<ActionResult> StockIssueDocketTypeList()
+        {
+            APIResponse<List<StockIssueDocketTypeModel>> response = await GetAsync<List<StockIssueDocketTypeModel>>(URI_API.CACHE_STOCK_ISSUE_DOCKET_TYPE);
+            return Ok(response);
+        }
     }
 }
