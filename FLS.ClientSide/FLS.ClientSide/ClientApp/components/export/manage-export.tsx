@@ -8,6 +8,8 @@ import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
 import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
+import { CacheAPI } from "../../api-callers/cache";
+import { ExportAPICaller } from "../../api-callers/export";
 const urlLoadList = 'api/stock-receive-dockets';
 
 export class ManageExports extends React.Component<RouteComponentProps<{}>, any> {
@@ -22,62 +24,80 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
             isTableLoading: true,
             editModalShow: false,
             editModalTitle: '',
-            isHidden: true
+            isHidden: true,
+            warehouses: []
         };
     }
-    async loadData(page: number) {
+   
+    async componentWillMount() {
+        await this.onPageChange(1, true);
+        var warehouses = await CacheAPI.Warehouse();
+        this.setState({ warehouses: warehouses.data });
+    }
+    async loadData(page: number, newSearch: boolean) {
+        let keySearch = this.state.lastedSearchKey;
+        if (newSearch)
+            keySearch = this.state.searchKey;
+
+        let request = await ExportAPICaller.GetList({
+            page: page,
+            pageSize: this.state.pagingModel.pageSize,
+            key: keySearch,
+            filters: []
+        });
+        if (request.ok)
+            return (await request.json());
+        else {
+            //// raise error
+            return null;
+        }
+    }
+    async onPageChange(page: any, newSearch: boolean) {
         try {
-            let request = await fetch(urlLoadList, {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    Page: page,
-                    PageSize: this.state.pagingModel.pageSize,
-                    Key: this.state.searchKey
-                })
-            });
-            return await request.json();
-        }
-        catch (err) {
-            console.log(`Error: ${err.stack}`);
+            this.setState({ isTableLoading: true });
+            var result = await this.loadData(page, newSearch);
+            if (!result || !result.data) { return; }
+            var paging = new PaginateModel();
+            paging.currentPage = result.data.currentPage;
+            paging.totalItems = result.data.totalItems;
+            this.setState({ listCustomer: result.data.items, pagingModel: paging });
+            if (newSearch)
+                this.setState({ lastedSearchKey: this.state.searchKey });
+        } finally {
+            this.setState({ isTableLoading: false });
         }
     }
-    async handleOpenEdit(id: number) {
-        if (id > 0)
-            this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa phiếu ' + id, editStockReceiveId: id });
-        else
-            this.setState({ editModalShow: true, editModalTitle: 'Tạo phiếu nhập', editStockReceiveId: id });
-    }
-    handleCloseEdit() {
-        this.setState({ editModalShow: false });
+    async onDelete(id: number) {
+        //// 
     }
     toggleHidden() {
         this.setState({
             isHidden: !this.state.isHidden
         })
     }
-    async handlePageChange(page: any) {
-        try {
-            this.setState({ isTableLoading: true });
-            var result = await this.loadData(page);
-            if (!result) {
-                ////
-                return;
-            }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listStockReceive: result.data.items, pagingModel: paging });
-        } finally {
-            this.setState({ isTableLoading: false });
+    onFormAfterSubmit(isSuccess, model) {
+        if (isSuccess)
+            this.onPageChange(this.state.pagingModel.currentPage, false)
+    }
+    onOpenEdit(model: any) {
+        if (model.id > 0) {
+            this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa thông tin khách hàng', selectedModel: model });
+        }
+        else
+            this.setState({ editModalShow: true, editModalTitle: 'Tạo thông tin khách hàng', selectedModel: null });
+    }
+    onCloseEdit() {
+        this.setState({ editModalShow: false });
+    }
+    onSearchKeyChange(e) {
+        this.setState({ searchKey: e.target.value });
+    }
+    onSearchKeyPress(e) {
+        if (e.charCode == 13) {
+            this.onPageChange(1, true);
         }
     }
-    async componentWillMount() {
-        await this.handlePageChange(1);
-    }
+
     render() {
         let dataTable = this.renderTable(this.state.listStockReceive);
         let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
@@ -103,9 +123,9 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                                     <li><a>Tất cả</a></li>
                                 </ul>
                             </div>
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
+                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
                             <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"></span></button>
+                                <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
                                 <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
                             </span>
                         </div>
@@ -157,81 +177,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr key={1}>
-                        <td>{1}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(1)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={2}>
-                        <td>{2}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(2)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={3}>
-                        <td>{3}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(3)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={4}>
-                        <td>{4}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(4)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={5}>
-                        <td>{5}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(5)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={6}>
-                        <td>{6}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(6)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={7}>
-                        <td>{7}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(7)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={8}>
-                        <td>{8}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(8)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    {/*
-                        models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
-                            models.map(
-                                model =>
-                                    <tr key={model.Id}>
-                                        <td>{model.Id}</td>
-                                        <td>{model.StockIssueDocketTypeId}</td>
-                                        <td>{model.WarehouseId}</td>
-                                        <td>{model.CustomerName}</td>
-                                        <td>{model.DocketNumber}</td>
-                                        <td>{model.TotalAmount}</td>
-                                        <td>{model.ExecutorCode}</td>
-                                        <td>{model.Description}</td>
-                                        <td>{model.StockReceiveDocketId}</td>
-                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.Id)}>Sửa</a></td>
-                                    </tr>
-                            )
-                    */}
+                   
                 </tbody>
             </table>
         );
@@ -247,7 +193,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                         itemsCountPerPage={this.state.pagingModel.pageSize}
                         totalItemsCount={this.state.pagingModel.totalItems}
                         pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
-                        onChange={this.handlePageChange.bind(this)}
+                        onChange={this.onPageChange.bind(this)}
                     />
                 </div>
                 <div className="col-xs-4">

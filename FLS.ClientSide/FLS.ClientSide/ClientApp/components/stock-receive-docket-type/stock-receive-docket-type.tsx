@@ -67,11 +67,8 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
         if (isSuccess)
             this.onPageChange(this.state.pagingModel.currentPage, false)
     }
-    onOpenEdit(id: number, name: string) {
-        if (id > 0) {
-            let model = new StockReceiveDocketTypeModel();
-            model.id = id;
-            model.name = name;
+    onOpenEdit(model: StockReceiveDocketTypeModel) {
+        if (model.id > 0) {
             this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa loại phiếu nhập', selectedModel: model });
         }
         else
@@ -172,9 +169,11 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
                                     <td>{m.name}</td>
+                                    <td>{m.approvalNeeded ? 'Có' : 'Không'}</td>
+                                    <td>{m.payslipNeeded ? 'Có': 'Không'}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
                                             <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>

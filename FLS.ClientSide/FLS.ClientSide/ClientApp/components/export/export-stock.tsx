@@ -1,6 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
+import { LabeledSelect } from "../shared/input/labeled-input";
 
 export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> {
     constructor(props: any) {
@@ -27,12 +28,14 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                                 <input type="text" className="form-control" name="name" value="" placeholder="Mã phiếu xuất" />
                             </div>
                         </div>
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Loại phiếu xuất:</label>
-                            <div>
-                                <input type="text" className="form-control" name="name" value="" placeholder="Loại phiếu xuất" />
-                            </div>
-                        </div>
+                        <LabeledSelect
+                            name={'input'}
+                            value={0}
+                            title={'Loại phiếu xuất'}
+                            placeHolder={'Loại phiếu xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={[{ id: 1, name: 'Loại phiếu xuất 1' }, { id: 2, name: 'Loại phiếu xuất 2' }]} />
                         <div className="form-group-custom mg-bt-15">
                             <label className="control-label  min-w-140 float-left" htmlFor="firstName">Kho xuất:</label>
                             <div>

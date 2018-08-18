@@ -111,7 +111,7 @@ export class ProductUnitEdit extends React.Component<IProductUnitProps, IProduct
                             name={'hasScale'}
                             value={this.state.model.hasScale}
                             text={'Có số lẻ'}
-                            error={this.state.errorList['name']}
+                            error={this.state.errorList['hasScale']}
                             valueChange={this.onFieldValueChange.bind(this)}/>
                     </form>
                 </Modal.Body>

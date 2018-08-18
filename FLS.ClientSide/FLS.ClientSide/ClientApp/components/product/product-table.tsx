@@ -1,6 +1,7 @@
 ﻿import * as React from "react";
 import { Button, Glyphicon, Modal } from "react-bootstrap";
 import { ProductModel } from "../../models/product";
+import { EmptyTableMessage } from "../shared/view-only";
 
 interface IProductTableProps {
     products: ProductModel[],
@@ -36,13 +37,13 @@ export class ProductTable extends React.PureComponent<IProductTableProps, IProdu
                     <th>Đơn giá</th>
                     <th>Tiền VAT</th>
                     <th>Tổng tiền</th>
-                    <th></th>
+                    <th className='th-sm-1'></th>
                 </tr>
             </thead>
             <tbody>
                 {
                     this.state.products.length == 0 ?
-                    <tr><td colSpan={11}>Không có dữ liệu!</td></tr> :
+                    <EmptyTableMessage />  :
                     this.state.products.map((product, index) => {
                         return (
                             <tr>
@@ -58,7 +59,7 @@ export class ProductTable extends React.PureComponent<IProductTableProps, IProdu
                                 <td>456576570</td>
                                 <td>
                                     <Button bsStyle="basic" className="btn-sm" onClick={() => this.onRemoveProduct(product)}>
-                                        <Glyphicon glyph="remove" /></Button>
+                                        <Glyphicon glyph="minus" /></Button>
                                 </td>
                             </tr>
                         )

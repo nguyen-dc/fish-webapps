@@ -7,12 +7,14 @@ import { PageFilterModel, PaginateModel } from "../../models/shared";
 import { ProductAPICaller } from "../../api-callers/product";
 import Pagination from "react-js-pagination";
 import { ProductTableChoose } from "./product-table-choose";
+import { EmptyTableMessage } from "../shared/view-only";
 
 interface IProductSearchProps {
     keepLastResult?: boolean,
     modalOption?: IModalModel,
     title?: string,
     onReturn: Function,
+    wrapperClass?: string,
 }
 interface IProductSearchState {
     keepLastResult: boolean,
@@ -36,7 +38,7 @@ const modalDefaultOption = {
     headerTitle: "Chọn sản phẩm",
     finishButtonTitle: "Xong",
 } as IModalModel;
-export class ProductSearch extends React.PureComponent<IProductSearchProps, IProductSearchState>{
+export class ProductSearch extends React.Component<IProductSearchProps, IProductSearchState>{
     constructor(props: any) {
         super(props);
         let option = modalDefaultOption;
@@ -58,8 +60,8 @@ export class ProductSearch extends React.PureComponent<IProductSearchProps, IPro
 
     onOpenModal() {
         this.state.keepLastResult ?
-            this.setState({ modalShow: true })
-        :   this.setState({ modalShow: true, products: [] });
+            this.setState({ modalShow: true, products: [] })
+            : this.setState({ modalShow: true, products: [], choseProducts: []  });
     }
     onCloseModal() {
         this.setState({ modalShow: false });
@@ -109,57 +111,92 @@ export class ProductSearch extends React.PureComponent<IProductSearchProps, IPro
         let choseProducts = this.state.choseProducts;
         if (!choseProducts.find(p => p.id == item.id)) {
             item.checked = true;
-            choseProducts.push(item);
+            let selectedItem = new Object as ProductModel;
+            selectedItem = Object.assign(selectedItem, item);
+            choseProducts.push(selectedItem);
         }
-        this.setState({ products: choseProducts })
+        this.setState({ choseProducts: choseProducts });
+        this.forceUpdate();
     }
     onRemoveProduct(item: ProductModel) {
-        let products = this.state.products;
-        var index = products.indexOf(item);
-        products.splice(index, 1);
-        this.setState({ products: products })
+        let choseProducts = this.state.choseProducts;
+        var index = choseProducts.indexOf(item);
+        choseProducts.splice(index, 1);
+        let products = this.state.products; 
+        let product = products.find(p => p.id == item.id);
+        product.checked = false;
+        this.setState({ products: products, choseProducts: choseProducts })
     }
     onReturn() {
         this.props.onReturn(this.state.choseProducts);
         this.onCloseModal();
     }
     render() {
-        return <div className="form-group">
+        let choseProducts = this.state.choseProducts;
+        let products = this.state.products;
+        let wrapperClass = this.props.wrapperClass ? { className: this.props.wrapperClass } : null;
+        return <div {...wrapperClass}>
             <Button bsStyle="link" onClick={this.onOpenModal.bind(this)}><Glyphicon glyph="plus" /> {this.state.title}</Button>
-            {this.renderSearchModal()}
+            <Modal show={this.state.modalShow} onHide={this.onCloseModal.bind(this)}
+                aria-labelledby="contained-modal-title-lg" className="modal-full-width">
+                <Modal.Header closeButton>
+                    <Modal.Title id="contained-modal-title-lg">{this.state.title}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className='row'>
+                        <div className='col-sm-6'>
+                            <div className="mg-bt-15">
+                                <div className="input-group col-sm-12">
+                                    <input type="text" className="form-control" name="search" placeholder="Tìm sản phẩm" value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                    <span className="input-group-btn">
+                                        <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
+                                    </span>
+                                </div>
+                            </div>
+                            <ProductTableChoose name={'products'} products={products} onChooseProduct={this.onChooseProduct.bind(this)} />
+                            {this.state.isTableLoading && <div className="icon-loading"></div>}
+                            <div className="row">
+                                {
+                                    this.state.products.length > 0 ? this.renderPaging : null
+                                }
+                            </div>
+                        </div>
+                        <div className='col-sm-6'>
+                            <span className='col-sm-12'>Sản phẩm đã chọn</span>
+                            <table className="table table-bordered table-hover">
+                                <tbody>
+                                    {
+                                        choseProducts.length == 0 ?
+                                            <EmptyTableMessage /> :
+                                            choseProducts.map((product, index) => {
+                                                return (
+                                                    <tr key={'choose-' + product.id}>
+                                                        <td>{product.id}</td>
+                                                        <td>{product.name}</td>
+                                                        <td></td>
+                                                        <td className='td-xs-1'>
+                                                            <Button bsStyle="primary" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
+                                                                <Glyphicon glyph="minus" />
+                                                            </Button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button bsStyle='primary' onClick={this.onReturn.bind(this)}>{this.state.modalOption.finishButtonTitle}</Button>
+                    <Button onClick={this.onCloseModal.bind(this)}>{this.state.modalOption.closeButtonTitle}</Button>
+                </Modal.Footer>
+            </Modal>
         </div>
     }
     renderSearchModal() {
-        return <Modal show={this.state.modalShow} onHide={this.onCloseModal.bind(this)}
-            aria-labelledby="contained-modal-title-lg" className="modal-full-width">
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-lg">{this.state.title}</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <div className="input-group">
-                    <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                    <span className="input-group-btn">
-                        <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
-                    </span>
-                </div>
-                <div className="table-responsive p-relative">
-                    <div className="table-responsive p-relative">
-                        <ProductTableChoose products={this.state.products} onChooseProduct={this.onChooseProduct.bind(this)} />
-                        {this.state.isTableLoading && <div className="icon-loading"></div>}
-                    </div>
-                    <div className="row">
-                        {
-                            this.state.products.length > 0 ? this.renderPaging : null
-                        }
-                    </div>
-                    
-                </div>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button bsStyle='primary' onClick={this.onReturn.bind(this)}>{this.state.modalOption.finishButtonTitle}</Button>
-                <Button onClick={this.onCloseModal.bind(this)}>{this.state.modalOption.closeButtonTitle}</Button>
-            </Modal.Footer>
-        </Modal>
+        return 
     }
     private renderPaging() {
         return (
