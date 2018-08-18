@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { ProductForm } from "./product-form";
+import { ProductEdit } from "./product-edit";
 import { Button } from "react-bootstrap";
 import { Content } from "react-bootstrap/lib/Tab";
 import * as ReactDOM from "react-dom";
@@ -339,7 +339,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                         </div>
                     </div>
                 </div>
-                <ProductForm
+                <ProductEdit
                     isShow={this.state.modalShow}
                     handleClose={this.handleClose.bind(this)}
                     handleFormSubmit={this.handleFormSubmit.bind(this)}

@@ -337,3 +337,11 @@ body{
     }
 }
 /* ******* */
+
+/* SUB NAVBAR */
+.modal-full-width .modal-dialog {
+    width: auto !important;
+    margin: 12px !important;
+}
+/* ******* */
+

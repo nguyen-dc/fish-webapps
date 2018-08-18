@@ -18,4 +18,5 @@ export class ProductModel implements IProduct {
     defaultUnitId = 0;
     taxPercentId = 0;
     description: string = '';
+    checked: boolean;
 }

@@ -3,12 +3,33 @@ import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
+import { ProductSearch } from "../product/product-search";
+import { ProductModel } from "../../models/product";
+import { Button, Glyphicon } from "react-bootstrap";
+import { ArrayHandle } from "../../handles/array-handle";
+import { ProductTable } from "../product/product-table";
 
-export class ImportStocks extends React.Component<RouteComponentProps<{}>, any> {
+interface IImportStockState {
+    products: ProductModel[],
+}
+export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImportStockState> {
     constructor(props: any) {
         super(props)
+        this.state = {
+            products: [],
+        }
     }
-
+    private onSelectedProducts(products: ProductModel[]) {
+        let stateProducts = this.state.products;
+        let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
+        this.setState({ products: newList });
+    }
+    private onRemoveProduct(item: ProductModel) {
+        let products = this.state.products;
+        var index = products.indexOf(item);
+        products.splice(index, 1);
+        this.setState({ products: products })
+    }
     render() {
         return (
             <div className="content-wapper">
@@ -81,107 +102,14 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, any> 
                             </div>
                         </div>
                         <div className="row">
-                            <div className="col-md-4">
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label min-w-140 float-left" htmlFor="firstName">Chọn sản phẩm:</label>
-                                    <div className="">
-                                        <select className="form-control" id="sel1">
-                                            <option>Sản phẩm 1</option>
-                                            <option>Sản phẩm 2</option>
-                                            <option>Sản phẩm 3</option>
-                                            <option>Sản phẩm 4</option>
-                                        </select>
-                                    </div>
+                            <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
+                        </div>
+                        {
+                            !this.state.products || this.state.products.length == 0 ? null :
+                                <div className="table-responsive p-relative">
+                                    <ProductTable products={this.state.products} onRemoveProduct={this.onRemoveProduct.bind(this)} />
                                 </div>
-                            </div>
-
-                        </div>
-                        <div className="table-responsive p-relative">
-                            <table className="table table-bordered table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Nhà cung cấp</th>
-                                        <th>Mã giống</th>
-                                        <th>Tên giống</th>
-                                        <th>Cỡ giống</th>
-                                        <th>Trọng lượng</th>
-                                        <th>Số lượng(con)</th>
-                                        <th>VAT</th>
-                                        <th>Đơn giá</th>
-                                        <th>Tiền VAT</th>
-                                        <th>Tổng tiền</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Công ty thức ăn thủy sản</td>
-                                        <td>1000</td>
-                                        <td>Cá giống 1</td>
-                                        <td>24</td>
-                                        <td>11.5</td>
-                                        <td>4545465</td>
-                                        <td>0</td>
-                                        <td>27.000</td>
-                                        <td>0</td>
-                                        <td>456576570</td>
-                                        <td><a className="cursor-pointer">Xóa</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Công ty thức ăn thủy sản</td>
-                                        <td>1000</td>
-                                        <td>Cá giống 1</td>
-                                        <td>24</td>
-                                        <td>11.5</td>
-                                        <td>4545465</td>
-                                        <td>0</td>
-                                        <td>27.000</td>
-                                        <td>0</td>
-                                        <td>456576570</td>
-                                        <td><a className="cursor-pointer">Xóa</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Công ty thức ăn thủy sản</td>
-                                        <td>1000</td>
-                                        <td>Cá giống 1</td>
-                                        <td>24</td>
-                                        <td>11.5</td>
-                                        <td>4545465</td>
-                                        <td>0</td>
-                                        <td>27.000</td>
-                                        <td>0</td>
-                                        <td>456576570</td>
-                                        <td><a className="cursor-pointer">Xóa</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Công ty thức ăn thủy sản</td>
-                                        <td>1000</td>
-                                        <td>Cá giống 1</td>
-                                        <td>24</td>
-                                        <td>11.5</td>
-                                        <td>4545465</td>
-                                        <td>0</td>
-                                        <td>27.000</td>
-                                        <td>0</td>
-                                        <td>456576570</td>
-                                        <td><a className="cursor-pointer">Xóa</a></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Công ty thức ăn thủy sản</td>
-                                        <td>1000</td>
-                                        <td>Cá giống 1</td>
-                                        <td>24</td>
-                                        <td>11.5</td>
-                                        <td>4545465</td>
-                                        <td>0</td>
-                                        <td>27.000</td>
-                                        <td>0</td>
-                                        <td>456576570</td>
-                                        <td><a className="cursor-pointer">Xóa</a></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                        }
                     </div>
                     <div id="menu1" className="tab-pane fade">
                         <div className="row">
