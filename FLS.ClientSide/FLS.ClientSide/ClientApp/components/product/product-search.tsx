@@ -163,7 +163,7 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
                         </div>
                         <div className='col-sm-6'>
                             <span className='col-sm-12'>Sản phẩm đã chọn</span>
-                            <table className="table table-bordered table-hover">
+                            <table className="table table-striped table-hover">
                                 <tbody>
                                     {
                                         choseProducts.length == 0 ?
@@ -175,7 +175,7 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
                                                         <td>{product.name}</td>
                                                         <td></td>
                                                         <td className='td-xs-1'>
-                                                            <Button bsStyle="primary" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
+                                                            <Button bsStyle="default" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
                                                                 <Glyphicon glyph="minus" />
                                                             </Button>
                                                         </td>

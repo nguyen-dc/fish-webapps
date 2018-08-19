@@ -10,7 +10,7 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 interface IFarmingSeasonProps {
     isShow: boolean,

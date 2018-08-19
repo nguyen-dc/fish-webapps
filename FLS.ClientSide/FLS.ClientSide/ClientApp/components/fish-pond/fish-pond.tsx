@@ -10,7 +10,7 @@ import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
 import { FarmRegionModel } from "../../models/farm-region";
 import { FarmRegions } from "../farm-region/farm-region";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle, ObjectHandle } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 
 interface FishPondState {
@@ -72,13 +72,13 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             this.setState({ isTableLoading: true });
             var result = await this.loadData(page, newSearch);
             if (!result || !result.data) {
-                this.setState({ searchModel: this.state.lastSearchModel });
+                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
                 return;
             }
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: this.state.searchModel });
+            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -128,65 +128,62 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
         let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-md-12">
-                        <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Ao nuôi</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className="col-sm-8 mg-bt-15">
-                        <div className="input-group">
-                            <div className="input-group-btn search-panel">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span id="search_concept">{this.state.selectedFilter.name}</span> <span className="caret"></span>
-                                </button>
-                                <ul className="dropdown-menu" role="menu">
-                                    <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, { id: 0, name: filterTitle0 })}>{filterTitle0}</a></li>
-                                    {this.state.farmRegions.map(opt => {
-                                        return (
-                                            <li className="cursor-pointer" key={opt.id}>
-                                                <a onClick={this.handleFilter.bind(this, opt)}>{opt.name}</a>
-                                            </li>
-                                        );
-                                    })}
-                                </ul>
-                            </div>
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="col-sm-4 mg-bt-15">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <Button
-                                bsStyle="primary"
-                                onClick={this.onOpenEdit.bind(this)}
-                            >Thêm</Button>
-                        </div>
-                    </div>
-                </div>
-                {
-                    this.state.lastSearchModel.key == undefined ? null :
-                        <div className="row">
-                            <div className="col-md-12">
-                                <div className="alert alert-success text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                    <li className="breadcrumb-item active" aria-current="page">Ao nuôi</li>
+                </ol>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="col-sm-8 mg-bt-15">
+                            <div className="input-group">
+                                <div className="input-group-btn search-panel">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span id="search_concept">{this.state.selectedFilter.name}</span> <span className="caret"></span>
+                                    </button>
+                                    <ul className="dropdown-menu" role="menu">
+                                        <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, { id: 0, name: filterTitle0 })}>{filterTitle0}</a></li>
+                                        {this.state.farmRegions.map(opt => {
+                                            return (
+                                                <li className="cursor-pointer" key={opt.id}>
+                                                    <a onClick={this.handleFilter.bind(this, opt)}>{opt.name}</a>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
                                 </div>
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
+                                </span>
                             </div>
                         </div>
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isTableLoading && <div className="icon-loading"></div>}
+                        <div className="col-sm-4 mg-bt-15">
+                            <div className="text-right">
+                                <button className="btn btn-default mg-r-15">Import</button>
+                                <Button
+                                    bsStyle="primary"
+                                    onClick={this.onOpenEdit.bind(this)}
+                                >Thêm</Button>
+                            </div>
+                        </div>
+                        {
+                            this.state.lastSearchModel == undefined ? null :
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                    </div>
+                                </div>
+                        }
+                        <div className="col-sm-12">
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading && <div className="icon-loading"></div>}
+                            </div>
+                        </div>
+                        {renderPaging}
+                    </div>
                 </div>
-                <div className="row">
-                    {renderPaging}
-                </div>
+
                 <FishPondEdit
                     isShow={this.state.editModalShow}
                     onCloseModal={this.onCloseEdit.bind(this)}
@@ -202,7 +199,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
 
     private renderTable(models: FishPondModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã ao</th>
@@ -215,7 +212,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                         <th>d</th>
                         <th>Diện tích mặt nước</th>
                         <th>Độ sâu</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -239,7 +236,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                     <Glyphicon glyph="edit" /></Button>
-                                                <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                                <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                     <Glyphicon glyph="remove" /></Button>
                                             </ButtonGroup>
                                         </td>

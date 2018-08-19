@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
     constructor(props: IWarehouseProps){

@@ -25,7 +25,7 @@ export class ProductTableChoose extends React.PureComponent<IProductTableChooseP
         this.props.onChooseProduct(item);
     }
     render() {
-        return <table className="table table-bordered table-hover">
+        return <table className="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Mã giống</th>

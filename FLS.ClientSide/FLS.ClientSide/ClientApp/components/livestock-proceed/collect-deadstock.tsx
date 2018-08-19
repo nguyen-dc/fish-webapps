@@ -45,9 +45,9 @@ export class CollectDeadstocks extends React.Component<RouteComponentProps<{}>, 
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
+                <div className="col-sm-12">
                     <div className="table-responsive p-relative">
-                        <table className="table table-bordered table-hover">
+                        <table className="table table-striped table-hover">
                             <thead>
                                 <tr>
                                     <th>Mã sản phẩm</th>
@@ -94,7 +94,7 @@ export class CollectDeadstocks extends React.Component<RouteComponentProps<{}>, 
                         </table>
                     </div>
                 </div>
-                <div className="col-md-12">
+                <div className="col-sm-12">
                     <div className="text-right">
                         <button className="btn btn-default mg-r-15">Hủy</button>
                         <button className="btn btn-primary">Cập nhật</button>

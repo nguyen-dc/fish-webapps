@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox, RadioGroups } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 
 const options = [

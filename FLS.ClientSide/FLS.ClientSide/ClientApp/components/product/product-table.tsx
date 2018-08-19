@@ -24,7 +24,7 @@ export class ProductTable extends React.PureComponent<IProductTableProps, IProdu
         this.props.onRemoveProduct(item);
     }
     render() {
-        return <table className="table table-bordered table-hover">
+        return <table className="table table-striped table-hover">
             <thead>
                 <tr>
                     <th>Nhà cung cấp</th>
@@ -58,7 +58,7 @@ export class ProductTable extends React.PureComponent<IProductTableProps, IProdu
                                 <td>0</td>
                                 <td>456576570</td>
                                 <td>
-                                    <Button bsStyle="basic" className="btn-sm" onClick={() => this.onRemoveProduct(product)}>
+                                    <Button bsStyle="default" className="btn-sm" onClick={() => this.onRemoveProduct(product)}>
                                         <Glyphicon glyph="minus" /></Button>
                                 </td>
                             </tr>

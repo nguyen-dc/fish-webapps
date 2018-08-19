@@ -8,7 +8,8 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { CustomerEdit } from "./customer-edit";
 import { CustomerAPICaller } from "../../api-callers/customer";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
+import { EmptyTableMessage } from "../shared/view-only";
 
 export class Customers extends React.Component<RouteComponentProps<{}>, CustomerState> {
     constructor(props: any) {
@@ -92,49 +93,45 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
         let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-md-12">
-                        <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Thông tin khách hàng</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className="col-sm-8 mg-bt-15">
-                        <div className="input-group">
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="col-sm-4 mg-bt-15">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <Button
-                                bsStyle="primary"
-                                onClick={this.onOpenEdit.bind(this)}
-                            >Thêm</Button>
-                        </div>
-                    </div>
-                </div>
-                {
-                    this.state.lastedSearchKey == undefined ? null :
-                        <div className="row">
-                            <div className="col-md-12">
-                                <div className="alert alert-success text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
-                                </div>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                    <li className="breadcrumb-item active" aria-current="page">Thông tin khách hàng</li>
+                </ol>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="col-sm-8 mg-bt-15">
+                            <div className="input-group">
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
+                                </span>
                             </div>
                         </div>
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
-                </div>
-                <div className="row">
-                    {renderPaging}
+                        <div className="col-sm-4 mg-bt-15">
+                            <div className="text-right">
+                                <button className="btn btn-default mg-r-15">Import</button>
+                                <Button
+                                    bsStyle="primary"
+                                    onClick={this.onOpenEdit.bind(this)}
+                                >Thêm</Button>
+                            </div>
+                        </div>
+                        {
+                            this.state.lastedSearchKey == undefined ? null :
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
+                                    </div>
+                                </div>
+                        }
+                        <div className="col-sm-12">
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                            </div>
+                        </div>
+                        {renderPaging}
+                    </div>
                 </div>
                 <CustomerEdit
                     isShow={this.state.editModalShow}
@@ -151,20 +148,20 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
     private renderTable(models: CustomerModel[]) {
         
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>STT</th>
                         <th>Họ tên</th>
                         <th>Email</th>
                         <th>Số điện thoại</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
+                            <EmptyTableMessage/> :
                             models.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
@@ -175,7 +172,7 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>
                                         </ButtonGroup>
                                     </td>

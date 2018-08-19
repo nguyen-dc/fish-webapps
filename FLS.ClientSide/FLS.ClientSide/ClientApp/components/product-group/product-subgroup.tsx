@@ -279,8 +279,8 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                 {
                     this.state.search && this.state.isShowAlertSeach ?
                     <div className="row">
-                        <div className="col-md-12">
-                                <div className="alert alert-success text-center">
+                        <div className="col-sm-12">
+                                <div className="alert alert-info text-center">
                                     Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.search}</strong>
                             </div>
                         </div>
@@ -310,7 +310,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
 
     private renderTable(groups: ProductSubGroupModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã</th>

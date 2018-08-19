@@ -104,7 +104,7 @@ export class StockReceiveDocketEdit extends React.Component<RouteComponentProps<
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-12">
+                        <div className="col-sm-12">
                             <div className="table-responsive p-relative">
                                 <table className="table table-bordered table-hover">
                                     <thead>
@@ -229,7 +229,7 @@ export class StockReceiveDocketEdit extends React.Component<RouteComponentProps<
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-md-12">
+                            <div className="col-sm-12">
                                 <div className="table-responsive p-relative">
                                     <table className="table table-bordered table-hover">
                                         <thead>

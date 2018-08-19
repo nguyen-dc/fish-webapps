@@ -8,7 +8,7 @@ export class SearchResultGridView extends React.Component<SearchResultGridViewPr
 
     render() {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã</th>
@@ -65,7 +65,7 @@ export class SearchResultGridView extends React.Component<SearchResultGridViewPr
                         </tr>
                     {/*
                         models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
+                            <EmptyTableMessage/> :
                             models.map(
                                 model =>
                                     <tr key={model.Id}>

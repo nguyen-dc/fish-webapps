@@ -309,8 +309,8 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                 </div>
                 {this.state.search && !this.state.isLoadingTable ?
                     <div className="row">
-                        <div className="col-md-12">
-                            <div className="alert alert-success text-center">
+                        <div className="col-sm-12">
+                            <div className="alert alert-info text-center">
                                 Kết quả tìm kiếm cho <strong>{this.state.search}</strong>
                             </div>
                         </div>
@@ -359,7 +359,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
 
     private renderTable(products: ProductModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã</th>
@@ -368,7 +368,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                         <th>Ngành hàng</th>
                         <th>Đơn vị tính</th>
                         <th>Thuế</th>
-                        <th></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
