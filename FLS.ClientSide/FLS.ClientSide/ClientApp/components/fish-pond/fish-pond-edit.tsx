@@ -10,7 +10,7 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 interface IFishPondProps {
     isShow: boolean,

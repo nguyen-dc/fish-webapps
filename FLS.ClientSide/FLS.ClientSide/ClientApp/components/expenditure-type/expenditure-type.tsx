@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ExpenditureTypeEdit } from "./expenditure-type-edit";
 import { ExpenditureTypeAPICaller } from "../../api-callers/expenditure-type";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 export class ExpenditureTypes extends React.Component<RouteComponentProps<{}>, ExpenditureTypeState> {
     constructor(props: any) {
@@ -92,49 +92,45 @@ export class ExpenditureTypes extends React.Component<RouteComponentProps<{}>, E
         let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-md-12">
-                        <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Loại thu chi</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className="col-sm-8 mg-bt-15">
-                        <div className="input-group">
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="col-sm-4 mg-bt-15">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <Button
-                                bsStyle="primary"
-                                onClick={this.onOpenEdit.bind(this)}
-                            >Thêm</Button>
-                        </div>
-                    </div>
-                </div>
-                {
-                    this.state.lastedSearchKey == undefined ? null :
-                        <div className="row">
-                            <div className="col-md-12">
-                                <div className="alert alert-success text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
-                                </div>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                    <li className="breadcrumb-item active" aria-current="page">Loại thu chi</li>
+                </ol>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="col-sm-8 mg-bt-15">
+                            <div className="input-group">
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
+                                </span>
                             </div>
                         </div>
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
-                </div>
-                <div className="row">
-                    {renderPaging}
+                        <div className="col-sm-4 mg-bt-15">
+                            <div className="text-right">
+                                <button className="btn btn-default mg-r-15">Import</button>
+                                <Button
+                                    bsStyle="primary"
+                                    onClick={this.onOpenEdit.bind(this)}
+                                >Thêm</Button>
+                            </div>
+                        </div>
+                        {
+                            this.state.lastedSearchKey == undefined ? null :
+                                <div className="col-md-12">
+                                    <div className="alert alert-success text-center">
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
+                                    </div>
+                                </div>
+                        }
+                        <div className="col-md-12">
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                            </div>
+                        </div>
+                        {renderPaging}
+                    </div>
                 </div>
                 <ExpenditureTypeEdit
                     isShow={this.state.editModalShow}

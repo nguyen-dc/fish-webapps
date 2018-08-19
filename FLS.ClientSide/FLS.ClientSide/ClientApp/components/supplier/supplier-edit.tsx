@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { SupplierAPICaller } from "../../api-callers/supplier";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState> {
     constructor(props: ISupplierProps){

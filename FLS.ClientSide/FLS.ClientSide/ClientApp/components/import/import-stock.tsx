@@ -6,7 +6,7 @@ import * as Moment from 'moment';
 import { ProductSearch } from "../product/product-search";
 import { ProductModel } from "../../models/product";
 import { Button, Glyphicon } from "react-bootstrap";
-import { ArrayHandle } from "../../handles/array-handle";
+import { ArrayHandle } from "../../handles/handles";
 import { ProductTable } from "../product/product-table";
 import { CacheAPI } from "../../api-callers/cache";
 import { LabeledSelect, LabeledInput, LabeledCheckBox } from "../shared/input/labeled-input";
@@ -185,7 +185,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                                     <thead>
                                         <tr>
                                             <th>Nội dung chi phí</th>
-                                            <th>Số tiền</th>
+                                            <th>Số tiền (đã gồm VAT)</th>
                                             <th>Ghi chú</th>
                                             <th></th>
                                         </tr>

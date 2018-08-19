@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { CustomerAPICaller } from "../../api-callers/customer";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState> {
     constructor(props: ICustomerProps){

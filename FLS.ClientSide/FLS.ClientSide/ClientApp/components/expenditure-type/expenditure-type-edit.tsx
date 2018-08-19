@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ExpenditureTypeAPICaller } from "../../api-callers/expenditure-type";
-import { StringHandle } from "../../handles/string-handle";
+import { StringHandle } from "../../handles/handles";
 
 export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, IExpenditureTypeState> {
     constructor(props: IExpenditureTypeProps){
