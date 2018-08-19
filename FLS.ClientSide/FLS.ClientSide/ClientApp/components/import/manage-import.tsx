@@ -9,6 +9,7 @@ import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
+import { EmptyTableMessage } from "../shared/view-only";
 const urlLoadList = 'api/stock-receive-dockets';
 export class ManageImports extends React.Component<RouteComponentProps<{}>, any> {
 
@@ -92,56 +93,52 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
         let advanceSeach = this.renderSeach();
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-md-12">
-                        <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Quản lý nhập</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className="col-xs-8 mg-bt-15">
-                        <div className="input-group">
-                            <div className="input-group-btn search-panel">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span id="search_concept">Tất cả</span> <span className="caret"></span>
-                                </button>
-                                <ul className="dropdown-menu" role="menu">
-                                    <li><a>Tất cả</a></li>
-                                </ul>
-                            </div>
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"></span></button>
-                                <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="col-xs-4">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <NavLink className="btn btn-primary" to="/nhapmuahang" >Thêm</NavLink>
-                        </div>
-                    </div>
-                </div>
-                {!this.state.isHidden && advanceSeach }
-                {
-                    this.state.lastedSearchKey ?
-                        <div className="row">
-                            <div className="col-md-12">
-                                <div className="alert alert-success text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                    <li className="breadcrumb-item active" aria-current="page">Quản lý nhập</li>
+                </ol>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="col-sm-8 mg-bt-15">
+                            <div className="input-group">
+                                <div className="input-group-btn search-panel">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span id="search_concept">Tất cả</span> <span className="caret"></span>
+                                    </button>
+                                    <ul className="dropdown-menu" role="menu">
+                                        <li><a>Tất cả</a></li>
+                                    </ul>
                                 </div>
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-default" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"></span></button>
+                                    <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
+                                </span>
                             </div>
-                        </div> : null
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
-                </div>
-                <div className="row">
-                    {renderPaging}
+                        </div>
+                        <div className="col-sm-4 mg-bt-15">
+                            <div className="text-right">
+                                <button className="btn btn-default mg-r-15">Import</button>
+                                <NavLink className="btn btn-primary" to="/nhapmuahang" >Thêm</NavLink>
+                            </div>
+                        </div>
+                        {!this.state.isHidden && advanceSeach}
+                        {
+                            this.state.lastedSearchKey ?
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
+                                    </div>
+                                </div> : null
+                        }
+                        <div className="col-sm-12">
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                            </div>
+                        </div>
+                        {renderPaging}
+                    </div>
                 </div>
             </div>
         );
@@ -149,7 +146,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
 
     private renderTable(models: StockReceiveDocketModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã</th>
@@ -165,65 +162,9 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr key={1}>
-                        <td>{1}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(1)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={2}>
-                        <td>{2}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(2)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={3}>
-                        <td>{3}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(3)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={4}>
-                        <td>{4}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(4)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={5}>
-                        <td>{5}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(5)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={6}>
-                        <td>{6}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(6)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={7}>
-                        <td>{7}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(7)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    <tr key={8}>
-                        <td>{8}</td><td>{'HS21223'}</td><td>{'Nhập cá'}</td><td>{'Kho số 7'}</td>
-                        <td>{'Anh Tâm'}</td><td>{'21,000,000'}</td>
-                        <td>{'Lê Hùng'}</td><td>{'Nhập thẳng ao 1'}</td><td>{''}</td>
-                        <td><ButtonGroup><Button onClick={() => this.handleOpenEdit(8)}>
-                            <Glyphicon glyph="edit" /></Button></ButtonGroup>
-                        </td></tr>
-                    {/*
+                    {
                         models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
+                            <EmptyTableMessage/> :
                             models.map(
                                 model =>
                                     <tr key={model.Id}>
@@ -239,7 +180,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                         <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.Id)}>Sửa</a></td>
                                     </tr>
                             )
-                    */}
+                    }
                 </tbody>
             </table>
         );
@@ -248,7 +189,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
     private renderPaging() {
         return (
             <div>
-                <div className="col-xs-8">
+                <div className="col-sm-8">
                     <Pagination
                         innerClass={'pagination mg-0'}
                         activePage={this.state.pagingModel.currentPage}
@@ -269,8 +210,8 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
 
     private renderSeach() {
         return (
-            <Well className="row">
-                <div className="col-md-4">
+            <div className="col-sm-12">
+                <div className="col-sm-4">
                     <LabeledSingleDatePicker
                         name={'fromDate'}
                         title={'Từ ngày'}
@@ -280,7 +221,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         title={'Đến ngày'}
                         date={Moment()} />
                 </div>
-                <div className="col-md-4">
+                <div className="col-sm-4">
                     <LabeledSelect
                         name={'warehouses'}
                         value={0}
@@ -298,7 +239,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         nameKey={'name'}
                         options={[{ id: 1, name: 'Nhà CC 1' }, { id: 2, name: 'Nhà CC 2' }]} />
                 </div>
-                <div className="col-md-4">
+                <div className="col-sm-4">
                     <LabeledSelect
                         name={'input'}
                         value={0}
@@ -314,14 +255,14 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                     </div>
                 </div>
-                <div className="col-md-12">
-                    <div className="col-md-12">
+                <div className="col-sm-12">
+                    <div className="col-sm-12">
                         <div className="text-right">
                             <button type="submit" className="btn btn-primary">Tìm kiếm</button>
                         </div>
                     </div>
                 </div>
-            </Well>
+            </div>
         )
     }
 }

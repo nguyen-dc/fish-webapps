@@ -9,6 +9,7 @@ import { WarehouseTypeEdit } from "./warehouse-type-edit";
 import { WarehouseTypeAPICaller } from "../../api-callers/warehouse-type";
 import { Last } from "react-bootstrap/lib/Pagination";
 import { StringHandle } from "../../handles/handles";
+import { EmptyTableMessage } from "../shared/view-only";
 
 export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, WarehouseTypeState> {
     constructor(props: any) {
@@ -120,13 +121,13 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
                         </div>
                         {
                             this.state.lastedSearchKey == undefined ? null :
-                                <div className="col-md-12">
-                                    <div className="alert alert-success text-center">
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
                                         Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
                                     </div>
                                 </div>
                         }
-                        <div className="col-md-12">
+                        <div className="col-sm-12">
                             <div className="table-responsive p-relative">
                                 {dataTable}
                                 {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
@@ -150,18 +151,18 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
     private renderTable(models: WarehouseTypeModel[]) {
         
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã loại</th>
                         <th>Tên loại</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
+                            <EmptyTableMessage/> :
                             models.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
@@ -170,7 +171,7 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>
                                         </ButtonGroup>
                                     </td>

@@ -105,7 +105,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
         return (
             <div className="content-wapper">
                 <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-sm-12">
                         <nav aria-label="breadcrumb">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
@@ -141,8 +141,8 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                 {
                     this.state.lastedSearchKey ?
                         <div className="row">
-                            <div className="col-md-12">
-                                <div className="alert alert-success text-center">
+                            <div className="col-sm-12">
+                                <div className="alert alert-info text-center">
                                     Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
                                 </div>
                             </div>
@@ -161,7 +161,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
 
     private renderTable(models: StockReceiveDocketModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã</th>
@@ -251,8 +251,8 @@ const AdvanceSearch = () => (
                 </div>
             </div>
         </div>
-        <div className="col-md-12">
-            <div className="col-md-12">
+        <div className="col-sm-12">
+            <div className="col-sm-12">
                 <div className="text-right">
                     <button type="submit" className="btn btn-primary">Tìm kiếm</button>
                 </div>

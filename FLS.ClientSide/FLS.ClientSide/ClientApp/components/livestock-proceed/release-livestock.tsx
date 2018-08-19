@@ -86,7 +86,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                             </div>
                         </div>
                         <div className="table-responsive p-relative">
-                            <table className="table table-bordered table-hover">
+                            <table className="table table-striped table-hover">
                                 <thead>
                                     <tr>
                                         <th>Nhà cung cấp</th>
@@ -207,7 +207,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-md-12">
+                            <div className="col-sm-12">
                                 <div className="form-group-custom mg-bt-15">
                                     <label className="control-label min-w-140 float-left" htmlFor="firstName"></label>
                                     <div>
@@ -215,9 +215,9 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                     </div>
                                 </div>
                             </div>
-                            <div className="col-md-12">
+                            <div className="col-sm-12">
                                 <div className="table-responsive p-relative">
-                                    <table className="table table-bordered table-hover">
+                                    <table className="table table-striped table-hover">
                                         <thead>
                                             <tr>
                                                 <th>Nội dung chi phí</th>

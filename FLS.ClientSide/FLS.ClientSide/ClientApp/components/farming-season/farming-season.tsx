@@ -175,13 +175,13 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                         </div>
                         {
                             this.state.lastSearchModel == undefined ? null :
-                                <div className="col-md-12">
-                                    <div className="alert alert-success text-center">
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
                                         Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
                                     </div>
                                 </div>
                         }
-                        <div className="col-md-12">
+                        <div className="col-sm-12">
                             <div className="table-responsive p-relative">
                                 {dataTable}
                                 {this.state.isTableLoading && <div className="icon-loading"></div>}
@@ -205,7 +205,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
 
     private renderTable(models: FarmingSeasonModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã đợt nuôi</th>
@@ -214,7 +214,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                         <th>Ngày bắt đầu</th>
                         <th>Ngày kết thúc dự kiến</th>
                         <th>Ngày kết thúc thực tế</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -234,7 +234,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                     <Glyphicon glyph="edit" /></Button>
-                                                <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                                <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                     <Glyphicon glyph="remove" /></Button>
                                             </ButtonGroup>
                                         </td>

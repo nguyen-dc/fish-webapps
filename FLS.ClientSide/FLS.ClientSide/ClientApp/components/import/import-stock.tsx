@@ -65,7 +65,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
         return (
             <div className="content-wapper">
                 <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-sm-12">
                         <nav aria-label="breadcrumb">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
@@ -171,7 +171,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-12">
+                        <div className="col-sm-12">
                             <div className="form-group-custom mg-bt-15">
                                 <label className="control-label min-w-140 float-left" htmlFor="firstName"></label>
                                 <div>
@@ -179,9 +179,9 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                                 </div>
                             </div>
                         </div>
-                        <div className="col-md-12">
+                        <div className="col-sm-12">
                             <div className="table-responsive p-relative">
-                                <table className="table table-bordered table-hover">
+                                <table className="table table-striped table-hover">
                                     <thead>
                                         <tr>
                                             <th>Nội dung chi phí</th>

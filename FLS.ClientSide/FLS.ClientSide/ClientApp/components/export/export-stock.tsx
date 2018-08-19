@@ -12,7 +12,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
         return (
             <div className="content-wapper">
                 <div className="row">
-                <div className="col-md-12">
+                <div className="col-sm-12">
                         <nav aria-label="breadcrumb">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
@@ -90,7 +90,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                     </div>
                 </div>
                 <div className="row">
-                    <div className="col-md-12">
+                    <div className="col-sm-12">
                         <div className="form-group-custom mg-bt-15">
                             <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
                             <div>
@@ -115,7 +115,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                     </div>
                 </div>
                 <div className="table-responsive p-relative">
-                    <table className="table table-bordered table-hover">
+                    <table className="table table-striped table-hover">
                         <thead>
                             <tr>
                                 <th>Mã sản phẩm</th>

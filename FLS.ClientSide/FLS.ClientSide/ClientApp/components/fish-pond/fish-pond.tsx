@@ -169,7 +169,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                         {
                             this.state.lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
-                                    <div className="alert alert-success text-center">
+                                    <div className="alert alert-info text-center">
                                         Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
                                     </div>
                                 </div>
@@ -199,7 +199,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
 
     private renderTable(models: FishPondModel[]) {
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã ao</th>
@@ -212,7 +212,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                         <th>d</th>
                         <th>Diện tích mặt nước</th>
                         <th>Độ sâu</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -236,7 +236,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                     <Glyphicon glyph="edit" /></Button>
-                                                <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                                <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                     <Glyphicon glyph="remove" /></Button>
                                             </ButtonGroup>
                                         </td>

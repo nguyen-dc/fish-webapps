@@ -9,6 +9,7 @@ import { FarmRegionEdit } from "./farm-region-edit";
 import { FarmRegionAPICaller } from "../../api-callers/farm-region";
 import { Last } from "react-bootstrap/lib/Pagination";
 import { StringHandle } from "../../handles/handles";
+import { EmptyTableMessage } from "../shared/view-only";
 
 export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRegionState> {
     constructor(props: any) {
@@ -121,7 +122,7 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
                         {
                             this.state.lastedSearchKey == undefined ? null :
                                 <div className="col-sm-12">
-                                    <div className="alert alert-success text-center">
+                                    <div className="alert alert-info text-center">
                                         Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
                                     </div>
                                 </div>
@@ -150,18 +151,18 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
     private renderTable(models: FarmRegionModel[]) {
         
         return (
-            <table className="table table-bordered table-hover">
+            <table className="table table-striped table-hover">
                 <thead>
                     <tr>
                         <th>Mã vùng</th>
                         <th>Tên vùng nuôi</th>
-                        <th width="100px"></th>
+                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         models.length == 0 ?
-                            <tr><td colSpan={10}>Không có dữ liệu!</td></tr> :
+                            <EmptyTableMessage/> :
                             models.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
@@ -170,7 +171,7 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="danger" className="btn-sm" onClick={() => this.onDelete(m.id)}>
+                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>
                                         </ButtonGroup>
                                     </td>
