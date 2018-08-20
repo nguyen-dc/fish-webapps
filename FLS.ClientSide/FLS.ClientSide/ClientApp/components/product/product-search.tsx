@@ -175,7 +175,7 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
                                                         <td>{product.name}</td>
                                                         <td></td>
                                                         <td className='td-xs-1'>
-                                                            <Button bsStyle="primary" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
+                                                            <Button bsStyle="default" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
                                                                 <Glyphicon glyph="minus" />
                                                             </Button>
                                                         </td>

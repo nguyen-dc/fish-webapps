@@ -172,7 +172,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
                                                 <Glyphicon glyph="edit" /></Button>
                                             <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                               <Glyphicon glyph="remove" /></Button>
                                         </ButtonGroup>
                                     </td>
                                 </tr>
