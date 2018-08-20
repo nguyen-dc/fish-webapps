@@ -28,7 +28,7 @@ export const CacheAPI = {
     },
     ProductSubgroup: async () => {
         try {
-            let request = await fetch('api/cacheproduct-subgroups');
+            let request = await fetch('api/cache/product-subgroups');
             return await request.json();
         }
         catch (err) {
