@@ -43,6 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\components\product-group\product-subgroup - Copy.tsx" />
+    <None Remove="ClientApp\components\product-group\product-subgroup-edit - Copy.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Models\" />
   </ItemGroup>
 

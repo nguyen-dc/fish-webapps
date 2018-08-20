@@ -1,313 +1,228 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { ProductSubGroupEdit } from "./product-subgroup-edit";
-import { Button } from "react-bootstrap";
+import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import { Content } from "react-bootstrap/lib/Tab";
 import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
 import { ProductSubGroupModel } from "../../models/product-subgroup";
 import Notifications, { notify } from 'react-notify-toast';
+import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { CacheAPI } from "../../api-callers/cache";
+import { FilterEnum } from "../../enums/filter-enum";
+import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
 let apiUrl = 'api/product-subgroups/';
 
 interface productSubGroupsState {
-    groups: ProductSubGroupModel[];
-    modalShow: boolean;
-    isLoadingTable: boolean;
-    isShowAlertSeach: boolean;
-    search: string;
-    filterTitle: string;
-    filterValue: string | number;
-    //model modal
-    title: string;
-    productGroups: any;
-    productSubGroup: ProductSubGroupModel;
-    isEdit: boolean;
-    formErrors: {};
-    pagingModel: PaginateModel;
+    listProductSubGroup: ProductSubGroupModel[],
+    pagingModel: PaginateModel,
+    selectedModel: ProductSubGroupModel,
+    selectedFilter: IdNameModel,
+    isTableLoading: boolean,
+    editModalShow: boolean,
+    editModalTitle: string,
+    productGroups: IdNameModel[],
+    searchModel: PageFilterModel,
+    lastSearchModel: PageFilterModel
 }
-
+const filterTitle0 = 'Tất cả nhóm hàng';
 export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, productSubGroupsState> {
     constructor(props: any) {
         super(props)
         
+        let selectedFilter = new IdNameModel();
+        selectedFilter.id = 0;
+        selectedFilter.name = filterTitle0;
         this.state = {
-            groups: [],
-            isLoadingTable: true,
-            isShowAlertSeach: false,
-            modalShow: false,
-            search: '',
-            filterTitle: 'Tất cả',
-            filterValue: 0,
-            title: 'Thêm mới nhóm hàng',
-            productSubGroup: new ProductSubGroupModel(),
-            isEdit: false,
-            formErrors: {},
+            listProductSubGroup: [],
+            pagingModel: new PaginateModel(),
+            selectedModel: new ProductSubGroupModel(),
+            selectedFilter: selectedFilter,
+            isTableLoading: true,
+            editModalShow: false,
+            editModalTitle: '',
             productGroups: [],
-            pagingModel: new PaginateModel()
+            searchModel: new PageFilterModel(),
+            lastSearchModel: new PageFilterModel()
         };
     }
-
-    async handlePageChange(event: any) {
-        this.setState({ isLoadingTable: true });
-        await this._handleLoadData(event);
-    }
-
-    async componentDidUpdate(prevProps, prevState) {
-        var filterValue = prevState.filterValue;
-        if (filterValue !== this.state.filterValue) {
-            await this._handleLoadData(1);
-        }
-    }
-
     async componentWillMount() {
-        await this._handleLoadData(this.state.pagingModel.currentPage);
-        await this._loadDataCache();
-    }
-
-    private async _handleLoadData(page: number) {
-        var result = await this._getData(page);
-        var paging = new PaginateModel();
-        paging.currentPage = result.data.currentPage;
-        paging.totalItems = result.data.totalItems;
-        this.setState({ groups: result.data.items, isLoadingTable: false, pagingModel: paging });
-    }
-
-    private async _loadDataCache() {
-        var productGroups = await this._getProductGroup();
+        var productGroups = await CacheAPI.ProductGroup();
         this.setState({ productGroups: productGroups.data });
+        await this.onPageChange(1, true);
     }
 
-    private async _getData(page: number) {
-        try {
-            var apiFetch = apiUrl;
-            if (this.state.filterValue) {
-                apiFetch = "api/product-groups/" + this.state.filterValue + "/subgroups";
-            }
-            let request = await fetch(apiFetch, {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    Page: page,
-                    PageSize: this.state.pagingModel.pageSize,
-                    Key: this.state.search,
-                })
-            });
-            return await request.json();
+    async loadData(page: number, newSearch: boolean) {
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
         }
-        catch (err) {
-            console.log(`Error: ${err.stack}`);
-        }
-    }
-
-    private async _getProductGroup() {
-        try {
-            let request = await fetch('api/cache/product-groups');
-            return await request.json();
-        }
-        catch (err) {
-            console.log(`Error: ${err.stack}`);
-        }
-    }
-
-    //modal
-    private async _create() {
-        var myHeaders = new Headers({
-            "Content-Type": "application/json"
-        });
-        var request = await fetch(apiUrl+'add', {
-            method: "POST",
-            body: JSON.stringify(this.state.productSubGroup),
-            headers: myHeaders
-        });
-        var result = await request.json();
-        if (result.isSuccess) {
-            this.setState({ modalShow: false });
-            notify.show("Tạo mới thành công!", "success", 1000);
-            await this._handleLoadData(1);
-        }
+        let request = await ProductSubGroupAPICaller.GetList(searchModel);
+        if (request.ok)
+            return (await request.json());
         else {
-            notify.show(result.message,"error",1000);
+            //// raise error
+            return null;
         }
     }
-
-    private async _edit() {
-        var myHeaders = new Headers({
-            "Content-Type": "application/json"
-        });
-        var request = await fetch(apiUrl + this.state.productSubGroup.id + '/modify', {
-            method: "PUT",
-            body: JSON.stringify(this.state.productSubGroup),
-            headers: myHeaders
-        });
-        var result = await request.json();
-        if (result.isSuccess) {
-            this.setState({ modalShow: false });
-            notify.show('Cập nhật thành công!', "success", 1000);
-            await this._handleLoadData(1);
-        }
-        else {
-            notify.show(result.message, "error", 1000);
-        }
-    }
-
-    private onFieldValueChange(fieldName: string, value: string) {
-        const nextState = {
-            ...this.state,
-            productSubGroup: {
-                ...this.state.productSubGroup,
-                [fieldName]: value,
+    async onPageChange(page: any, newSearch: boolean) {
+        try {
+            this.setState({ isTableLoading: true });
+            var result = await this.loadData(page, newSearch);
+            if (!result || !result.data) {
+                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
+                return;
             }
-        };
-        this.setState(nextState);
-    }
-
-    private handleFormSubmit = (e) => {
-        e.preventDefault();
-        var errors = this._validate();
-        if (Object.keys(errors).length > 0) {
-            this.setState({
-                formErrors: errors
-            });
-            return;
+            var paging = new PaginateModel();
+            paging.currentPage = result.data.currentPage;
+            paging.totalItems = result.data.totalItems;
+            this.setState({ listProductSubGroup: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+        } finally {
+            this.setState({ isTableLoading: false });
         }
-        this.setState({ formErrors: {} });
-
-        if (this.state.isEdit)
-            this._edit();
+    }
+    async onDelete(id: number) {
+        //// 
+    }
+    onFormAfterSubmit(isSuccess, model) {
+        if (isSuccess)
+            this.onPageChange(this.state.pagingModel.currentPage, false)
+    }
+    onOpenEdit(model: ProductSubGroupModel) {
+        if (model.id > 0) {
+            this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa nhóm hàng', selectedModel: model });
+        }
         else
-            this._create();
+            this.setState({ editModalShow: true, editModalTitle: 'Thêm mới nhóm hàng', selectedModel: new ProductSubGroupModel() });
+    }
+    onCloseEdit() {
+        this.setState({ editModalShow: false });
     }
 
-    private _validate() {
-        var errors = {};
-        if (this.state.productSubGroup.name == "") {
-            errors['name'] = 'Tên nhóm hàng không được bỏ trống';
-        }
-
-        return errors;
+    onSearchKeyChange(e) {
+        let searchModel = this.state.searchModel;
+        searchModel.key = e.target.value;
+        this.setState({ searchModel: searchModel });
     }
 
-    private async _getDataEdit(id: number) {
-        try {
-            let request = await fetch(apiUrl + id);
-            return await request.json();
-        }
-        catch (err) {
-            console.log(`Error: ${err.stack}`);
+    onSearchKeyPress(e) {
+        if (e.charCode == 13) {
+            this.onPageChange(1, true);
         }
     }
 
-    async handleOpenEdit(id: number) {
-        if (id) {
-            var result = await this._getDataEdit(id);
-            this.setState({ modalShow: true, title: 'Chỉnh sửa ' + result.data.name, productSubGroup: result.data, isEdit: true, formErrors: {} });
-        }
+    handleFilter(filter: IdNameModel) {
+        if (filter == null || filter == undefined) return;
+        let searchModel = this.state.searchModel;
+        searchModel.filters[0].key = FilterEnum.farmRegion;
+        searchModel.filters[0].value = filter.id;
+        this.setState({ selectedFilter: filter, searchModel: searchModel });
+        this.onPageChange(1, true);
     }
-
-    handleSearch(event) {
-        this.setState({ search: event.target.value});
-    }
-
-    async handleButtonSearch(event) {
-        await this._handleLoadData(1);
-        this.setState({ isShowAlertSeach: true });
-    }
-
-    handleFilter(val) {
-        if (val) {
-            var text = this.state.productGroups.find(item => item.id == val);
-            if (text != null) {
-                this.setState({ filterTitle: text.name, filterValue: val });
-            }
-        }
-        else {
-            this.setState({ filterTitle: 'Tất cả', filterValue: 0 });
-        }
-    }
-
-    handleOpen() {
-        this.setState({ modalShow: true, formErrors: {}, isEdit: false });
-    }
-
-    handleClose() {
-        this.setState({ modalShow: false, productSubGroup: {} as ProductSubGroupModel, formErrors: {} });
-    }
+    
+    //private async _getData(page: number) {
+    //    try {
+    //        var apiFetch = apiUrl;
+    //        if (this.state.filterValue) {
+    //            apiFetch = "api/product-groups/" + this.state.filterValue + "/subgroups";
+    //        }
+    //        let request = await fetch(apiFetch, {
+    //            method: 'post',
+    //            headers: {
+    //                'Accept': 'application/json',
+    //                'Content-Type': 'application/json'
+    //            },
+    //            body: JSON.stringify({
+    //                Page: page,
+    //                PageSize: this.state.pagingModel.pageSize,
+    //                Key: this.state.search,
+    //            })
+    //        });
+    //        return await request.json();
+    //    }
+    //    catch (err) {
+    //        console.log(`Error: ${err.stack}`);
+    //    }
+    //}
 
     render() {
-        let dataTable = this.renderTable(this.state.groups);
-        let renderPaging = this.state.groups.length > 0 ? this.renderPaging() : null;
-
+        let dataTable = this.renderTable(this.state.listProductSubGroup);
+        let renderPaging = this.state.listProductSubGroup.length > 0 ? this.renderPaging() : null;
+        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-xs-8 mg-bt-15">
-                        <div className="input-group">
-                            <div className="input-group-btn search-panel">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span id="search_concept">{this.state.filterTitle}</span> <span className="caret"></span>
-                                </button>
-                                <ul className="dropdown-menu" role="menu">
-                                    <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, 0)}>Tất cả</a></li>
-                                    {this.state.productGroups.map(opt => {
-                                        return (
-                                            <li className="cursor-pointer" key={opt.id}><a onClick={this.handleFilter.bind(this, opt.id)}>{opt.name}</a></li>
-                                        );
-                                    })}
-                                </ul>
+                <ol className="breadcrumb">
+                    <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                    <li className="breadcrumb-item active" aria-current="page">nhóm hàng</li>
+                </ol>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        <div className="col-sm-8 mg-bt-15">
+                            <div className="input-group">
+                                <div className="input-group-btn search-panel">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span id="search_concept">{this.state.selectedFilter.name}</span> <span className="caret"></span>
+                                    </button>
+                                    <ul className="dropdown-menu" role="menu">
+                                        <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, { id: 0, name: filterTitle0 })}>{filterTitle0}</a></li>
+                                        {this.state.productGroups.map(opt => {
+                                            return (
+                                                <li className="cursor-pointer" key={opt.id}>
+                                                    <a onClick={this.handleFilter.bind(this, opt)}>{opt.name}</a>
+                                                </li>
+                                            );
+                                        })}
+                                    </ul>
+                                </div>
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
+                                </span>
                             </div>
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.search} onChange={this.handleSearch.bind(this)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={this.handleButtonSearch.bind(this)}><span className="glyphicon glyphicon-search"></span></button>
-                            </span>
                         </div>
-                    </div>
-                    <div className="col-xs-4">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <Button
-                                bsStyle="primary"
-                                onClick={this.handleOpen.bind(this)}
-                            >Thêm</Button>
+                        <div className="col-sm-4 mg-bt-15">
+                            <div className="text-right">
+                                <button className="btn btn-default mg-r-15">Import</button>
+                                <Button
+                                    bsStyle="primary"
+                                    onClick={this.onOpenEdit.bind(this)}
+                                >Thêm</Button>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                {
-                    this.state.search && this.state.isShowAlertSeach ?
-                    <div className="row">
+                        {
+                            this.state.lastSearchModel == undefined ? null :
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                    </div>
+                                </div>
+                        }
                         <div className="col-sm-12">
-                                <div className="alert alert-info text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.search}</strong>
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading && <div className="icon-loading"></div>}
                             </div>
                         </div>
-                    </div> : null
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isLoadingTable ? <div className="icon-loading"></div> : null}
-                </div>
-                <div className="row">
-                    {renderPaging}
+                        {renderPaging}
+                    </div>
                 </div>
                 <ProductSubGroupEdit
-                    isShow={this.state.modalShow}
-                    handleClose={this.handleClose.bind(this)}
-                    handleFormSubmit={this.handleFormSubmit.bind(this)}
-                    onFieldValueChange={this.onFieldValueChange.bind(this)}
-                    title={this.state.title}
-                    productSubGroup={this.state.productSubGroup}
-                    formErrors={this.state.formErrors}
-                    isEdit={this.state.isEdit}
-                    options={this.state.productGroups}
+                    isShow={this.state.editModalShow}
+                    onCloseModal={this.onCloseEdit.bind(this)}
+                    title={this.state.editModalTitle}
+                    isEdit={this.state.selectedModel.id > 0}
+                    model={this.state.selectedModel}
+                    onFormAfterSubmit={this.onFormAfterSubmit.bind(this)}
+                    productGroups={this.state.productGroups}
                 />
             </div>
         );
     }
-
+    
     private renderTable(groups: ProductSubGroupModel[]) {
         return (
             <table className="table table-striped table-hover">
@@ -315,6 +230,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                     <tr>
                         <th>Mã</th>
                         <th>Tên nhóm hàng</th>
+                        <th>Ngành hàng</th>
                         <th>Ghi chú</th>
                         <th></th>
                     </tr>
@@ -328,8 +244,16 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                                 <tr key={group.id}>
                                     <td>{group.id}</td>
                                     <td>{group.name}</td>
+                                    <td>{group.productGroupId}</td>
                                     <td>{group.description}</td>
-                                    <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(group.id)}>Sửa</a></td>
+                                    <td className="text-right">
+                                        <ButtonGroup>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(group)}>
+                                                <Glyphicon glyph="edit" /></Button>
+                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(group.id)}>
+                                                <Glyphicon glyph="remove" /></Button>
+                                        </ButtonGroup>
+                                    </td>
                                 </tr>
                             )
                     }
@@ -348,7 +272,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                         itemsCountPerPage={this.state.pagingModel.pageSize}
                         totalItemsCount={this.state.pagingModel.totalItems}
                         pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
-                        onChange={this.handlePageChange.bind(this)}
+                        onChange={this.onPageChange.bind(this)}
                     />
                 </div>
                 <div className="col-xs-4">
