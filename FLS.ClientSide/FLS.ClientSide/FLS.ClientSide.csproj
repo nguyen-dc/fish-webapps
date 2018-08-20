@@ -52,7 +52,7 @@
 
   <ItemGroup>
     <Reference Include="FLS.ServerSide.SharingObject">
-      <HintPath>..\..\FLS.ServerSide\FLS.ServerSide.SharingObject.dll</HintPath>
+      <HintPath>..\Libs\FLS.ServerSide.SharingObject.dll</HintPath>
     </Reference>
   </ItemGroup>
 

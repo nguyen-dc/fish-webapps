@@ -343,6 +343,6 @@ th.th-sm-4, td.td-sm-4 {
     margin: 0 -15px;
     padding: 0 15px;
 }
-li.active a {
+.nav-tabs li.active a {
     background-color: #e5e5e5 !important;
 }
