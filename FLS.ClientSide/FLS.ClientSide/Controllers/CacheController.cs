@@ -27,7 +27,7 @@ namespace FLS.ClientSide.Controllers
         [HttpGet("payslip-types")]
         public async Task<ActionResult> PayslipTypeList()
         {
-            APIResponse<List<ExpenditureTypeModel>> response = await GetAsync<List<ExpenditureTypeModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
+            APIResponse<List<ExpenditureDocketTypeModel>> response = await GetAsync<List<ExpenditureDocketTypeModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
             if (response.isSuccess)
             {
                 response.data = response.data.FindAll(d => !d.IsReceipt);
@@ -55,7 +55,7 @@ namespace FLS.ClientSide.Controllers
         [HttpGet("receipt-types")]
         public async Task<ActionResult> ReceiptTypeList()
         {
-            APIResponse<List<ExpenditureTypeModel>> response = await GetAsync<List<ExpenditureTypeModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
+            APIResponse<List<ExpenditureDocketTypeModel>> response = await GetAsync<List<ExpenditureDocketTypeModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
             if (response.isSuccess)
             {
                 response.data = response.data.FindAll(d => d.IsReceipt);

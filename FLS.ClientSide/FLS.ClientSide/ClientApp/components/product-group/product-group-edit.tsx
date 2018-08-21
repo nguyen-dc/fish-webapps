@@ -45,6 +45,7 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
         this.setState({ model: props.model, isShow: props.isShow });
     }
     onCloseModal() {
+        this.setState({ errorList: {} });
         if (this.props.onCloseModal)
             this.props.onCloseModal();
     }

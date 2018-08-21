@@ -30,6 +30,7 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
         this.setState({ model: props.model, isShow: props.isShow });
     }
     onCloseModal() {
+        this.setState({ errorList: {} });
         if (this.props.onCloseModal)
             this.props.onCloseModal();
     }
