@@ -61,7 +61,233 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
         };
         this.setState(nextState);
     }
+    renderTabInfo() {
+        return <div id="info" className="tab-pane fade in active">
+            <div className="panel panel-default">
+                <div className="panel-body row">
+                    <div className="col-md-4">
+                        <LabeledInput
+                            name={'name'}
+                            value={'name'}
+                            title={'Mã phiếu nhập'}
+                            placeHolder={'Mã phiếu nhập'}
+                            error={this.state.errorList['name']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            name={'input'}
+                            value={0}
+                            title={'Loại phiếu nhập'}
+                            placeHolder={'Loại phiếu nhập'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={this.state.stockReceiveDocketTypes} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledSelect
+                            name={'warehouses'}
+                            value={0}
+                            title={'Kho nhập'}
+                            placeHolder={'Kho nhập'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={this.state.warehouses} />
+                        <LabeledSingleDatePicker
+                            name={'fromDate'}
+                            title={'Từ ngày'}
+                            date={Moment()} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledCheckBox
+                            name={'hasScale'}
+                            value={true}
+                            text={'Thực nhập'}
+                            error={this.state.errorList['hasScale']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
 
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
+                            <div>
+                                <textarea type="text" className="form-control" name="name" defaultValue="" placeholder="Ghi chú" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="panel panel-default">
+                <div className="panel-heading">
+                    {/*<ProductSearch onReturn={this.onSelectedProducts.bind(this)} wrapperClass={'text-right'} />*/}
+                    <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
+                </div>
+                <div className="panel-body">
+                    {
+                        !this.state.products || this.state.products.length == 0 ?
+                            <EmptyRowMessage message={'Chưa chọn sản phẩm nhập'} /> :
+                            <div className="table-responsive p-relative">
+                                <ProductTable products={this.state.products} onRemoveProduct={this.onRemoveProduct.bind(this)} />
+                            </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+    renderTabExpend() {
+        return <div id="expend" className="tab-pane fade">
+            <div className="panel panel-default">
+                <div className="panel-body row">
+                    <div className="col-md-6">
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
+                            <select className="form-control" id="sel1">
+                                <option>Chi phí 1</option>
+                                <option>Chi phí 2</option>
+                                <option>Chi phí 3</option>
+                                <option>Chi phí 4</option>
+                            </select>
+                        </div>
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Nội dung:</label>
+                            <input type="text" className="form-control" placeholder="Nội dung" />
+                        </div>
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Số tiền:</label>
+                            <input type="text" className="form-control" placeholder="Số tiền" />
+                        </div>
+                    </div>
+                    <div className="col-md-6">
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
+                            <div>
+                                <textarea rowSpan={5} type="text" className="form-control" placeholder="Ghi chú" />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-12">
+                        <div className="form-group-custom mg-bt-15">
+                            <label className="control-label min-w-140 float-left" htmlFor="firstName"></label>
+                            <div>
+                                <button className="btn btn-primary">Thêm</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="col-sm-12">
+                        <div className="table-responsive p-relative">
+                            <table className="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Nội dung chi phí</th>
+                                        <th>Số tiền (đã gồm VAT)</th>
+                                        <th>Ghi chú</th>
+                                        <th className="th-sm-1"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Tiền ghe</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiền bốc xếp</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiền ghe</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiền bốc xếp</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiền ghe</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Tiền bốc xếp</td>
+                                        <td>1.000.000</td>
+                                        <td></td>
+                                        <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    renderReview() {
+        let productQuantity = 4;
+        let productTotalAmount = 12000000;
+        let expendQuantity = 3;
+        let expendTotalAmount = 320000;
+        let totalAmount = productTotalAmount + expendTotalAmount;
+        return <div className="panel panel-default">
+            <div className="row panel-body">
+                <div className="col-sm-4">
+                    <div className="row">
+                        <div className="col-xs-8">
+                            <label className="form-control border-0" htmlFor="firstName">Số lượng sản phẩm </label>
+                        </div>
+                        <div className="col-xs-4 text-right">
+                            <label className="form-control border-0" htmlFor="firstName">{productQuantity}</label>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-8">
+                            <label className="form-control border-0" htmlFor="firstName">Tổng tiền</label>
+                        </div>
+                        <div className="col-xs-4 text-right">
+                            <label className="form-control border-0" htmlFor="firstName">{productTotalAmount}</label>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-sm-4">
+                    <div className="row">
+                        <div className="col-xs-8">
+                            <label className="form-control border-0" htmlFor="firstName">Chi phí đi kèm</label>
+                        </div>
+                        <div className="col-xs-4 text-right">
+                            <label className="form-control border-0" htmlFor="firstName">{expendQuantity}</label>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-8">
+                            <label className="form-control border-0" htmlFor="firstName">Tổng chi phí</label>
+                        </div>
+                        <div className="col-xs-4 text-right">
+                            <label className="form-control border-0" htmlFor="firstName">{expendTotalAmount}</label>
+                        </div>
+                    </div>
+                </div>
+                <div className="col-sm-4">
+                    <div className="row">
+                        <div className="col-xs-8">
+                            <label className="form-control border-0" htmlFor="firstName">Tổng tiền trên phiếu</label>
+                        </div>
+                        <div className="col-xs-4 text-right">
+                            <label className="form-control border-0" htmlFor="firstName">{totalAmount}</label>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-xs-12 text-right">
+                            <button className="btn btn-default mg-r-15">Hủy</button>
+                            <button className="btn btn-primary mg-r-15">Tạo phiếu</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
     render() {
         return (
             <div className="content-wapper">
@@ -81,199 +307,10 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                     <li><a data-toggle="tab" href="#expend">Chi phí nhập</a></li>
                 </ul>
                 <div className="tab-content">
-                    <div id="info" className="tab-pane fade in active">
-                        <div className="panel panel-default">
-                            <div className="panel-body row">
-                                <div className="col-md-4">
-                                    <LabeledInput
-                                        name={'name'}
-                                        value={'name'}
-                                        title={'Mã phiếu nhập'}
-                                        placeHolder={'Mã phiếu nhập'}
-                                        error={this.state.errorList['name']}
-                                        valueChange={this.onFieldValueChange.bind(this)} />
-                                    <LabeledSelect
-                                        name={'input'}
-                                        value={0}
-                                        title={'Loại phiếu nhập'}
-                                        placeHolder={'Loại phiếu nhập'}
-                                        valueKey={'id'}
-                                        nameKey={'name'}
-                                        options={this.state.stockReceiveDocketTypes} />
-                                </div>
-                                <div className="col-md-4">
-                                    <LabeledSelect
-                                        name={'warehouses'}
-                                        value={0}
-                                        title={'Kho nhập'}
-                                        placeHolder={'Kho nhập'}
-                                        valueKey={'id'}
-                                        nameKey={'name'}
-                                        options={this.state.warehouses} />
-                                    <LabeledSingleDatePicker
-                                        name={'fromDate'}
-                                        title={'Từ ngày'}
-                                        date={Moment()} />
-                                </div>
-                                <div className="col-md-4">
-                                    <LabeledCheckBox
-                                        name={'hasScale'}
-                                        value={true}
-                                        text={'Thực nhập'}
-                                        error={this.state.errorList['hasScale']}
-                                        valueChange={this.onFieldValueChange.bind(this)} />
-
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                                        <div>
-                                            <textarea type="text" className="form-control" name="name" defaultValue="" placeholder="Ghi chú" />
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="panel panel-default">
-                            <div className="panel-heading">
-                                {/*<ProductSearch onReturn={this.onSelectedProducts.bind(this)} wrapperClass={'text-right'} />*/}
-                                <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
-                            </div>
-                            <div className="panel-body">
-                                {
-                                    !this.state.products || this.state.products.length == 0 ?
-                                        <EmptyRowMessage message={'Chưa chọn sản phẩm nhập'} /> :
-                                        <div className="table-responsive p-relative">
-                                            <ProductTable products={this.state.products} onRemoveProduct={this.onRemoveProduct.bind(this)} />
-                                        </div>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div id="expend" className="tab-pane fade">
-                        <div className="panel panel-default">
-                            <div className="panel-body row">
-                                <div className="col-md-6">
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
-                                        <select className="form-control" id="sel1">
-                                            <option>Chi phí 1</option>
-                                            <option>Chi phí 2</option>
-                                            <option>Chi phí 3</option>
-                                            <option>Chi phí 4</option>
-                                        </select>
-                                    </div>
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName">Nội dung:</label>
-                                        <input type="text" className="form-control" placeholder="Nội dung" />
-                                    </div>
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName">Số tiền:</label>
-                                        <input type="text" className="form-control" placeholder="Số tiền" />
-                                    </div>
-                                </div>
-                                <div className="col-md-6">
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                                        <div>
-                                            <textarea rowSpan={5} type="text" className="form-control" placeholder="Ghi chú" />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-sm-12">
-                                    <div className="form-group-custom mg-bt-15">
-                                        <label className="control-label min-w-140 float-left" htmlFor="firstName"></label>
-                                        <div>
-                                            <button className="btn btn-primary">Thêm</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="col-sm-12">
-                                    <div className="table-responsive p-relative">
-                                        <table className="table table-striped table-hover">
-                                            <thead>
-                                                <tr>
-                                                    <th>Nội dung chi phí</th>
-                                                    <th>Số tiền (đã gồm VAT)</th>
-                                                    <th>Ghi chú</th>
-                                                    <th className="th-sm-1"></th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>Tiền ghe</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền bốc xếp</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền ghe</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền bốc xếp</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền ghe</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                                <tr>
-                                                    <td>Tiền bốc xếp</td>
-                                                    <td>1.000.000</td>
-                                                    <td></td>
-                                                    <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    {this.renderTabInfo()}
+                    {this.renderTabExpend()}
                 </div>
-                <div className="row">
-                    <div className="col-md-3">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Tiền phiếu nhập:</label>
-                            <div>
-                                <input type="text" id="rg-from" name="rg-from" defaultValue="18.000.000" className="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
-                            <div>
-                                <input type="text" id="rg-from" name="rg-from" defaultValue="18.000.000" className="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left">Tổng tiền:</label>
-                            <div>
-                                <input type="text" id="rg-from" name="rg-from" defaultValue="89.000.000" className="form-control" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-3">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Hủy</button>
-                            <button className="btn btn-primary">Cập nhật</button>
-                        </div>
-                    </div>
-                </div>
+                {this.renderReview()}
             </div>
         );
     }
