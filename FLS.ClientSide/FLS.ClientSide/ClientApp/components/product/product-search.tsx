@@ -136,7 +136,7 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
         let products = this.state.products;
         let wrapperClass = this.props.wrapperClass ? { className: this.props.wrapperClass } : null;
         return <div {...wrapperClass}>
-            <Button bsStyle="link" onClick={this.onOpenModal.bind(this)}><Glyphicon glyph="plus" /> {this.state.title}</Button>
+            <Button className="btn btn-default" onClick={this.onOpenModal.bind(this)}><Glyphicon glyph="plus" /> {this.state.title}</Button>
             <Modal show={this.state.modalShow} onHide={this.onCloseModal.bind(this)}
                 aria-labelledby="contained-modal-title-lg" className="modal-full-width">
                 <Modal.Header closeButton>
