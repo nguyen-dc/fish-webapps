@@ -30,6 +30,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
         this.setState({ model: props.model, isShow: props.isShow });
     }
     onCloseModal() {
+        this.setState({ errorList: {} });
         if (this.props.onCloseModal)
             this.props.onCloseModal();
     }

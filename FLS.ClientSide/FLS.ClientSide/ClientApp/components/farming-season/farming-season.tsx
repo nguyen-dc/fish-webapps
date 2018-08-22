@@ -120,7 +120,6 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
     }
 
     handleFilter(filter: IdNameModel) {
-        debugger
         if (filter == null || filter == undefined) return;
         let searchModel = this.state.searchModel;
         searchModel.filters[0].key = FilterEnum.fishPond;
@@ -133,6 +132,9 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
         let dataTable = this.renderTable(this.state.listFarmingSeason);
         let renderPaging = this.state.listFarmingSeason.length > 0 ? this.renderPaging() : null;
         let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedFilterValue = filterTitle0;
+        if (this.state.lastSearchModel.filters[0].value > 0 && this.state.fishPonds && this.state.fishPonds.length > 0)
+            lastedFilterValue = this.state.fishPonds.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -148,7 +150,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                                         <span id="search_concept">{this.state.selectedFilter.name}</span> <span className="caret"></span>
                                     </button>
                                     <ul className="dropdown-menu" role="menu">
-                                        <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, { key: 0, value: filterTitle0 })}>{filterTitle0}</a></li>
+                                        <li className="cursor-pointer"><a onClick={this.handleFilter.bind(this, { id: 0, name: filterTitle0 })}>{filterTitle0}</a></li>
                                         {this.state.fishPonds.map(opt => {
                                             return (
                                                 <li className="cursor-pointer" key={opt.id}>
@@ -177,7 +179,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                             this.state.lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
-                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{lastedFilterValue}</strong>
                                     </div>
                                 </div>
                         }
