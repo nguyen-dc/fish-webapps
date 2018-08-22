@@ -99,6 +99,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                 </ol>
                 <div className="panel panel-default">
                     <div className="panel-body">
+                        {advanceSeach}
                         <div className="col-sm-8 mg-bt-15">
                             <div className="input-group">
                                 <div className="input-group-btn search-panel">
@@ -111,18 +112,15 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                 </div>
                                 <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
                                 <span className="input-group-btn">
-                                    <button className="btn btn-default" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"></span></button>
-                                    <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
+                                    <button className="btn btn-primary" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"> </span> Tìm kiếm</button>
                                 </span>
                             </div>
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
                                 <NavLink className="btn btn-primary" to="/nhapmuahang" >Thêm</NavLink>
                             </div>
                         </div>
-                        {!this.state.isHidden && advanceSeach}
                         {
                             this.state.lastedSearchKey ?
                                 <div className="col-sm-12">
@@ -252,13 +250,6 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         <label className="control-label min-w-140 float-left"></label>
                         <div>
                             <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-sm-12">
-                    <div className="col-sm-12">
-                        <div className="text-right">
-                            <button type="submit" className="btn btn-primary">Tìm kiếm</button>
                         </div>
                     </div>
                 </div>

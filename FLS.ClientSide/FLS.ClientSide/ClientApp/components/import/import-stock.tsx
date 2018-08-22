@@ -6,10 +6,10 @@ import * as Moment from 'moment';
 import { ProductSearch } from "../product/product-search";
 import { ProductModel } from "../../models/product";
 import { Button, Glyphicon } from "react-bootstrap";
-import { ArrayHandle } from "../../handles/handles";
+import { ArrayHandle, DateTimeHandle } from "../../handles/handles";
 import { ProductTable } from "../product/product-table";
 import { CacheAPI } from "../../api-callers/cache";
-import { LabeledSelect, LabeledInput, LabeledCheckBox } from "../shared/input/labeled-input";
+import { LabeledSelect, LabeledInput, LabeledCheckBox, LabeledTextArea } from "../shared/input/labeled-input";
 import { WarehouseModel } from "../../models/warehouse";
 import { StockReceiveDocketTypeModel } from "../../models/stock-receive-docket-type";
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
@@ -22,6 +22,7 @@ interface IImportStockState {
     errorList: {},
     warehouses: WarehouseModel[],
     stockReceiveDocketTypes: StockReceiveDocketTypeModel[],
+    datetime: any,
 }
 export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImportStockState> {
     constructor(props: any) {
@@ -32,7 +33,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
             isShow: props.isShow,
             errorList: {},
             warehouses: [],
-            stockReceiveDocketTypes: []
+            stockReceiveDocketTypes: [],
+            datetime: DateTimeHandle.DateFormat(Moment().toDate())
         }
     }
     private onSelectedProducts(products: ProductModel[]) {
@@ -64,14 +66,15 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
     renderTabInfo() {
         return <div id="info" className="tab-pane fade in active">
             <div className="panel panel-default">
-                <div className="panel-body row">
+                <div className="panel-body">
                     <div className="col-md-4">
                         <LabeledInput
                             name={'name'}
-                            value={'name'}
+                            value={''}
                             title={'Mã phiếu nhập'}
                             placeHolder={'Mã phiếu nhập'}
                             error={this.state.errorList['name']}
+                            readOnly={true}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             name={'input'}
@@ -91,10 +94,14 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             valueKey={'id'}
                             nameKey={'name'}
                             options={this.state.warehouses} />
-                        <LabeledSingleDatePicker
-                            name={'fromDate'}
-                            title={'Từ ngày'}
-                            date={Moment()} />
+                        <LabeledTextArea
+                            rows={1}
+                            name={'Description'}
+                            value={this.state.model.Description}
+                            title={'Ghi chú'}
+                            placeHolder={'Ghi chú'}
+                            error={this.state.errorList['Description']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                     <div className="col-md-4">
                         <LabeledCheckBox
@@ -103,13 +110,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             text={'Thực nhập'}
                             error={this.state.errorList['hasScale']}
                             valueChange={this.onFieldValueChange.bind(this)} />
-
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                            <div>
-                                <textarea type="text" className="form-control" name="name" defaultValue="" placeholder="Ghi chú" />
-                            </div>
-                        </div>
+                        <LabeledInput
+                            name={'name'}
+                            value={this.state.datetime}
+                            title={'Ngày nhập'}
+                            error={this.state.errorList['name']}
+                            readOnly={true}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                 </div>
             </div>
@@ -133,38 +140,33 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
     renderTabExpend() {
         return <div id="expend" className="tab-pane fade">
             <div className="panel panel-default">
-                <div className="panel-body row">
-                    <div className="col-md-6">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
-                            <select className="form-control" id="sel1">
-                                <option>Chi phí 1</option>
-                                <option>Chi phí 2</option>
-                                <option>Chi phí 3</option>
-                                <option>Chi phí 4</option>
-                            </select>
-                        </div>
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Nội dung:</label>
-                            <input type="text" className="form-control" placeholder="Nội dung" />
-                        </div>
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Số tiền:</label>
-                            <input type="text" className="form-control" placeholder="Số tiền" />
-                        </div>
-                    </div>
-                    <div className="col-md-6">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                            <div>
-                                <textarea rowSpan={5} type="text" className="form-control" placeholder="Ghi chú" />
+                <div className="panel-body">
+                    <div className="mg-bt-15">
+                        <div className="col-md-3">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
+                                <select className="form-control" id="sel1">
+                                    <option>Chi phí 1</option>
+                                    <option>Chi phí 2</option>
+                                    <option>Chi phí 3</option>
+                                    <option>Chi phí 4</option>
+                                </select>
                             </div>
                         </div>
-                    </div>
-                    <div className="col-sm-12">
-                        <div className="form-group-custom mg-bt-15">
-                            <label className="control-label min-w-140 float-left" htmlFor="firstName"></label>
-                            <div>
+                        <div className="col-md-4">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Nội dung:</label>
+                                <input type="text" className="form-control" placeholder="Nội dung" />
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Số tiền:</label>
+                                <input type="text" className="form-control" placeholder="Số tiền" />
+                            </div>
+                        </div>
+                        <div className="col-sm-1">
+                            <div className="text-right">
                                 <button className="btn btn-primary">Thêm</button>
                             </div>
                         </div>
@@ -174,47 +176,47 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             <table className="table table-striped table-hover">
                                 <thead>
                                     <tr>
+                                        <th>Chi phí</th>
                                         <th>Nội dung chi phí</th>
                                         <th>Số tiền (đã gồm VAT)</th>
-                                        <th>Ghi chú</th>
                                         <th className="th-sm-1"></th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền ghe</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền bốc xếp</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền ghe</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền bốc xếp</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền ghe</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                     <tr>
+                                        <td>Chi phí 1</td>
                                         <td>Tiền bốc xếp</td>
                                         <td>1.000.000</td>
-                                        <td></td>
                                         <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                     </tr>
                                 </tbody>

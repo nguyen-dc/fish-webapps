@@ -27,7 +27,7 @@ interface productSubGroupsState {
     searchModel: PageFilterModel,
     lastSearchModel: PageFilterModel
 }
-const filterTitle0 = 'Tất cả nhóm hàng';
+const filterTitle0 = 'Tất cả ngành hàng';
 export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, productSubGroupsState> {
     constructor(props: any) {
         super(props)

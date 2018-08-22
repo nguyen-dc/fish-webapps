@@ -23,7 +23,7 @@ interface ProductState {
     searchModel: PageFilterModel,
     lastSearchModel: PageFilterModel
 }
-const filterTitle0 = 'Tất cả nhóm hàng';
+const filterTitle0 = 'Tất cả ngành hàng';
 export class Products extends React.Component<RouteComponentProps<{}>, ProductState> {
 
     constructor(props: any) {
