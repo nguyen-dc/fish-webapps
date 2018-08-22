@@ -23,11 +23,11 @@ namespace FLS.ClientSide.Controllers
         public async Task<ActionResult> Details(int _stockReceiveDocketId)
         {
             string link = URI_API.STOCK_RECEIVE_DOCKET_DETAIL.Replace("{id}", $"{_stockReceiveDocketId}");
-            APIResponse<StockReceiveDocketModel> response = await GetAsync<StockReceiveDocketModel>(link);
+            APIResponse<ImportStockModel> response = await GetAsync<ImportStockModel>(link);
             return Ok(response);
         }
         [HttpPost("add")]
-        public async Task<ActionResult> Add([FromBody]StockReceiveDocketModel _model)
+        public async Task<ActionResult> Add([FromBody]ImportStockModel _model)
         {
             string link = URI_API.STOCK_RECEIVE_DOCKET_ADD;
             APIResponse<int> response = await PostAsJsonAsync<int>(link, _model);
