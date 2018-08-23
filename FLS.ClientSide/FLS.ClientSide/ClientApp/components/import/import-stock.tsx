@@ -84,6 +84,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             valueKey={'id'}
                             nameKey={'name'}
                             options={this.state.stockReceiveDocketTypes} />
+                        <LabeledInput
+                            name={'name'}
+                            value={''}
+                            title={'Số hóa đơn'}
+                            placeHolder={'Số hóa đơn'}
+                            error={this.state.errorList['name']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                     <div className="col-md-4">
                         <LabeledSelect
@@ -102,8 +109,22 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             placeHolder={'Ghi chú'}
                             error={this.state.errorList['Description']}
                             valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledInput
+                            name={'name'}
+                            value={''}
+                            title={'Mẫu số'}
+                            placeHolder={'Mẫu số'}
+                            error={this.state.errorList['name']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                     <div className="col-md-4">
+                        <LabeledInput
+                            name={'name'}
+                            value={this.state.datetime}
+                            title={'Ngày nhập'}
+                            error={this.state.errorList['name']}
+                            readOnly={true}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledCheckBox
                             name={'hasScale'}
                             value={true}
@@ -112,10 +133,10 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledInput
                             name={'name'}
-                            value={this.state.datetime}
-                            title={'Ngày nhập'}
+                            value={''}
+                            title={'Ký hiệu'}
+                            placeHolder={'Ký hiệu'}
                             error={this.state.errorList['name']}
-                            readOnly={true}
                             valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                 </div>
