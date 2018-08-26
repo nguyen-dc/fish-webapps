@@ -165,17 +165,17 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                             <EmptyTableMessage/> :
                             models.map(
                                 model =>
-                                    <tr key={model.Id}>
-                                        <td>{model.Id}</td>
-                                        <td>{model.StockIssueDocketTypeId}</td>
-                                        <td>{model.WarehouseId}</td>
-                                        <td>{model.CustomerName}</td>
-                                        <td>{model.DocketNumber}</td>
-                                        <td>{model.TotalAmount}</td>
-                                        <td>{model.ExecutorCode}</td>
-                                        <td>{model.Description}</td>
-                                        <td>{model.StockReceiveDocketId}</td>
-                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.Id)}>Sửa</a></td>
+                                    <tr key={model.id}>
+                                        <td>{model.id}</td>
+                                        <td>{model.stockReceiveDocketTypeId}</td>
+                                        <td>{model.warehouseId}</td>
+                                        <td>chưa có customer</td>
+                                        <td>{model.docketNumber}</td>
+                                        <td>{model.totalAmount}</td>
+                                        <td>{model.executorCode}</td>
+                                        <td>{model.description}</td>
+                                        <td>{model.stockReceiveDocketTypeId}</td>
+                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.id)}>Sửa</a></td>
                                     </tr>
                             )
                     }
@@ -267,5 +267,4 @@ interface ManageImportState {
     isTableLoading: boolean,
     editModalShow: boolean,
     editModalTitle: string,
-
 }

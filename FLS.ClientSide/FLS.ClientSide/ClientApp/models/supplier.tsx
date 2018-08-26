@@ -9,6 +9,7 @@ interface ISupplier {
     email: string;
     website: string;
     description: string;
+    checked: boolean;
 }
 
 export class SupplierModel implements ISupplier {
@@ -19,5 +20,6 @@ export class SupplierModel implements ISupplier {
     phone: string;
     email: string;
     website: string;
+    checked: boolean;
     description: string;
 }

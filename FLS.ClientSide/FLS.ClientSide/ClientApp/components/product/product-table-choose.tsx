@@ -19,7 +19,11 @@ export class ProductTableChoose extends React.PureComponent<IProductTableChooseP
         }
     }
     componentWillReceiveProps(nextProps: IProductTableChooseProps) {
-        this.setState({ products: nextProps.products });
+        let productNews = nextProps.products;
+        for (var i = 0; i < productNews.length; i++) {
+
+        }
+        this.setState({ products: productNews });
     }
     private onChooseProduct(item: ProductModel) {
         this.props.onChooseProduct(item);
@@ -44,7 +48,7 @@ export class ProductTableChoose extends React.PureComponent<IProductTableChooseP
                                     <td>{product.id}</td>
                                     <td>{product.name}</td>
                                     <td></td>
-                                    <td>
+                                    <td className="text-right">
                                         {
                                             product.checked ?
                                                 <Button className="btn-xs" disabled>

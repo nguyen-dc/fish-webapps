@@ -4,7 +4,7 @@ import { Props } from 'react';
 
 interface LabeledInputProps {
     name?: string,
-    value?: string | number,
+    value?: Date | string | number,
     title?: string,
     inputType?: string,
     placeHolder?: string,
@@ -76,7 +76,7 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
                         className="form-control"
                         type={this.state.inputType}
                         name={this.state.name}
-                        value={this.state.value}
+                        value={this.state.value || ''}
                         required={this.state.required}
                         onChange={this.inputChange.bind(this)}
                         placeholder={this.state.placeHolder}

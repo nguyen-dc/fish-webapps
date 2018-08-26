@@ -92,5 +92,19 @@ namespace FLS.ClientSide.Controllers
             APIResponse<List<IdNameModel>> response = await GetAsync<List<IdNameModel>>(URI_API.CACHE_STOCK_ISSUE_DOCKET_TYPE);
             return Ok(response);
         }
+
+        [HttpGet("expenditure-dockets")]
+        public async Task<ActionResult> ExpenditureDocketList()
+        {
+            APIResponse<List<IdNameModel>> response = await GetAsync<List<IdNameModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
+            return Ok(response);
+        }
+
+        [HttpGet("expenditure-types")]
+        public async Task<ActionResult> ExpenditureTypeList()
+        {
+            APIResponse<List<IdNameModel>> response = await GetAsync<List<IdNameModel>>(URI_API.CACHE_EXPENDITURE_TYPE);
+            return Ok(response);
+        }
     }
 }

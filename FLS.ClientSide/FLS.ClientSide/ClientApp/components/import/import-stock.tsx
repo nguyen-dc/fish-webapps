@@ -5,7 +5,7 @@ import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date
 import * as Moment from 'moment';
 import { ProductSearch } from "../product/product-search";
 import { ProductModel } from "../../models/product";
-import { Button, Glyphicon } from "react-bootstrap";
+import { Button, Glyphicon, OverlayTrigger, Popover } from "react-bootstrap";
 import { ArrayHandle, DateTimeHandle } from "../../handles/handles";
 import { ProductTable } from "../product/product-table";
 import { CacheAPI } from "../../api-callers/cache";
@@ -14,29 +14,36 @@ import { WarehouseModel } from "../../models/warehouse";
 import { StockReceiveDocketTypeModel } from "../../models/stock-receive-docket-type";
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { EmptyRowMessage } from "../shared/view-only";
+import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-detait";
+import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
 
 interface IImportStockState {
+    receiveDocket: StockReceiveDocketModel;
+    receiveDocketDetail: StockReceiveDocketDetailModel;
+    paySlipDetail: ExpenditureDocketDetailModel;
     products: ProductModel[],
-    model: StockReceiveDocketModel,
     isShow: boolean,
-    errorList: {},
     warehouses: WarehouseModel[],
     stockReceiveDocketTypes: StockReceiveDocketTypeModel[],
-    datetime: any,
+    expenditureTypes: any,
+    errorList: {},
 }
 export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImportStockState> {
     constructor(props: any) {
         super(props)
         this.state = {
+            receiveDocket: new StockReceiveDocketModel(),
+            receiveDocketDetail: new StockReceiveDocketDetailModel(),
+            paySlipDetail: new ExpenditureDocketDetailModel(),
             products: [],
-            model: new StockReceiveDocketModel(),
             isShow: props.isShow,
             errorList: {},
             warehouses: [],
             stockReceiveDocketTypes: [],
-            datetime: DateTimeHandle.DateFormat(Moment().toDate())
+            expenditureTypes:[]
         }
     }
+
     private onSelectedProducts(products: ProductModel[]) {
         let stateProducts = this.state.products;
         let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
@@ -51,13 +58,34 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
     async componentWillMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
-        this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data });
+        var expenditureTypes = await CacheAPI.ExpenditureType();
+        this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data, expenditureTypes: expenditureTypes.data });
     }
-    onFieldValueChange(model: any) {
+    onChangeReceiveDocket(model: any) {
         const nextState = {
             ...this.state,
             model: {
-                ...this.state.model,
+                ...this.state.receiveDocket,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+    onChangeReceiveDocketDetail(model: any) {
+        const nextState = {
+            ...this.state,
+            model: {
+                ...this.state.receiveDocketDetail,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+    onChangePaySlipDetail(model: any) {
+        const nextState = {
+            ...this.state,
+            model: {
+                ...this.state.paySlipDetail,
                 [model.name]: model.value,
             }
         };
@@ -69,33 +97,33 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                 <div className="panel-body">
                     <div className="col-md-4">
                         <LabeledInput
-                            name={'name'}
-                            value={''}
+                            name={'id'}
+                            value={this.state.receiveDocket.id}
                             title={'Mã phiếu nhập'}
                             placeHolder={'Mã phiếu nhập'}
-                            error={this.state.errorList['name']}
+                            error={this.state.errorList['id']}
                             readOnly={true}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                         <LabeledSelect
-                            name={'input'}
-                            value={0}
+                            name={'stock_receive_docket_type_id'}
+                            value={this.state.receiveDocket.stockReceiveDocketTypeId}
                             title={'Loại phiếu nhập'}
                             placeHolder={'Loại phiếu nhập'}
                             valueKey={'id'}
-                            nameKey={'name'}
+                            nameKey={'stock_receive_docket_type_id'}
                             options={this.state.stockReceiveDocketTypes} />
                         <LabeledInput
-                            name={'name'}
-                            value={''}
+                            name={'docketNumber'}
+                            value={this.state.receiveDocket.docketNumber}
                             title={'Số hóa đơn'}
                             placeHolder={'Số hóa đơn'}
-                            error={this.state.errorList['name']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            error={this.state.errorList['docketNumber']}
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                     </div>
                     <div className="col-md-4">
                         <LabeledSelect
-                            name={'warehouses'}
-                            value={0}
+                            name={'warehouseId'}
+                            value={this.state.receiveDocket.warehouseId}
                             title={'Kho nhập'}
                             placeHolder={'Kho nhập'}
                             valueKey={'id'}
@@ -103,47 +131,48 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             options={this.state.warehouses} />
                         <LabeledTextArea
                             rows={1}
-                            name={'Description'}
-                            value={this.state.model.Description}
-                            title={'Ghi chú'}
-                            placeHolder={'Ghi chú'}
-                            error={this.state.errorList['Description']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            name={'description'}
+                            value={this.state.receiveDocket.description}
+                            title={'Chi tiết'}
+                            placeHolder={'Chi tiết'}
+                            error={this.state.errorList['description']}
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                         <LabeledInput
                             name={'name'}
                             value={''}
                             title={'Mẫu số'}
                             placeHolder={'Mẫu số'}
                             error={this.state.errorList['name']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                     </div>
                     <div className="col-md-4">
                         <LabeledInput
-                            name={'name'}
-                            value={this.state.datetime}
+                            name={'executedDate'}
+                            value={this.state.receiveDocket.executedDate}
                             title={'Ngày nhập'}
-                            error={this.state.errorList['name']}
+                            error={this.state.errorList['executedDate']}
                             readOnly={true}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                         <LabeledCheckBox
-                            name={'hasScale'}
-                            value={true}
+                            name={'isActuallyReceived'}
+                            value={this.state.receiveDocket.isActuallyReceived}
                             text={'Thực nhập'}
-                            error={this.state.errorList['hasScale']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            error={this.state.errorList['is_actually_received']}
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                         <LabeledInput
                             name={'name'}
                             value={''}
                             title={'Ký hiệu'}
                             placeHolder={'Ký hiệu'}
                             error={this.state.errorList['name']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onChangeReceiveDocket.bind(this)} />
                     </div>
+
+                   
                 </div>
             </div>
             <div className="panel panel-default">
                 <div className="panel-heading">
-                    {/*<ProductSearch onReturn={this.onSelectedProducts.bind(this)} wrapperClass={'text-right'} />*/}
                     <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
                 </div>
                 <div className="panel-body">
@@ -164,27 +193,33 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                 <div className="panel-body">
                     <div className="mg-bt-15">
                         <div className="col-md-3">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Chi phí:</label>
-                                <select className="form-control" id="sel1">
-                                    <option>Chi phí 1</option>
-                                    <option>Chi phí 2</option>
-                                    <option>Chi phí 3</option>
-                                    <option>Chi phí 4</option>
-                                </select>
-                            </div>
+                           <LabeledSelect
+                                name={'expenditureTypeId'}
+                                value={this.state.paySlipDetail.expenditureTypeId}
+                                title={'Loại chi phí'}
+                                placeHolder={'Loại chi phí'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onChangePaySlipDetail.bind(this)}
+                                options={this.state.expenditureTypes} />
                         </div>
                         <div className="col-md-4">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Nội dung:</label>
-                                <input type="text" className="form-control" placeholder="Nội dung" />
-                            </div>
+                            <LabeledInput
+                                name={'title'}
+                                value={this.state.paySlipDetail.title}
+                                title={'Nội dung'}
+                                placeHolder={'Nội dung'}
+                                error={this.state.errorList['title']}
+                                valueChange={this.onChangePaySlipDetail.bind(this)} />
                         </div>
                         <div className="col-md-4">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label min-w-140 float-left" htmlFor="firstName">Số tiền:</label>
-                                <input type="text" className="form-control" placeholder="Số tiền" />
-                            </div>
+                            <LabeledInput
+                                name={'amount'}
+                                value={this.state.paySlipDetail.amount}
+                                title={'Số tiền'}
+                                placeHolder={'Số tiền'}
+                                error={this.state.errorList['amount']}
+                                valueChange={this.onChangePaySlipDetail.bind(this)} />
                         </div>
                         <div className="col-sm-1">
                             <div className="text-right">
