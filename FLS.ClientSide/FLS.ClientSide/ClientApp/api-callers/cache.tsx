@@ -28,7 +28,7 @@ export const CacheAPI = {
     },
     ProductSubgroup: async () => {
         try {
-            let request = await fetch('api/cacheproduct-subgroups');
+            let request = await fetch('api/cache/product-subgroups');
             return await request.json();
         }
         catch (err) {
@@ -92,6 +92,24 @@ export const CacheAPI = {
     StockIssueDocketType: async () => {
         try {
             let request = await fetch('api/cache/stock-issue-docket-types');
+            return await request.json();
+        }
+        catch (err) {
+            console.log(`Error: ${err.stack}`);
+        }
+    },
+    ExpenditureDocket: async () => {
+        try {
+            let request = await fetch('api/cache/expenditure-dockets');
+            return await request.json();
+        }
+        catch (err) {
+            console.log(`Error: ${err.stack}`);
+        }
+    },
+    ExpenditureType: async () => {
+        try {
+            let request = await fetch('api/cache/expenditure-types');
             return await request.json();
         }
         catch (err) {

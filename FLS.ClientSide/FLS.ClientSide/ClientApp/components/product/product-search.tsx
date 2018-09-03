@@ -8,6 +8,9 @@ import { ProductAPICaller } from "../../api-callers/product";
 import Pagination from "react-js-pagination";
 import { ProductTableChoose } from "./product-table-choose";
 import { EmptyTableMessage } from "../shared/view-only";
+import ClickOutHandler from 'react-onclickoutside-es6'
+import * as ReactDOM from "react-dom";
+import { CacheAPI } from "../../api-callers/cache";
 
 interface IProductSearchProps {
     keepLastResult?: boolean,
@@ -16,7 +19,7 @@ interface IProductSearchProps {
     onReturn: Function,
     wrapperClass?: string,
 }
-interface IProductSearchState {
+interface IProductState {
     keepLastResult: boolean,
     isTableLoading: boolean,
     lastSearchModel: PageFilterModel,
@@ -27,7 +30,27 @@ interface IProductSearchState {
     searchModel: PageFilterModel,
     pagingModel: PaginateModel,
     title: string,
+    openProduct: boolean
 }
+interface ISupplierState {
+    keepLastResult: boolean,
+    isTableLoading: boolean,
+    lastSearchModel: PageFilterModel,
+    modalOption: IModalModel,
+    modalShow: boolean,
+    products: ProductModel[],
+    choseProducts: ProductModel[],
+    searchModel: PageFilterModel,
+    pagingModel: PaginateModel,
+    title: string,
+    openProduct: boolean
+}
+
+interface IModelState {
+    product: IProductState,
+    supplier: ISupplierState
+}
+
 interface IModalModel {
     closeButtonTitle: string,
     headerTitle: string,
@@ -38,13 +61,15 @@ const modalDefaultOption = {
     headerTitle: "Chọn sản phẩm",
     finishButtonTitle: "Xong",
 } as IModalModel;
-export class ProductSearch extends React.Component<IProductSearchProps, IProductSearchState>{
-    constructor(props: any) {
+
+export class ProductSearch extends React.Component<IProductSearchProps, IProductState >{
+    constructor(props: IProductSearchProps) {
         super(props);
         let option = modalDefaultOption;
         //if (props.modalOption) { }
         ////
         this.state = {
+
             keepLastResult: props.keepLastResult ? props.keepLastResult : false,
             isTableLoading: false,
             modalOption: option,
@@ -55,13 +80,20 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
             lastSearchModel: new PageFilterModel(),
             pagingModel: new PaginateModel(),
             title: props.title ? props.title : "Chọn sản phẩm",
+            openProduct: false,
         }
     }
-
+    async componentWillMount() {
+        await this.onPageChange(1, true);
+    }
+    onOpenProductSearch() {
+        this.setState({ openProduct: true });
+    }
+    onCloseProductSearch() {
+        this.setState({ openProduct: false });
+    }
     onOpenModal() {
-        this.state.keepLastResult ?
-            this.setState({ modalShow: true, products: [] })
-            : this.setState({ modalShow: true, products: [], choseProducts: []  });
+        this.setState({ modalShow: true });
     }
     onCloseModal() {
         this.setState({ modalShow: false });
@@ -102,7 +134,14 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ products: result.data.items, pagingModel: paging, lastSearchModel: this.state.searchModel });
+            let products = result.data.items as ProductModel[];
+            let { choseProducts } = this.state;
+            products.map((prod, idx) => {
+                let exist = choseProducts.find(p => p.id === prod.id);
+                if (exist) prod.checked = true;
+            });
+            this.setState({ products: products, pagingModel: paging, lastSearchModel: this.state.searchModel });
+
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -119,24 +158,24 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
         this.forceUpdate();
     }
     onRemoveProduct(item: ProductModel) {
-        let choseProducts = this.state.choseProducts;
-        var index = choseProducts.indexOf(item);
-        choseProducts.splice(index, 1);
-        let products = this.state.products; 
+        let choseProducts = this.state.choseProducts.filter(i => i !== item);
+        
+        let products = this.state.products;
         let product = products.find(p => p.id == item.id);
-        product.checked = false;
+        if (product) product.checked = false;
         this.setState({ products: products, choseProducts: choseProducts })
     }
     onReturn() {
         this.props.onReturn(this.state.choseProducts);
         this.onCloseModal();
     }
+
     render() {
         let choseProducts = this.state.choseProducts;
         let products = this.state.products;
         let wrapperClass = this.props.wrapperClass ? { className: this.props.wrapperClass } : null;
         return <div {...wrapperClass}>
-            <Button bsStyle="link" onClick={this.onOpenModal.bind(this)}><Glyphicon glyph="plus" /> {this.state.title}</Button>
+            <Button className="btn btn-default" onClick={this.onOpenModal.bind(this)}><Glyphicon glyph="plus" /> {this.state.title}</Button>
             <Modal show={this.state.modalShow} onHide={this.onCloseModal.bind(this)}
                 aria-labelledby="contained-modal-title-lg" className="modal-full-width">
                 <Modal.Header closeButton>
@@ -147,44 +186,54 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
                         <div className='col-sm-6'>
                             <div className="mg-bt-15">
                                 <div className="input-group col-sm-12">
-                                    <input type="text" className="form-control" name="search" placeholder="Tìm sản phẩm" value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                    <input type="text" className="form-control" name="search" placeholder="Tìm sản phẩm" value={this.state.searchModel.key} onClick={this.onOpenProductSearch.bind(this)} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
                                     <span className="input-group-btn">
                                         <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
                                     </span>
+                                    {this.state.openProduct && (<div className="dropdown-search">
+                                        {this.state.isTableLoading && <div className="icon-loading"></div>}
+                                        <ProductTableChoose name={'products'} products={products} onChooseProduct={this.onChooseProduct.bind(this)} />
+                                        <div className="mg-bt-15">
+                                            <div className="text-left">
+                                                {this.state.products.length > 0 ? this.renderPaging() : null}
+                                            </div>
+                                            <div className="text-right">
+                                                <Button className="btn btn-default" onClick={this.onCloseProductSearch.bind(this)} >Đóng</Button></div>
+                                            </div>
+                                        </div>
+                                       )}
                                 </div>
-                            </div>
-                            <ProductTableChoose name={'products'} products={products} onChooseProduct={this.onChooseProduct.bind(this)} />
-                            {this.state.isTableLoading && <div className="icon-loading"></div>}
-                            <div className="row">
-                                {
-                                    this.state.products.length > 0 ? this.renderPaging : null
-                                }
+                                <div className="row">
+                                    <div className='col-sm-12'>
+                                        <label className="mg-t-15">Sản phẩm đã chọn</label>
+                                        <table className="table table-striped table-hover">
+                                            <tbody>
+                                                {
+                                                    choseProducts.length == 0 ?
+                                                        <EmptyTableMessage /> :
+                                                        choseProducts.map((product) => {
+                                                            return (
+                                                                <tr key={'choose-' + product.id}>
+                                                                    <td>{product.id}</td>
+                                                                    <td>{product.name}</td>
+                                                                    <td></td>
+                                                                    <td className='td-xs-1'>
+                                                                        <Button bsStyle="default" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
+                                                                            <Glyphicon glyph="minus" />
+                                                                        </Button>
+                                                                    </td>
+                                                                </tr>
+                                                            )
+                                                        })
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div className='col-sm-6'>
-                            <span className='col-sm-12'>Sản phẩm đã chọn</span>
-                            <table className="table table-striped table-hover">
-                                <tbody>
-                                    {
-                                        choseProducts.length == 0 ?
-                                            <EmptyTableMessage /> :
-                                            choseProducts.map((product, index) => {
-                                                return (
-                                                    <tr key={'choose-' + product.id}>
-                                                        <td>{product.id}</td>
-                                                        <td>{product.name}</td>
-                                                        <td></td>
-                                                        <td className='td-xs-1'>
-                                                            <Button bsStyle="default" className="btn-xs" onClick={() => this.onRemoveProduct(product)}>
-                                                                <Glyphicon glyph="minus" />
-                                                            </Button>
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            })
-                                    }
-                                </tbody>
-                            </table>
+                            
                         </div>
                     </div>
                 </Modal.Body>
@@ -196,7 +245,7 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
         </div>
     }
     renderSearchModal() {
-        return 
+        return
     }
     private renderPaging() {
         return (
@@ -210,11 +259,6 @@ export class ProductSearch extends React.Component<IProductSearchProps, IProduct
                         pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
                         onChange={this.onPageChange.bind(this)}
                     />
-                </div>
-                <div className="col-xs-4">
-                    <div className="text-right">
-                        <button className="btn btn-default">Export</button>
-                    </div>
                 </div>
             </div>
         );

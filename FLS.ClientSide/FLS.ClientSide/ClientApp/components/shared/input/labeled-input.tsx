@@ -4,7 +4,7 @@ import { Props } from 'react';
 
 interface LabeledInputProps {
     name?: string,
-    value?: string | number,
+    value?: Date | string | number,
     title?: string,
     inputType?: string,
     placeHolder?: string,
@@ -76,7 +76,7 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
                         className="form-control"
                         type={this.state.inputType}
                         name={this.state.name}
-                        value={this.state.value}
+                        value={this.state.value || ''}
                         required={this.state.required}
                         onChange={this.inputChange.bind(this)}
                         placeholder={this.state.placeHolder}
@@ -228,14 +228,16 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
                         placeholder={this.state.placeHolder}
                         readOnly={this.state.readOnly}>
                         <option value={null}>{this.state.placeHolder}</option>
-                        {this.state.options.map(opt => {
-                            let disabled = opt[this.state.valueKey] == this.state.value ? true : false;
-                            return (
-                                <option {...disabled} key={opt[this.state.valueKey]}
-                                    value={opt[this.state.valueKey]}>{opt[this.state.nameKey]}
-                                </option>
-                            );
-                        })}
+                        {this.state.options != null ?
+                            this.state.options.map(opt => {
+                                let disabled = opt[this.state.valueKey] == this.state.value ? true : false;
+                                return (
+                                    <option {...disabled} key={opt[this.state.valueKey]}
+                                        value={opt[this.state.valueKey]}>{opt[this.state.nameKey]}
+                                    </option>
+                                );
+                            }) : null
+                        }
                     </select>
                 </div>
             </div>

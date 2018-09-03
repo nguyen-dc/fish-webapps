@@ -126,6 +126,9 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
         let dataTable = this.renderTable(this.state.listFishPond);
         let renderPaging = this.state.listFishPond.length > 0 ? this.renderPaging() : null;
         let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedFilterValue = filterTitle0;
+        if (this.state.lastSearchModel.filters[0].value > 0 && this.state.farmRegions && this.state.farmRegions.length > 0)
+            lastedFilterValue = this.state.farmRegions.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -170,7 +173,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                             this.state.lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
-                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{lastedFilterValue}</strong>
                                     </div>
                                 </div>
                         }

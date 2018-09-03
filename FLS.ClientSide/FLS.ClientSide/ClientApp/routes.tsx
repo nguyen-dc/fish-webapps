@@ -65,9 +65,8 @@ export const routes = <Layout>
         
         <Route exact path='/nhapmuahang' component={ImportStocks} />
         <Route exact path='/quanlyxuat' component={ManageExports} />
-        <Route exact path='/quanlyxuat' component={ManageExports} />
         <Route exact path='/xuatbanhang' component={ExportStocks} />
-        <Route exact path='/xuathuy' component={DisposeStocks} />
+        {/*  <Route exact path='/xuathuy' component={DisposeStocks} /> */}
         <Route exact path='/quanlythuchi' component={ManageExpenditures} />
         <Route exact path='/taophieuthu' component={NewStockIssueReceipt} />
         <Route exact path='/taophieuchi' component={NewStockReceivePayslip} />

@@ -43,6 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\components\product-group\product-subgroup - Copy.tsx" />
+    <None Remove="ClientApp\components\product-group\product-subgroup-edit - Copy.tsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Models\" />
   </ItemGroup>
 
@@ -52,7 +57,7 @@
 
   <ItemGroup>
     <Reference Include="FLS.ServerSide.SharingObject">
-      <HintPath>..\..\FLS.ServerSide\FLS.ServerSide.SharingObject.dll</HintPath>
+      <HintPath>..\Libs\FLS.ServerSide.SharingObject.dll</HintPath>
     </Reference>
   </ItemGroup>
 

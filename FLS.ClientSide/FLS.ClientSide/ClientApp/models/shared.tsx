@@ -42,7 +42,7 @@ export class PageFilterModel implements IPageFilterModel {
     key: string;
     page: number = 1;
     pageSize: number = 10;
-    filters: FilterModel[] = [new FilterModel(0, 'Tất cả')];
+    filters: FilterModel[] = [new FilterModel(0, 0)];
 }
 
 interface IIdNameModel {

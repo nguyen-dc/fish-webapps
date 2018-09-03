@@ -28,7 +28,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
             warehouses: []
         };
     }
-   
+
     async componentWillMount() {
         await this.onPageChange(1, true);
         var warehouses = await CacheAPI.Warehouse();
@@ -104,56 +104,54 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
 
         return (
             <div className="content-wapper">
-                <div className="row">
-                    <div className="col-sm-12">
-                        <nav aria-label="breadcrumb">
-                            <ol className="breadcrumb">
-                                <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Quản lý xuất</li>
-                            </ol>
-                        </nav>
-                    </div>
-                    <div className="col-xs-8 mg-bt-15">
-                        <div className="input-group">
-                            <div className="input-group-btn search-panel">
-                                <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                    <span id="search_concept">Tất cả</span> <span className="caret"></span>
-                                </button>
-                                <ul className="dropdown-menu" role="menu">
-                                    <li><a>Tất cả</a></li>
-                                </ul>
-                            </div>
-                            <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                            <span className="input-group-btn">
-                                <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
-                                <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
-                            </span>
-                        </div>
-                    </div>
-                    <div className="col-xs-4">
-                        <div className="text-right">
-                            <button className="btn btn-default mg-r-15">Import</button>
-                            <NavLink className="btn btn-primary" to="/xuatbanhang" >Thêm</NavLink>
-                        </div>
-                    </div>
-                </div>
-                {!this.state.isHidden && <AdvanceSearch />}
-                {
-                    this.state.lastedSearchKey ?
-                        <div className="row">
-                            <div className="col-sm-12">
-                                <div className="alert alert-info text-center">
-                                    Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
+                <nav aria-label="breadcrumb">
+                    <ol className="breadcrumb">
+                        <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                        <li className="breadcrumb-item active" aria-current="page">Quản lý xuất</li>
+                    </ol>
+                </nav>
+                <div className="panel panel-default">
+                    <div className="panel-body">
+                        {<AdvanceSearch />}
+                        <div className="col-xs-8 mg-bt-15">
+                            <div className="input-group">
+                                <div className="input-group-btn search-panel">
+                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
+                                        <span id="search_concept">Tất cả</span> <span className="caret"></span>
+                                    </button>
+                                    <ul className="dropdown-menu" role="menu">
+                                        <li><a>Tất cả</a></li>
+                                    </ul>
                                 </div>
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <span className="input-group-btn">
+                                    <button className="btn btn-primary" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"> </span> Tìm kiếm</button>
+                                </span>
                             </div>
-                        </div> : null
-                }
-                <div className="table-responsive p-relative">
-                    {dataTable}
-                    {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
-                </div>
-                <div className="row">
-                    {renderPaging}
+                        </div>
+                        <div className="col-xs-4">
+                            <div className="text-right">
+                                <NavLink className="btn btn-primary" to="/xuatbanhang" >Thêm</NavLink>
+                            </div>
+                        </div>
+                        {
+                            this.state.lastedSearchKey ?
+                                <div className="row">
+                                    <div className="col-sm-12">
+                                        <div className="alert alert-info text-center">
+                                            Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
+                                        </div>
+                                    </div>
+                                </div> : null
+                        }
+                        <div className="col-sm-12">
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                            </div>
+                        </div>
+                        {renderPaging}
+                    </div>
                 </div>
             </div>
         );
@@ -177,7 +175,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                     </tr>
                 </thead>
                 <tbody>
-                   
+
                 </tbody>
             </table>
         );
@@ -206,59 +204,54 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
     }
 }
 const AdvanceSearch = () => (
-    <Well className="row">
-        <div className="col-md-4">
-            <LabeledSingleDatePicker
-                name={'fromDate'}
-                title={'Từ ngày'}
-                date={Moment()} />
-            <LabeledSingleDatePicker
-                name={'toDate'}
-                title={'Đến ngày'}
-                date={Moment()} />
-        </div>
-        <div className="col-md-4">
-            <LabeledSelect
-                name={'warehouses'}
-                value={0}
-                title={'Kho xuất'}
-                placeHolder={'Kho xuất'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Kho 1' }, { id: 2, name: 'Kho 2' }]} />
-            <LabeledSelect
-                name={'suppliers'}
-                value={0}
-                title={'Khách hàng'}
-                placeHolder={'Khách hàng'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Khách hàng 1' }, { id: 2, name: 'Khách hàng 2' }]} />
-        </div>
-        <div className="col-md-4">
-            <LabeledSelect
-                name={'input'}
-                value={0}
-                title={'Loại phiếu xuất'}
-                placeHolder={'Loại phiếu xuất'}
-                valueKey={'id'}
-                nameKey={'name'}
-                options={[{ id: 1, name: 'Loại phiếu xuất 1' }, { id: 2, name: 'Loại phiếu xuất 2' }]} />
-            <div className='form-group-custom mg-bt-15'>
-                <label className="control-label min-w-140 float-left"></label>
-                <div>
-                    <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
+    <div className="col-sm-12">
+        <div className="row">
+            <div className="col-md-4">
+                <LabeledSingleDatePicker
+                    name={'fromDate'}
+                    title={'Từ ngày'}
+                    date={Moment()} />
+                <LabeledSingleDatePicker
+                    name={'toDate'}
+                    title={'Đến ngày'}
+                    date={Moment()} />
+            </div>
+            <div className="col-md-4">
+                <LabeledSelect
+                    name={'warehouses'}
+                    value={0}
+                    title={'Kho xuất'}
+                    placeHolder={'Kho xuất'}
+                    valueKey={'id'}
+                    nameKey={'name'}
+                    options={[{ id: 1, name: 'Kho 1' }, { id: 2, name: 'Kho 2' }]} />
+                <LabeledSelect
+                    name={'suppliers'}
+                    value={0}
+                    title={'Khách hàng'}
+                    placeHolder={'Khách hàng'}
+                    valueKey={'id'}
+                    nameKey={'name'}
+                    options={[{ id: 1, name: 'Khách hàng 1' }, { id: 2, name: 'Khách hàng 2' }]} />
+            </div>
+            <div className="col-md-4">
+                <LabeledSelect
+                    name={'input'}
+                    value={0}
+                    title={'Loại phiếu xuất'}
+                    placeHolder={'Loại phiếu xuất'}
+                    valueKey={'id'}
+                    nameKey={'name'}
+                    options={[{ id: 1, name: 'Loại phiếu xuất 1' }, { id: 2, name: 'Loại phiếu xuất 2' }]} />
+                <div className='form-group-custom mg-bt-15'>
+                    <label className="control-label min-w-140 float-left"></label>
+                    <div>
+                        <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
+                    </div>
                 </div>
             </div>
         </div>
-        <div className="col-sm-12">
-            <div className="col-sm-12">
-                <div className="text-right">
-                    <button type="submit" className="btn btn-primary">Tìm kiếm</button>
-                </div>
-            </div>
-        </div>
-    </Well>
+    </div>
 )
 
 interface ManageImportState {

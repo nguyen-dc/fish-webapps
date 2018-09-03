@@ -76,13 +76,13 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
             this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa đơn vị sản phẩm', selectedModel: model });
         }
         else
-            this.setState({ editModalShow: true, editModalTitle: 'Tạo đơn vị sản phẩm', selectedModel: new ProductUnitModel()});
+            this.setState({ editModalShow: true, editModalTitle: 'Tạo đơn vị sản phẩm', selectedModel: new ProductUnitModel() });
     }
     onCloseEdit() {
         this.setState({ editModalShow: false });
     }
     onSearchKeyChange(e) {
-        this.setState({ searchKey: e.target.value});
+        this.setState({ searchKey: e.target.value });
     }
     onSearchKeyPress(e) {
         if (e.charCode == 13) {
@@ -119,18 +119,18 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
                                 >Thêm</Button>
                             </div>
                         </div>
-                    {
-                        this.state.lastedSearchKey == undefined ? null :
+                        {
+                            this.state.lastedSearchKey == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
                                         Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong>
                                     </div>
-                            </div>
+                                </div>
                         }
                         <div className="col-sm-12">
-                    <div className="table-responsive p-relative">
-                        {dataTable}
-                        {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                            <div className="table-responsive p-relative">
+                                {dataTable}
+                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
                             </div>
                         </div>
                         {renderPaging}
@@ -162,7 +162,7 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
                 <tbody>
                     {
                         models.length == 0 ?
-                            <EmptyTableMessage/> :
+                            <EmptyTableMessage /> :
                             models.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
@@ -186,16 +186,16 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
 
     private renderPaging() {
         return (
-                <div className="col-xs-12">
-                    <Pagination
-                        innerClass={'pagination mg-0'}
-                        activePage={this.state.pagingModel.currentPage}
-                        itemsCountPerPage={this.state.pagingModel.pageSize}
-                        totalItemsCount={this.state.pagingModel.totalItems}
-                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
-                        onChange={this.onPageChange.bind(this)}
-                    />
-                </div>
+            <div className="col-xs-12">
+                <Pagination
+                    innerClass={'pagination mg-0'}
+                    activePage={this.state.pagingModel.currentPage}
+                    itemsCountPerPage={this.state.pagingModel.pageSize}
+                    totalItemsCount={this.state.pagingModel.totalItems}
+                    pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
+                    onChange={this.onPageChange.bind(this)}
+                />
+            </div>
         );
     }
 }

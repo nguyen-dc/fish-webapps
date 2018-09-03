@@ -46,7 +46,6 @@ export class NavMenu extends React.Component<{}, {}> {
                                     <li className="divider-vertical"></li>
                                     <li><NavLink to="/quanlyxuat" >Quản lý xuất</NavLink></li>
                                     <li><NavLink to="/xuatbanhang" >Xuất bán hàng hóa thông thường</NavLink></li>
-                                    <li><NavLink to="/xuathuy" >Xuất hủy</NavLink></li>
                                 </ul>
                             </li>
                             <li className="dropdown">

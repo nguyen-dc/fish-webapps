@@ -99,6 +99,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                 </ol>
                 <div className="panel panel-default">
                     <div className="panel-body">
+                        {advanceSeach}
                         <div className="col-sm-8 mg-bt-15">
                             <div className="input-group">
                                 <div className="input-group-btn search-panel">
@@ -111,18 +112,15 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                 </div>
                                 <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
                                 <span className="input-group-btn">
-                                    <button className="btn btn-default" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"></span></button>
-                                    <button className="btn btn-default" onClick={this.toggleHidden.bind(this)}>Mở rộng</button>
+                                    <button className="btn btn-primary" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"> </span> Tìm kiếm</button>
                                 </span>
                             </div>
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
                                 <NavLink className="btn btn-primary" to="/nhapmuahang" >Thêm</NavLink>
                             </div>
                         </div>
-                        {!this.state.isHidden && advanceSeach}
                         {
                             this.state.lastedSearchKey ?
                                 <div className="col-sm-12">
@@ -167,17 +165,17 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                             <EmptyTableMessage/> :
                             models.map(
                                 model =>
-                                    <tr key={model.Id}>
-                                        <td>{model.Id}</td>
-                                        <td>{model.StockIssueDocketTypeId}</td>
-                                        <td>{model.WarehouseId}</td>
-                                        <td>{model.CustomerName}</td>
-                                        <td>{model.DocketNumber}</td>
-                                        <td>{model.TotalAmount}</td>
-                                        <td>{model.ExecutorCode}</td>
-                                        <td>{model.Description}</td>
-                                        <td>{model.StockReceiveDocketId}</td>
-                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.Id)}>Sửa</a></td>
+                                    <tr key={model.id}>
+                                        <td>{model.id}</td>
+                                        <td>{model.stockReceiveDocketTypeId}</td>
+                                        <td>{model.warehouseId}</td>
+                                        <td>chưa có customer</td>
+                                        <td>{model.docketNumber}</td>
+                                        <td>{model.totalAmount}</td>
+                                        <td>{model.executorCode}</td>
+                                        <td>{model.description}</td>
+                                        <td>{model.stockReceiveDocketTypeId}</td>
+                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.id)}>Sửa</a></td>
                                     </tr>
                             )
                     }
@@ -255,13 +253,6 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                     </div>
                 </div>
-                <div className="col-sm-12">
-                    <div className="col-sm-12">
-                        <div className="text-right">
-                            <button type="submit" className="btn btn-primary">Tìm kiếm</button>
-                        </div>
-                    </div>
-                </div>
             </div>
         )
     }
@@ -276,5 +267,4 @@ interface ManageImportState {
     isTableLoading: boolean,
     editModalShow: boolean,
     editModalTitle: string,
-
 }

@@ -7,71 +7,136 @@ import { Select } from '../shared/Select';
 import { ProductGroupModel } from "../../models/product-group";
 import { FormErrors } from "../shared/FormErrors";
 import { ProductGroups } from "./product-group";
-const urlCreate = 'api/product-groups/add';
-const urlUpdate = 'api/product-groups/modify';
+import { StringHandle } from "../../handles/handles";
+import { ProductGroupAPICaller } from "../../api-callers/product-group";
+import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 
-interface ProductGroupEditProps {
+interface IProductGroupProps {
     isShow: boolean,
-    handleClose: any,
-    title: string;
-    handleFormSubmit: any;
-    onFieldValueChange: any;
-    productGroup: ProductGroupModel;
-    isEdit: boolean;
-    formErrors: {}
+    onCloseModal: any,
+    title: string,
+    onFormAfterSubmit?: any,
+    isEdit: boolean,
+    model?: ProductGroupModel,
 }
 
-export class ProductGroupEdit extends React.Component<ProductGroupEditProps, any>  {
-    constructor(props: any) {
+interface IProductGroupState {
+    isShow: boolean,
+    model?: ProductGroupModel,
+    errorList: any,
+}
+
+export class ProductGroupEdit extends React.Component<IProductGroupProps, IProductGroupState>  {
+    constructor(props: IProductGroupProps) {
         super(props)
+        this.state = {
+            isShow: props.isShow,
+            model: props.model ? props.model : new ProductGroupModel(),
+            errorList: {}
+        }
+    }
+    componentDidMount() {
+        //init comboboxes
+        ////
+    }
+    componentWillReceiveProps(props) {
+        // call load data by this.props.model.id from server
+        ////
+        this.setState({ model: props.model, isShow: props.isShow });
+    }
+    onCloseModal() {
+        this.setState({ errorList: {} });
+        if (this.props.onCloseModal)
+            this.props.onCloseModal();
+    }
+    onFieldValueChange(model: any) {
+        const nextState = {
+            ...this.state,
+            model: {
+                ...this.state.model,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+    private _validate() {
+        var errors = {};
+        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+            errors['name'] = 'Chưa nhập tên nghành hàng';
+        }
+        return errors;
+    }
+
+    async onFormSubmit(e) {
+        var errors = this._validate();
+        if (Object.keys(errors).length > 0) {
+            this.setState({
+                errorList: errors
+            });
+            return;
+        }
+        if (this.props.isEdit) {
+            let request = await ProductGroupAPICaller.Update(this.state.model).then(response => {
+                if (response.ok) {
+                    this.onCloseModal();
+                    // return succeed value to parent
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(true, this.state.model);
+                }
+            });
+        } else {
+            let request = await ProductGroupAPICaller.Create(this.state.model).then(response => {
+                if (response.ok) {
+                    this.onCloseModal();
+                    // return succeed value to parent
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(this.state.model);
+                }
+            });
+        }
     }
     render() {
-        let handleClose = () => { this.props.handleClose };
         return (
-            <Modal show={this.props.isShow} onHide={this.props.handleClose}
+            <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
                 bsSize="large"
                 aria-labelledby="contained-modal-title-lg">
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-lg">{this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="form-horizontal" onSubmit={this.props.handleFormSubmit}>
-                        {this.props.formErrors ? <FormErrors formErrors={this.props.formErrors} /> : null}
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Tên ngành hàng:</label>
-                            <div className="col-xs-9">
-                                <Input
-                                    inputType={'text'}
-                                    name={'name'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.productGroup.name}
-                                    required={false}
-                                    error={this.props.formErrors['name']}
-                                    placeholder={'Tên ngành hàng'} />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="lastName">Mô tả:</label>
-                            <div className="col-xs-9">
-                                <TextArea
-                                    name={'description'}
-                                    onChange={this.props.onFieldValueChange}
-                                    rows={5}
-                                    error={this.props.formErrors['description']}
-                                    value={this.props.productGroup.description}
-                                    placeholder={'Mô tả chi tiết'} />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-3 col-xs-9">
-                                <input type="submit" className="btn btn-primary mg-r-15" value={this.props.isEdit ? 'Cập nhật':'Thêm'}/>
-                            </div>
-                        </div>
+                    <form className="form-horizontal">
+                        {this.state.errorList ? <FormErrors formErrors={this.state.errorList} /> : null}
+                        {
+                            this.props.isEdit ?
+                                <LabeledInput
+                                    name={'id'}
+                                    value={this.state.model.id}
+                                    readOnly={true}
+                                    title={'Mã ngành hàng'}
+                                    placeHolder={'Mã ngành hàng'} />
+                                : null
+                        }
+                        <LabeledInput
+                            name={'name'}
+                            value={this.state.model.name}
+                            title={'Tên ngành hàng'}
+                            placeHolder={'Tên ngành hàng'}
+                            error={this.state.errorList['name']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledTextArea
+                            name={'description'}
+                            rows={3}
+                            value={this.state.model.description}
+                            title={'Mô tả'}
+                            placeHolder={'Mô tả chi tiết'}
+                            error={this.state.errorList['description']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </form>
                     
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.handleClose}>Đóng</Button>
+                    <Button bsStyle="primary" onClick={this.onFormSubmit.bind(this)}>{this.props.isEdit ? 'Cập nhật' : 'Tạo'} </Button>
+                    <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
         );

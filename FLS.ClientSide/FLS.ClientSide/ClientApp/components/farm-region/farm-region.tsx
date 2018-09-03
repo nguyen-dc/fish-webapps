@@ -76,13 +76,13 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
             this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa vùng nuôi', selectedModel: model });
         }
         else
-            this.setState({ editModalShow: true, editModalTitle: 'Tạo vùng nuôi', selectedModel: new FarmRegionModel()});
+            this.setState({ editModalShow: true, editModalTitle: 'Tạo vùng nuôi', selectedModel: new FarmRegionModel() });
     }
     onCloseEdit() {
         this.setState({ editModalShow: false });
     }
     onSearchKeyChange(e) {
-        this.setState({ searchKey: e.target.value});
+        this.setState({ searchKey: e.target.value });
     }
     onSearchKeyPress(e) {
         if (e.charCode == 13) {
@@ -149,7 +149,7 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
     }
 
     private renderTable(models: FarmRegionModel[]) {
-        
+
         return (
             <table className="table table-striped table-hover">
                 <thead>
@@ -162,7 +162,7 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
                 <tbody>
                     {
                         models.length == 0 ?
-                            <EmptyTableMessage/> :
+                            <EmptyTableMessage /> :
                             models.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
@@ -185,16 +185,17 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
 
     private renderPaging() {
         return (
-                <div className="col-xs-12">
-                    <Pagination
-                        innerClass={'pagination mg-0'}
-                        activePage={this.state.pagingModel.currentPage}
-                        itemsCountPerPage={this.state.pagingModel.pageSize}
-                        totalItemsCount={this.state.pagingModel.totalItems}
-                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
-                        onChange={this.onPageChange.bind(this)}
-                    />
-                </div>
+            <div className="col-xs-12">
+                <Pagination
+                    innerClass={'pagination mg-0'}
+                    activeLinkClass={'btn btn-info'}
+                    activePage={this.state.pagingModel.currentPage}
+                    itemsCountPerPage={this.state.pagingModel.pageSize}
+                    totalItemsCount={this.state.pagingModel.totalItems}
+                    pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
+                    onChange={this.onPageChange.bind(this)}
+                />
+            </div>
         );
     }
 }

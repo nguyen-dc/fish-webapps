@@ -1,134 +1,206 @@
 ﻿import * as React from "react";
+import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { Modal, Button } from 'react-bootstrap';
-import { Input } from '../shared/SingleInput';
-import { TextArea } from '../shared/TextArea';
-import { Select } from '../shared/Select';
 import { ProductModel } from "../../models/product";
+import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/FormErrors";
+import { IdNameModel, ErrorItem } from "../../models/shared";
+import * as Moment from 'moment';
+import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
+import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import { ProductAPICaller } from "../../api-callers/product";
+import { CacheAPI } from "../../api-callers/cache";
+import { StringHandle } from "../../handles/handles";
 
-interface IProductEditProps {
+interface IProductProps {
     isShow: boolean,
-    handleClose: any,
-    title: string;
-    handleFormSubmit: any;
-    onFieldValueChange: any;
-    product: ProductModel;
-    isEdit: boolean;
-    productGroups: any;
-    productSubgroups: any;
-    productUnits: any;
-    taxPercents: any;
-    formErrors: {}
+    onCloseModal: any,
+    title: string,
+    onFormAfterSubmit?: any,
+    isEdit: boolean,
+    model?: ProductModel
+    productGroups: any
 }
 
-export class ProductEdit extends React.Component<IProductEditProps, any>  {
-    constructor(props: any) {
+interface IProductState {
+    isShow: boolean,
+    model?: ProductModel,
+    errorList: any,
+    productSubGroups: any;
+    productGroups: any;
+    productUnits: any;
+    taxPercents: any;
+}
+
+export class ProductEdit extends React.Component<IProductProps, IProductState> {
+    constructor(props: IProductProps) {
         super(props)
+        this.state = {
+            isShow: props.isShow,
+            model: props.model ? props.model : new ProductModel(),
+            errorList: {},
+            productSubGroups: [],
+            productGroups: [],
+            productUnits: [],
+            taxPercents:[]
+        }
+    }
+    async componentWillMount() {
+        //init comboboxes
+        await this._loadDataCache();
+    }
+
+    private async _loadDataCache() {
+        var productSubGroups = await CacheAPI.ProductSubgroup();
+        var productUnits = await CacheAPI.ProductUnit();
+        var taxPercents = await CacheAPI.TaxPercent();
+        this.setState({ productSubGroups: productSubGroups.data, productUnits: productUnits.data, taxPercents: taxPercents.data });
+    }
+
+    componentWillReceiveProps(nextProps) {
+        // call load data by this.props.model.id from server
+        this.setState({ model: nextProps.model, isShow: nextProps.isShow, productGroups: nextProps.productGroups });
+    }
+    onCloseModal() {
+        this.setState({ errorList: {} });
+        if (this.props.onCloseModal)
+            this.props.onCloseModal();
+    }
+    onFieldValueChange(model: any) {
+        const nextState = {
+            ...this.state,
+            model: {
+                ...this.state.model,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+
+    private _validate() {
+        var errors = {};
+        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+            errors['name'] = 'Chưa nhập tên sản phẩm';
+        }
+        if (!this.state.model.productGroupId) {
+            errors['productGroupId'] = 'Chưa chọn ngành hàng';
+        }
+        if (!this.state.model.productSubgroupId) {
+            errors['productSubgroupId'] = 'Chưa chọn nhóm hàng';
+        }
+        if (!this.state.model.defaultUnitId) {
+            errors['defaultUnitId'] = 'Chưa chọn đơn vị tính';
+        }
+        if (!this.state.model.taxPercentId) {
+            errors['taxPercentId'] = 'Chưa chọn thuế';
+        }
+        return errors;
+    }
+
+    async onFormSubmit() {
+        var errors = this._validate();
+        if (Object.keys(errors).length > 0) {
+            this.setState({
+                errorList: errors
+            });
+            return;
+        }
+
+        if (this.props.isEdit) {
+            let request = await ProductAPICaller.Update(this.state.model).then(response => {
+                if (response.ok) {
+                    this.setState({ errorList: {} });
+                    this.onCloseModal();
+                    // return succeed value to parent
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(true, this.state.model);
+                }
+            });
+        } else {
+            let request = await ProductAPICaller.Create(this.state.model).then(response => {
+                if (response.ok) {
+                    this.setState({ errorList: {} });
+                    this.onCloseModal();
+                    // return succeed value to parent
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(this.state.model);
+                }
+            });
+        }
     }
     render() {
-        let handleClose = () => { this.props.handleClose };
         return (
-            <Modal show={this.props.isShow} onHide={this.props.handleClose}
+            <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
                 className="modal-medium"
                 aria-labelledby="contained-modal-title-lg">
                 <Modal.Header closeButton>
                     <Modal.Title id="contained-modal-title-lg">{this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="form-horizontal" onSubmit={this.props.handleFormSubmit}>
-                        {this.props.formErrors ? <FormErrors formErrors={this.props.formErrors} /> : null}
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Tên sản phẩm:</label>
-                            <div className="col-xs-9">
-                                <Input
-                                    inputType={'text'}
-                                    name={'name'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.product.name}
-                                    required={false}
-                                    error={this.props.formErrors['name']}
-                                    placeholder={'Tên sản phẩm'} />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Nhóm hàng:</label>
-                            <div className="col-xs-9">
-                                <Select
-                                    name={'productGroupId'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.product.productGroupId}
-                                    error={this.props.formErrors['productGroupId']}
-                                    placeholder={'chọn nhóm hàng'}
-                                    selectedOption={this.props.product.productGroupId}
-                                    options={this.props.productGroups}
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Ngành hàng:</label>
-                            <div className="col-xs-9">
-                                <Select
-                                    name={'productSubgroupId'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.product.productSubgroupId}
-                                    error={this.props.formErrors['productSubgroupId']}
-                                    placeholder={'chọn ngành hàng'}
-                                    selectedOption={this.props.product.productSubgroupId}
-                                    options={this.props.productSubgroups}
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Đơn vị tính:</label>
-                            <div className="col-xs-9">
-                                <Select
-                                    name={'defaultUnitId'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.product.name}
-                                    error={this.props.formErrors['defaultUnitId']}
-                                    placeholder={'chọn đơn vị tính'}
-                                    selectedOption={this.props.product.defaultUnitId}
-                                    options={this.props.productUnits}
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="firstName">Thuế %:</label>
-                            <div className="col-xs-9">
-                                <Select
-                                    name={'taxPercentId'}
-                                    onChange={this.props.onFieldValueChange}
-                                    value={this.props.product.name}
-                                    error={this.props.formErrors['taxPercentId']}
-                                    placeholder={'Chọn mức thuế'}
-                                    selectedOption={this.props.product.taxPercentId}
-                                    options={this.props.taxPercents}
-                                />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-3" htmlFor="lastName">Mô tả:</label>
-                            <div className="col-xs-9">
-                                <TextArea
-                                    name={'description'}
-                                    onChange={this.props.onFieldValueChange}
-                                    rows={5}
-                                    error={this.props.formErrors['description']}
-                                    value={this.props.product.description}
-                                    placeholder={'Mô tả chi tiết'} />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-3 col-xs-9">
-                                <input type="submit" className="btn btn-primary mg-r-15" value={this.props.isEdit ? 'Cập nhật':'Thêm'}/>
-                            </div>
-                        </div>
-                    </form>
-                    
+                    <div className="form-horizontal">
+                        {this.state.errorList && <FormErrors formErrors={this.state.errorList} />}
+                        {
+                            this.props.isEdit ?
+                                <LabeledInput
+                                    name={'id'}
+                                    value={this.state.model.id}
+                                    readOnly={true}
+                                    title={'Mã sản phẩm'}
+                                    placeHolder={'Mã sản phẩm'} />
+                                : null
+                        }
+                        <LabeledInput
+                            name={'name'}
+                            value={this.state.model.name}
+                            title={'Tên ao'}
+                            placeHolder={'Tên sản phẩm'}
+                            error={this.state.errorList['name']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            options={this.state.productGroups}
+                            name={'productGroupId'}
+                            value={this.state.model.productGroupId}
+                            title={'Ngành hàng'}
+                            placeHolder={'Chọn ngành hàng'}
+                            error={this.state.errorList['productGroupId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            options={this.state.productSubGroups}
+                            name={'productSubgroupId'}
+                            value={this.state.model.productSubgroupId}
+                            title={'Chọn nhóm hàng'}
+                            placeHolder={'Chọn nhóm hàng'}
+                            error={this.state.errorList['productSubgroupId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            options={this.state.productUnits}
+                            name={'defaultUnitId'}
+                            value={this.state.model.defaultUnitId}
+                            title={'Đơn vị tính'}
+                            placeHolder={'Đơn vị tính'}
+                            error={this.state.errorList['defaultUnitId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            options={this.state.taxPercents}
+                            name={'taxPercentId'}
+                            value={this.state.model.taxPercentId}
+                            title={'Thuế'}
+                            placeHolder={'Chọn loại thuế'}
+                            error={this.state.errorList['taxPercentId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledTextArea
+                            rows={5}
+                            name={'description'}
+                            value={this.state.model.description}
+                            title={'Mô tả'}
+                            placeHolder={'Mô tả'}
+                            error={this.state.errorList['description']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button onClick={this.props.handleClose}>Đóng</Button>
+                    <Button bsStyle="primary" onClick={this.onFormSubmit.bind(this)}>{this.props.isEdit ? 'Cập nhật' : 'Tạo'} </Button>
+                    <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
         );
