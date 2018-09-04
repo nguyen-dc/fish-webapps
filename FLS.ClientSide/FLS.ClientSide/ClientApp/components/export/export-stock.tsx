@@ -9,50 +9,77 @@ import { ProductSearch } from "../product/product-search";
 import { EmptyRowMessage } from "../shared/view-only";
 import { ProductTable } from "../product/product-table";
 import { ProductModel } from "../../models/product";
+import { ExportStockModel } from "../../models/export-stock";
+import { StockIssueDocketModel } from "../../models/stock-issue-docket";
+import { StockIssueDocketDetailModel } from "../../models/stock_issue_docket_detail";
+import { ExpenditureDocketModel } from "../../models/expenditure-docket";
+import { IdNameModel } from "../../models/shared";
+import { ProductSimpleSearch } from "../product/product-simple-search";
+import { CustomerSimpleSearch } from "../customer/customer-simple-search";
+import { CustomerModel } from "../../models/customer";
 
-export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> {
+interface ExportStockStates {
+    model: ExportStockModel,
+    issueDocket: StockIssueDocketModel,
+    docketDetails: StockIssueDocketDetailModel[],
+    receipt: ExpenditureDocketModel,
+    warehouses: IdNameModel[],
+    stockIssueDocketTypes: IdNameModel[],
+    errorList: {},
+}
+export class ExportStocks extends React.Component<RouteComponentProps<{}>, ExportStockStates> {
     constructor(props: any) {
         super(props)
         this.state = {
-            products: [],
-            model: null,
-            isShow: props.isShow,
+            model: new ExportStockModel(),
+            issueDocket: new StockIssueDocketModel(),
+            docketDetails: [] as StockIssueDocketDetailModel[],
+            receipt: new ExpenditureDocketModel(),
             errorList: {},
             warehouses: [],
             stockIssueDocketTypes: [],
-            datetime: DateTimeHandle.DateFormat(Moment().toDate())
         }
     }
 
     async componentWillMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
-        this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockIssueDocketTypes.data });
+        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data });
     }
 
-    private onSelectedProducts(products: ProductModel[]) {
-        let stateProducts = this.state.products;
-        let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
-        this.setState({ products: newList });
-    }
-    private onRemoveProduct(item: ProductModel) {
-        let products = this.state.products;
-        var index = products.indexOf(item);
-        products.splice(index, 1);
-        this.setState({ products: products })
-    }
-
-    onFieldValueChange(model: any) {
+    onDocketFieldChange(model: any) {
         const nextState = {
             ...this.state,
-            model: {
-                ...this.state.model,
+            issueDocket: {
+                ...this.state.issueDocket,
                 [model.name]: model.value,
             }
         };
         this.setState(nextState);
     }
-
+    onChooseCustomer(customer: CustomerModel) {
+        let { receipt } = this.state;
+        receipt.partnerId = customer.id;
+        receipt.partnerName = customer.name;
+        this.setState({ receipt: receipt});
+    }
+    onChooseProduct(product: ProductModel) {
+        let { docketDetails } = this.state;
+        let detail = new StockIssueDocketDetailModel();
+        let index = docketDetails.findIndex(d => d.productId == product.id);
+        if (index >= 0) {
+            detail = docketDetails[index];
+            detail.quantity = detail.quantity + 1;
+            docketDetails[index] = detail;
+        } else {
+            detail.productId = product.id;
+            detail.productName = product.name;
+            detail.productUnitId = product.defaultUnitId;
+            detail.quantity = 1;
+            docketDetails.push(detail);
+        }
+        this.setState({ docketDetails: docketDetails });
+    }
     renderTabInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
@@ -66,7 +93,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                                 placeHolder={'Mã phiếu xuất'}
                                 error={this.state.errorList['name']}
                                 readOnly={true}
-                                valueChange={this.onFieldValueChange.bind(this)} />
+                                valueChange={this.onDocketFieldChange.bind(this)} />
                             <LabeledSelect
                                 name={'input'}
                                 value={0}
@@ -74,7 +101,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                                 placeHolder={'Loại phiếu xuất'}
                                 valueKey={'id'}
                                 nameKey={'name'}
-                                options={this.state.stockIssueDocketType} />
+                                options={this.state.stockIssueDocketTypes} />
                             <LabeledSelect
                                 name={'warehouses'}
                                 value={0}
@@ -119,12 +146,12 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                             </div>
                             <LabeledInput
                                 name={'datetime'}
-                                value={this.state.datetime}
+                                value={'Ngày tạo phiếu'}
                                 title={'Ngày tạo phiếu'}
                                 placeHolder={'Ngày tạo phiếu'}
                                 error={this.state.errorList['datetime']}
                                 readOnly={true}
-                                valueChange={this.onFieldValueChange.bind(this)} />
+                                valueChange={this.onDocketFieldChange.bind(this)} />
                         </div>
                         <div className="col-sm-12">
                             <div className="form-group-custom mg-bt-15">
@@ -138,82 +165,82 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                 </div>
             </div>
 
-            );
+        );
+    }
+    renderCustomer() {
+        let { receipt, docketDetails } = this.state;
+        return (
+            <div className="panel panel-default">
+                <div className="panel-heading">
+                    <div className='row'>
+                        <div className='col-sm-12 mg-bt-15'>
+                            <CustomerSimpleSearch onChooseCustomer={(customer) => this.onChooseCustomer(customer)} />
+                        </div>
+                        { receipt.partnerId ? 
+                            [<div className='col-sm-3 mg-bt-15'>{receipt.partnerName}</div>,
+                            <div className='col-sm-3 mg-bt-15'>
+                                <input
+                                    className="form-control"
+                                    type='input'
+                                    placeholder='Mẫu số hóa đơn'
+                                />
+                            </div>,
+                            <div className='col-sm-3 mg-bt-15'>
+                                <input
+                                    className="form-control"
+                                    type='input'
+                                    placeholder='Số hiệu hóa đơn'
+                                />
+                            </div>,
+                            <div className='col-sm-3 mg-bt-15'>
+                                <input
+                                    className="form-control"
+                                    type='input'
+                                    placeholder='Số hóa đơn'
+                                />
+                            </div>
+                            ] : null}
+                    </div>
+                </div>
+                <div className="panel-body">
+                    <div className='row'>
+                        <div className='col-sm-12 mg-bt-15'>
+                            <ProductSimpleSearch popPlacement={'top'} onChooseProduct={(product) => this.onChooseProduct(product)} />
+                        </div>
+                        {
+                            docketDetails && docketDetails.length > 0 ?
+                                <div className='col-sm-12 mg-bt-15'>
+                                    {this.renderProductsTable()}
+                                </div>: null
+                        }
+                    </div>
+                </div>
+            </div>
+        )
     }
 
-    renderTable() {
+    renderProductsTable() {
+        let { docketDetails } = this.state;
         return (
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th>Mã sản phẩm</th>
                             <th>Tên sản phẩm</th>
                             <th>Số lượng</th>
-                            <th>Đơn vị tính</th>
-                            <th>VAT</th>
-                            <th>Đơn giá</th>
-                            <th>Tiền VAT</th>
-                            <th>Tổng tiền</th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td>Công ty thức ăn thủy sản</td>
-                            <td>1000</td>
-                            <td>Cá giống 1</td>
-                            <td>24</td>
-                            <td>11.5</td>
-                            <td>4545465</td>
-                            <td>0</td>
-                            <td>27.000</td>
-                            <td><a className="cursor-pointer">Xóa</a></td>
-                        </tr>
-                        <tr>
-                            <td>Công ty thức ăn thủy sản</td>
-                            <td>1000</td>
-                            <td>Cá giống 1</td>
-                            <td>24</td>
-                            <td>11.5</td>
-                            <td>4545465</td>
-                            <td>0</td>
-                            <td>27.000</td>
-                            <td><a className="cursor-pointer">Xóa</a></td>
-                        </tr>
-                        <tr>
-                            <td>Công ty thức ăn thủy sản</td>
-                            <td>1000</td>
-                            <td>Cá giống 1</td>
-                            <td>24</td>
-                            <td>11.5</td>
-                            <td>4545465</td>
-                            <td>0</td>
-                            <td>27.000</td>
-                            <td><a className="cursor-pointer">Xóa</a></td>
-                        </tr>
-                        <tr>
-                            <td>Công ty thức ăn thủy sản</td>
-                            <td>1000</td>
-                            <td>Cá giống 1</td>
-                            <td>24</td>
-                            <td>11.5</td>
-                            <td>4545465</td>
-                            <td>0</td>
-                            <td>27.000</td>
-                            <td><a className="cursor-pointer">Xóa</a></td>
-                        </tr>
-                        <tr>
-                            <td>Công ty thức ăn thủy sản</td>
-                            <td>1000</td>
-                            <td>Cá giống 1</td>
-                            <td>24</td>
-                            <td>11.5</td>
-                            <td>4545465</td>
-                            <td>0</td>
-                            <td>27.000</td>
-                            <td><a className="cursor-pointer">Xóa</a></td>
-                        </tr>
+                        {
+                            docketDetails.map((detail, idx) => {
+                                return <tr>
+                                    <td>{detail.productName}</td>
+                                    <td>{detail.quantity}</td>
+                                    <td><a className="cursor-pointer">Xóa</a></td>
+                                </tr>
+                            })
+                        }
                     </tbody>
                     <tfoot>
                         <tr>
@@ -237,22 +264,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, any> 
                     </ol>
                 </nav>
                 {this.renderTabInfo()}
-                <div className="panel panel-default">
-                    <div className="panel-heading">
-                        {/*<ProductSearch onReturn={this.onSelectedProducts.bind(this)} wrapperClass={'text-right'} />*/}
-                        <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
-                    </div>
-                    <div className="panel-body">
-                        {
-                            !this.state.products || this.state.products.length == 0 ?
-                                <EmptyRowMessage message={'Chưa chọn sản phẩm nhập'} /> :
-                                <div className="table-responsive p-relative">
-                                    <ProductTable products={this.state.products} onRemoveProduct={this.onRemoveProduct.bind(this)} />
-                                </div>
-                        }
-                    </div>
-                </div>
-                {this.renderTable()}
+                {this.renderCustomer()}
 
                 <div className="footer_total">
                     <div className="text-right">
