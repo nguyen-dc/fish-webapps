@@ -101,7 +101,7 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
                 <tbody>
                     {
                         customers.length == 0 ?
-                            <EmptyTableMessage /> :
+                            <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             customers.map((customer, index) => {
                                 return (
                                     <tr key={'ncc' + index}>

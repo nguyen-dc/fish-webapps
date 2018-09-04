@@ -83,7 +83,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     renderTabInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-default">
+                <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-md-4">
                             <LabeledInput
@@ -170,7 +170,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     renderCustomer() {
         let { receipt, docketDetails } = this.state;
         return (
-            <div className="panel panel-default">
+            <div className="panel panel-info">
                 <div className="panel-heading">
                     <div className='row'>
                         <div className='col-sm-12 mg-bt-15'>
@@ -205,7 +205,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                 <div className="panel-body">
                     <div className='row'>
                         <div className='col-sm-12 mg-bt-15'>
-                            <ProductSimpleSearch popPlacement={'top'} onChooseProduct={(product) => this.onChooseProduct(product)} />
+                            <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product)} />
                         </div>
                         {
                             docketDetails && docketDetails.length > 0 ?

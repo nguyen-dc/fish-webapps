@@ -152,7 +152,7 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                         <LabeledInput
                             name={'name'}
                             value={this.state.model.name}
-                            title={'Tên ao'}
+                            title={'Tên sản phẩm'}
                             placeHolder={'Tên sản phẩm'}
                             error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />

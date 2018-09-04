@@ -101,7 +101,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
                 <tbody>
                     {
                         suppliers.length == 0 ?
-                            <EmptyTableMessage /> :
+                            <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             suppliers.map((supplier, index) => {
                                 return (
                                     <tr key={'ncc' + index}>

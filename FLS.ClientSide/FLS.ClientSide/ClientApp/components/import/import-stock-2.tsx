@@ -99,7 +99,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
     renderSuppliers() {
         let { suppliers } = this.state;
         return suppliers.map((supplier, idx) => {
-            return <div className="panel panel-default" key={'splr-' + supplier.supplierBranchId}>
+            return <div className="panel panel-info" key={'splr-' + supplier.supplierBranchId}>
                 <div className="panel-heading">
                     <div className='row'>
                         <div className='col-sm-3 mg-bt-15'>{supplier.supplierBranchName}</div>
@@ -179,7 +179,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
     renderTabInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-default">
+                <div className="panel panel-info">
                     <div className="panel-body">
                         <div className='row'>
                             <div className="col-md-4">
@@ -264,7 +264,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                     </div>
                 </div>
                 {this.renderSuppliers()}
-                <div className="panel panel-default">
+                <div className="panel panel-info">
                     <div className="panel-body">
                         <div className='row'>
                             <div className='col-sm-12 mg-bt-15'>
@@ -279,7 +279,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
     renderTabExpend() {
         let { paySlipTypes } = this.state;
         return <div id="expend" className="tab-pane fade">
-            <div className="panel panel-default">
+            <div className="panel panel-info">
                 <div className="panel-body">
                     <div className="mg-bt-15">
                         <div className="col-md-3">
@@ -382,7 +382,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
         let expendQuantity = 3;
         let expendTotalAmount = 320000;
         let totalAmount = productTotalAmount + expendTotalAmount;
-        return <div className="panel panel-default">
+        return <div className="panel panel-info">
             <div className="row panel-body">
                 <div className="col-sm-4">
                     <div className="row">
