@@ -17,6 +17,8 @@ import { IdNameModel } from "../../models/shared";
 import { ProductSimpleSearch } from "../product/product-simple-search";
 import { CustomerSimpleSearch } from "../customer/customer-simple-search";
 import { CustomerModel } from "../../models/customer";
+import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import { Glyphicon, Button } from "react-bootstrap";
 
 interface ExportStockStates {
     model: ExportStockModel,
@@ -61,7 +63,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         let { receipt } = this.state;
         receipt.partnerId = customer.id;
         receipt.partnerName = customer.name;
-        this.setState({ receipt: receipt});
+        this.setState({ receipt: receipt });
     }
     onChooseProduct(product: ProductModel) {
         let { docketDetails } = this.state;
@@ -80,20 +82,21 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         }
         this.setState({ docketDetails: docketDetails });
     }
+    onRemoveProduct(productId: number) {
+        let { docketDetails } = this.state;
+        let choseProducts = docketDetails.filter(i => i.productId !== productId);
+        this.setState({ docketDetails: choseProducts });
+    }
+    onChangeQuantity(productId: number) {
+       
+    }
+
     renderTabInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-md-4">
-                            <LabeledInput
-                                name={'name'}
-                                value={''}
-                                title={'Mã phiếu xuất'}
-                                placeHolder={'Mã phiếu xuất'}
-                                error={this.state.errorList['name']}
-                                readOnly={true}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
                             <LabeledSelect
                                 name={'input'}
                                 value={0}
@@ -102,6 +105,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                 valueKey={'id'}
                                 nameKey={'name'}
                                 options={this.state.stockIssueDocketTypes} />
+                        </div>
+                        <div className="col-md-4">
                             <LabeledSelect
                                 name={'warehouses'}
                                 value={0}
@@ -112,46 +117,10 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                 options={this.state.warehouses} />
                         </div>
                         <div className="col-md-4">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Khách hàng:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Khách hàng" />
-                                </div>
-                            </div>
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Địa chỉ:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Địa chỉ" />
-                                </div>
-                            </div>
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số điện thoại:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Số điện thoại" />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-4">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số hóa đơn:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Số hóa đơn" />
-                                </div>
-                            </div>
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ngày hóa đơn:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Ngày hóa đơn" />
-                                </div>
-                            </div>
-                            <LabeledInput
-                                name={'datetime'}
-                                value={'Ngày tạo phiếu'}
+                            <LabeledSingleDatePicker
+                                name={'fromDate'}
                                 title={'Ngày tạo phiếu'}
-                                placeHolder={'Ngày tạo phiếu'}
-                                error={this.state.errorList['datetime']}
-                                readOnly={true}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
+                                date={Moment()} />
                         </div>
                         <div className="col-sm-12">
                             <div className="form-group-custom mg-bt-15">
@@ -170,63 +139,84 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     renderCustomer() {
         let { receipt, docketDetails } = this.state;
         return (
-            <div className="panel panel-info">
-                <div className="panel-heading">
-                    <div className='row'>
-                        <div className='col-sm-12 mg-bt-15'>
-                            <CustomerSimpleSearch onChooseCustomer={(customer) => this.onChooseCustomer(customer)} />
-                        </div>
-                        { receipt.partnerId ? 
-                            [<div className='col-sm-3 mg-bt-15'>{receipt.partnerName}</div>,
-                            <div className='col-sm-3 mg-bt-15'>
-                                <input
-                                    className="form-control"
-                                    type='input'
-                                    placeholder='Mẫu số hóa đơn'
-                                />
-                            </div>,
-                            <div className='col-sm-3 mg-bt-15'>
-                                <input
-                                    className="form-control"
-                                    type='input'
-                                    placeholder='Số hiệu hóa đơn'
-                                />
-                            </div>,
-                            <div className='col-sm-3 mg-bt-15'>
-                                <input
-                                    className="form-control"
-                                    type='input'
-                                    placeholder='Số hóa đơn'
-                                />
+            <div className="row">
+                <div className="col-sm-4">
+                    <div className="panel panel-info">
+                        <div className="panel-body">
+                            <div className="col-sm-12">
+                                <CustomerSimpleSearch onChooseCustomer={(customer) => this.onChooseCustomer(customer)} />
+                                {receipt.partnerId ?
+                                    (
+                                        <div className="row">
+                                            <div className='col-sm-12 mg-bt-15 mg-t-15 line-customer'>Khách hàng đã chọn: <strong>{receipt.partnerName}</strong></div>
+                                            <div className='col-sm-12'>
+                                                <LabeledInput
+                                                    name={'name'}
+                                                    value={''}
+                                                    title={'Mẫu số hóa đơn'}
+                                                    placeHolder={'Mẫu số hóa đơn'}
+                                                    error={this.state.errorList['name']}
+                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                            </div>
+                                            <div className='col-sm-12'>
+                                                <LabeledInput
+                                                    name={'name'}
+                                                    value={''}
+                                                    title={'Số hiệu hóa đơn'}
+                                                    placeHolder={'Số hiệu hóa đơn'}
+                                                    error={this.state.errorList['name']}
+                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                            </div>
+                                            <div className='col-sm-12'>
+                                                <LabeledInput
+                                                    name={'name'}
+                                                    value={''}
+                                                    title={'Số hóa đơn'}
+                                                    placeHolder={'Số hóa đơn'}
+                                                    error={this.state.errorList['name']}
+                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                            </div>
+                                            <div className='col-sm-12'>
+                                                <LabeledSingleDatePicker
+                                                    name={'fromDate'}
+                                                    title={'Ngày hóa đơn'}
+                                                    date={Moment()} />
+                                            </div>
+                                        </div>
+                                    ) : null}
                             </div>
-                            ] : null}
+                        </div>
                     </div>
                 </div>
-                <div className="panel-body">
-                    <div className='row'>
-                        <div className='col-sm-12 mg-bt-15'>
-                            <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product)} />
+                <div className="col-sm-8">
+                    <div className="panel panel-info">
+                        <div className="panel-body">
+                            <div className="col-sm-12">
+                                <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product)} />
+                                {
+                                    docketDetails && docketDetails.length > 0 ?
+                                        <div className='mg-bt-15'>
+                                            {this.renderProductsTable()}
+                                        </div> : null
+                                }
+                            </div>
                         </div>
-                        {
-                            docketDetails && docketDetails.length > 0 ?
-                                <div className='col-sm-12 mg-bt-15'>
-                                    {this.renderProductsTable()}
-                                </div>: null
-                        }
                     </div>
                 </div>
             </div>
+
         )
     }
 
     renderProductsTable() {
         let { docketDetails } = this.state;
         return (
-            <div className="table-responsive p-relative">
+            <div className="table-responsive p-relative mg-t-15">
                 <table className="table table-striped table-hover">
                     <thead>
                         <tr>
                             <th>Tên sản phẩm</th>
+                            <th>Đơn giá</th>
                             <th>Số lượng</th>
                             <th></th>
                         </tr>
@@ -234,10 +224,14 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     <tbody>
                         {
                             docketDetails.map((detail, idx) => {
-                                return <tr>
+                                return <tr key={idx}>
                                     <td>{detail.productName}</td>
-                                    <td>{detail.quantity}</td>
-                                    <td><a className="cursor-pointer">Xóa</a></td>
+                                    <td><input className="form-control" value={''} placeholder="Đơn giá" onChange={() => this.onChangeQuantity(detail.productId)} /></td>
+                                    <td><input className="form-control" value={1} onChange={() => this.onChangeQuantity(detail.productId)} /></td>
+                                    <td className="text-right">
+                                        <Button bsStyle="default" className="btn-sm" onClick={() => this.onRemoveProduct(detail.productId)}>
+                                            <Glyphicon glyph="minus" /></Button>
+                                    </td>
                                 </tr>
                             })
                         }

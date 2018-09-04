@@ -540,3 +540,15 @@ th.th-sm-4, td.td-sm-4 {
         border-bottom-color: rgba(0,0,0,.2);
         content: '';
     }
+.line-customer{
+    border-bottom:1px solid #eee;
+    padding-bottom:10px;
+}
+.popover{
+    left:0!important;
+    right:0 !important;
+    max-width:100% !important;
+}
+.input-group .input-group-btn > .btn {
+    border-radius: 0 4px 4px 0;
+}
