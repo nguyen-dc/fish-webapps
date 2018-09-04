@@ -244,7 +244,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={7} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td className="text-right"><strong>Tổng tiền:</strong> </td>
                             <td colSpan={2}><strong>34.800.000</strong></td>
                         </tr>
 

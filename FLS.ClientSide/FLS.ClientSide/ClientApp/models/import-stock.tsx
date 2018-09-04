@@ -1,15 +1,15 @@
 ﻿import * as React from "react";
 import { StockReceiveDocketModel } from "./stock-receive-docket";
-import { StockReceiveDocketDetailModel } from "./stock_receive_docket_detail";
 import { ExpenditureDocketDetailModel } from "./expenditure-docket-detait";
+import { ImportStockSupplierModel } from "./import-stock-supplier";
 
 export class ImportStockModel {
-    ReceiveDocket: StockReceiveDocketModel;
-    ReceiveDocketDetails: StockReceiveDocketDetailModel;
-    PaySlipDetails: ExpenditureDocketDetailModel;
+    receiveDocket: StockReceiveDocketModel;
+    suppliers: ImportStockSupplierModel[];
+    paySlipDetails: ExpenditureDocketDetailModel[];
     constructor() {
-        this.ReceiveDocket = new StockReceiveDocketModel();
-        this.ReceiveDocketDetails = new StockReceiveDocketDetailModel();
-        this.PaySlipDetails = new ExpenditureDocketDetailModel();
+        this.receiveDocket = new StockReceiveDocketModel();
+        this.suppliers = [] as ImportStockSupplierModel[];
+        this.paySlipDetails = [] as ExpenditureDocketDetailModel[];
     };
 }

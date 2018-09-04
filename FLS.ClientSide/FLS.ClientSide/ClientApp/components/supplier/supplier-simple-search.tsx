@@ -64,6 +64,9 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
             this.setState({ isSearching: false });
         }
     }
+    onTogglePopover() {
+        this.setState({ isPopUp: !this.state.isPopUp });
+    }
     onSearchKeyChange(e) {
         let searchModel = this.state.searchModel;
         searchModel.key = e.target.value;
@@ -85,7 +88,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
     }
     renderPopover() {
         let { isSearching, suppliers } = this.state;
-        return <Popover>
+        return <Popover id='splr-povr'>
             {isSearching && <div className="icon-loading"></div>}
             <table className="table table-striped table-hover">
                 <thead>
@@ -122,7 +125,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
         let { isPopUp, searchModel } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
         return <div className="input-group" ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn nhà cung cấp..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+            <input type="text" className="form-control" name="search" placeholder="Chọn nhà cung cấp..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onTogglePopover()}/>
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>
