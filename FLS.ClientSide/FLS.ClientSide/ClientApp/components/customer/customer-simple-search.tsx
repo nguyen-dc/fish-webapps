@@ -30,6 +30,11 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
             isSearching: false,
         }
     }
+
+    async componentWillMount() {
+        await this.onPageChange(1, true);
+    }
+
     target = null;
     getTarget() {
         return ReactDOM.findDOMNode(this.target);
