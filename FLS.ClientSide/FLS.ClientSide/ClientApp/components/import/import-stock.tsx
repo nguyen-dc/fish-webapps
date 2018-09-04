@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
-import { ProductSearch } from "../product/product-search";
+import { ProductSearch, AddProductModal } from "../product/product-search";
 import { ProductModel } from "../../models/product";
 import { Button, Glyphicon, OverlayTrigger, Popover } from "react-bootstrap";
 import { ArrayHandle, DateTimeHandle } from "../../handles/handles";
@@ -16,11 +16,12 @@ import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { EmptyRowMessage } from "../shared/view-only";
 import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-detait";
 import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
+import { ImportStockSupplierModel } from "../../models/import-stock-supplier";
 
 interface IImportStockState {
     receiveDocket: StockReceiveDocketModel;
-    receiveDocketDetail: StockReceiveDocketDetailModel;
-    paySlipDetail: ExpenditureDocketDetailModel;
+    suppliers: ImportStockSupplierModel[];
+    paySlipDetail: ExpenditureDocketDetailModel[];
     products: ProductModel[],
     isShow: boolean,
     warehouses: WarehouseModel[],
@@ -33,8 +34,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
         super(props)
         this.state = {
             receiveDocket: new StockReceiveDocketModel(),
-            receiveDocketDetail: new StockReceiveDocketDetailModel(),
-            paySlipDetail: new ExpenditureDocketDetailModel(),
+            suppliers: [],
+            paySlipDetail: [],
             products: [],
             isShow: props.isShow,
             errorList: {},
@@ -49,6 +50,12 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
         let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
         this.setState({ products: newList });
     }
+    private onSelectedSuppliers(products: ProductModel[]) {
+        let stateProducts = this.state.products;
+        let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
+        this.setState({ products: newList });
+    }
+
     private onRemoveProduct(item: ProductModel) {
         let products = this.state.products;
         var index = products.indexOf(item);
@@ -71,11 +78,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
         };
         this.setState(nextState);
     }
-    onChangeReceiveDocketDetail(model: any) {
+    onChangeSupplier(model: any) {
         const nextState = {
             ...this.state,
             model: {
-                ...this.state.receiveDocketDetail,
+                ...this.state.suppliers,
                 [model.name]: model.value,
             }
         };
@@ -167,13 +174,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                             error={this.state.errorList['name']}
                             valueChange={this.onChangeReceiveDocket.bind(this)} />
                     </div>
-
-                   
                 </div>
             </div>
             <div className="panel panel-default">
                 <div className="panel-heading">
-                    <ProductSearch onReturn={this.onSelectedProducts.bind(this)} />
+                    <AddProductModal onReturn={this.onSelectedProducts.bind(this)} onReturnSupplier={this.onSelectedSuppliers.bind(this)} />
                 </div>
                 <div className="panel-body">
                     {
@@ -195,7 +200,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                         <div className="col-md-3">
                            <LabeledSelect
                                 name={'expenditureTypeId'}
-                                value={this.state.paySlipDetail.expenditureTypeId}
+                                value={''}
                                 title={'Loại chi phí'}
                                 placeHolder={'Loại chi phí'}
                                 valueKey={'id'}
@@ -206,7 +211,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                         <div className="col-md-4">
                             <LabeledInput
                                 name={'title'}
-                                value={this.state.paySlipDetail.title}
+                                value={''}
                                 title={'Nội dung'}
                                 placeHolder={'Nội dung'}
                                 error={this.state.errorList['title']}
@@ -215,7 +220,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, IImpo
                         <div className="col-md-4">
                             <LabeledInput
                                 name={'amount'}
-                                value={this.state.paySlipDetail.amount}
+                                value={''}
                                 title={'Số tiền'}
                                 placeHolder={'Số tiền'}
                                 error={this.state.errorList['amount']}
