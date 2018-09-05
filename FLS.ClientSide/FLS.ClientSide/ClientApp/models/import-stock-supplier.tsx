@@ -13,7 +13,7 @@ export class ImportStockSupplierModel implements IImportStockSupplier {
     billCode: string = "";
     billSerial: string = "" ;
     billTemplateCode: string = "";
-    receiveDocketDetails: StockReceiveDocketDetailModel[];
+    receiveDocketDetails: StockReceiveDocketDetailModel[] = [];
     //----
     supplierBranchName: string = "";
 }

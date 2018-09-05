@@ -36,3 +36,18 @@ export const StringHandle = {
         return input.length == 0;
     }
 }
+
+const NumberFormat = new Intl.NumberFormat('vi-VN');
+const CurrencyFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+export const NumberHandle = {
+    FormatCurrency(input: number): string {
+        if (Number.isNaN(input))
+            return 'NaN';
+        return CurrencyFormat.format(input);
+    },
+    FormatNumber(input: number): string {
+        if (Number.isNaN(input))
+            return 'NaN';
+        return NumberFormat.format(input);
+    }
+}

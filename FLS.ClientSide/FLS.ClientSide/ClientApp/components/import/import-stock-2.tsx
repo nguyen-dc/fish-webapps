@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
-import { DateTimeHandle, ArrayHandle } from "../../handles/handles";
+import { DateTimeHandle, ArrayHandle, NumberHandle } from "../../handles/handles";
 import { ProductSearch } from "../product/product-search";
 import { EmptyRowMessage } from "../shared/view-only";
 import { ProductTable } from "../product/product-table";
@@ -65,6 +65,9 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
         };
         this.setState(nextState);
     }
+    onProductFieldChange(model: any) {
+        //
+    }
     onChooseSupplier(supplier: SupplierModel) {
         let { suppliers } = this.state;
         let model = new ImportStockSupplierModel();
@@ -79,22 +82,45 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
         }
         this.setState({ suppliers: suppliers });
     }
-    onChooseProduct(product: ProductModel, suplierId: number) {
-        //let { docketDetails } = this.state;
-        //let detail = new StockIssueDocketDetailModel();
-        //let index = docketDetails.findIndex(d => d.productId == product.id);
-        //if (index >= 0) {
-        //    detail = docketDetails[index];
-        //    detail.quantity = detail.quantity + 1;
-        //    docketDetails[index] = detail;
-        //} else {
-        //    detail.productId = product.id;
-        //    detail.productName = product.name;
-        //    detail.productUnitId = product.defaultUnitId;
-        //    detail.quantity = 1;
-        //    docketDetails.push(detail);
-        //}
-        //this.setState({ docketDetails: docketDetails });
+    onRemoveSupplier(supplierId: number) {
+        let { suppliers } = this.state;
+        let index = suppliers.findIndex(s => s.supplierBranchId == supplierId);
+        suppliers.splice(index, 1);
+        this.setState({ suppliers: suppliers });
+    }
+    onChooseProduct(product: ProductModel, supplierId: number) {
+        let { suppliers } = this.state;
+        let supplier = new ImportStockSupplierModel();
+        let supplierIndex = suppliers.findIndex(s => s.supplierBranchId == supplierId);
+        if (supplierIndex >= 0)
+            supplier = suppliers[supplierIndex];
+
+        let detail = new StockReceiveDocketDetailModel();
+        detail.unitPrice = 0;
+        let index = supplier.receiveDocketDetails.findIndex(d => d.productId == product.id);
+        if (index >= 0) {
+            detail = supplier.receiveDocketDetails[index];
+            detail.quantity = detail.quantity + 1;
+            
+            supplier.receiveDocketDetails[index] = detail;
+        } else {
+            detail.productId = product.id;
+            detail.productName = product.name;
+            detail.productUnitId = product.defaultUnitId;
+            detail.quantity = 1;
+            supplier.receiveDocketDetails.push(detail);
+        }
+        suppliers[supplierIndex] = supplier;
+        this.setState({ suppliers: suppliers });
+    }
+    onRemoveProduct(supplierId: number, productId: number) {
+        let { suppliers } = this.state;
+        let index = suppliers.findIndex(s => s.supplierBranchId == supplierId);
+        let supplier = suppliers[index];
+        let productIndex = supplier.receiveDocketDetails.findIndex(p => p.productId == productId);
+        supplier.receiveDocketDetails.splice(productIndex, 1);
+        suppliers[index] = supplier;
+        this.setState({ suppliers: suppliers });
     }
     renderSuppliers() {
         let { suppliers } = this.state;
@@ -129,12 +155,12 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                 <div className="panel-body">
                     <div className='row'>
                         <div className='col-sm-12 mg-bt-15'>
-                            <ProductSimpleSearch popPlacement={'top'} onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)} />
+                            <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)} />
                         </div>
                         {
                             supplier.receiveDocketDetails && supplier.receiveDocketDetails.length > 0 ?
                                 <div className='col-sm-12 mg-bt-15'>
-                                    {this.renderProductsTable(supplier.receiveDocketDetails)}
+                                    {this.renderProductsTable(supplier.supplierBranchId, supplier.receiveDocketDetails)}
                                 </div> : null
                         }
                     </div>
@@ -142,7 +168,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
             </div>
         })
     }
-    renderProductsTable(docketDetails: StockReceiveDocketDetailModel[]) {
+    renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
         let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity), 0);
         return (
             <div className="table-responsive p-relative">
@@ -151,16 +177,40 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                         <tr>
                             <th>Tên sản phẩm</th>
                             <th>Số lượng</th>
-                            <th></th>
+                            <th>Đơn giá</th>
+                            <th className='th-sm-1'></th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             docketDetails.map((detail, idx) => {
-                                return <tr key={'prdt-' + detail.id}>
+                                let totalAmount = detail.unitPrice * detail.quantity;
+                                return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
-                                    <td>{detail.quantity}</td>
-                                    <td><a className="cursor-pointer">Xóa</a></td>
+                                    <td>
+                                        <input
+                                            className="form-control"
+                                            type='input'
+                                            name={'quantity'}
+                                            value={detail.quantity}
+                                            onChange={this.onProductFieldChange.bind(this)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <input
+                                            className="form-control"
+                                            type='input'
+                                            name={'unitPrice'}
+                                            value={detail.unitPrice}
+                                            onChange={this.onProductFieldChange.bind(this)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <Button bsStyle='default' className='btn-sm'
+                                            onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
+                                            <Glyphicon glyph='minus' />
+                                        </Button>
+                                    </td>
                                 </tr>
                             })
                         }
@@ -168,7 +218,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                     <tfoot>
                         <tr>
                             <td className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>{totalPrice}</strong></td>
+                            <td colSpan={2}><strong>{NumberHandle.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
                     </tfoot>
@@ -377,7 +427,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
         </div>
     }
     renderReview() {
-        let productQuantity = 4;
+        let productQuantity = 4000;
         let productTotalAmount = 12000000;
         let expendQuantity = 3;
         let expendTotalAmount = 320000;
@@ -390,7 +440,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Số lượng sản phẩm </label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{productQuantity}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatNumber(productQuantity)}</label>
                         </div>
                     </div>
                     <div className="row">
@@ -398,7 +448,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng tiền</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{productTotalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(productTotalAmount)}</label>
                         </div>
                     </div>
                 </div>
@@ -408,7 +458,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Chi phí đi kèm</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{expendQuantity}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatNumber(expendQuantity)}</label>
                         </div>
                     </div>
                     <div className="row">
@@ -416,7 +466,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng chi phí</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{expendTotalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(expendTotalAmount)}</label>
                         </div>
                     </div>
                 </div>
@@ -426,7 +476,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng tiền trên phiếu</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{totalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(totalAmount)}</label>
                         </div>
                     </div>
                     <div className="row">
