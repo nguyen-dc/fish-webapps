@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
-import { DateTimeHandle, ArrayHandle } from "../../handles/handles";
+import { DateTimeHandle, ArrayHandle, NumberHandle } from "../../handles/handles";
 import { ProductSearch } from "../product/product-search";
 import { EmptyRowMessage } from "../shared/view-only";
 import { ProductTable } from "../product/product-table";
@@ -184,6 +184,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                     <tbody>
                         {
                             docketDetails.map((detail, idx) => {
+                                let totalAmount = detail.unitPrice * detail.quantity;
                                 return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
                                     <td>
@@ -217,7 +218,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                     <tfoot>
                         <tr>
                             <td className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>{totalPrice}</strong></td>
+                            <td colSpan={2}><strong>{NumberHandle.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
                     </tfoot>
@@ -426,7 +427,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
         </div>
     }
     renderReview() {
-        let productQuantity = 4;
+        let productQuantity = 4000;
         let productTotalAmount = 12000000;
         let expendQuantity = 3;
         let expendTotalAmount = 320000;
@@ -439,7 +440,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Số lượng sản phẩm </label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{productQuantity}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatNumber(productQuantity)}</label>
                         </div>
                     </div>
                     <div className="row">
@@ -447,7 +448,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng tiền</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{productTotalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(productTotalAmount)}</label>
                         </div>
                     </div>
                 </div>
@@ -457,7 +458,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Chi phí đi kèm</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{expendQuantity}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatNumber(expendQuantity)}</label>
                         </div>
                     </div>
                     <div className="row">
@@ -465,7 +466,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng chi phí</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{expendTotalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(expendTotalAmount)}</label>
                         </div>
                     </div>
                 </div>
@@ -475,7 +476,7 @@ export class ImportStock2s extends React.Component<RouteComponentProps<{}>, Impo
                             <label className="form-control border-0" htmlFor="firstName">Tổng tiền trên phiếu</label>
                         </div>
                         <div className="col-xs-4 text-right">
-                            <label className="form-control border-0" htmlFor="firstName">{totalAmount}</label>
+                            <label className="form-control border-0" htmlFor="firstName">{NumberHandle.FormatCurrency(totalAmount)}</label>
                         </div>
                     </div>
                     <div className="row">
