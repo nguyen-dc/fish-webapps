@@ -5,6 +5,7 @@ import { PageFilterModel, PaginateModel } from "../../models/shared";
 import { ProductAPICaller } from "../../api-callers/product";
 import { ProductModel } from "../../models/product";
 import { EmptyTableMessage } from "../shared/view-only";
+import Pagination from "react-js-pagination";
 
 interface ProductSimpleSearchProps {
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
@@ -123,6 +124,11 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                     }
                 </tbody>
             </table>
+            <div className="row">
+                <div className="text-left">
+                    {this.state.products.length > 0 && this.renderPaging()}
+                </div>
+            </div>
         </Popover>
     }
     render() {
@@ -140,6 +146,24 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                 placement={placement}>
                     {this.renderPopover()}
             </Overlay>
+
         </div>
+    }
+
+    private renderPaging() {
+        return (
+            <div>
+                <div className="col-xs-8">
+                    <Pagination
+                        innerClass={'pagination mg-0'}
+                        activePage={this.state.pagingModel.currentPage}
+                        itemsCountPerPage={this.state.pagingModel.pageSize}
+                        totalItemsCount={this.state.pagingModel.totalItems}
+                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
+                        onChange={this.onPageChange.bind(this)}
+                    />
+                </div>
+            </div>
+        );
     }
 }

@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { LabeledSelect, LabeledInput } from "../shared/input/labeled-input";
+import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { DateTimeHandle, ArrayHandle } from "../../handles/handles";
@@ -21,25 +21,26 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { Glyphicon, Button } from "react-bootstrap";
 
 interface ExportStockStates {
-    model: ExportStockModel,
     issueDocket: StockIssueDocketModel,
     docketDetails: StockIssueDocketDetailModel[],
     receipt: ExpenditureDocketModel,
     warehouses: IdNameModel[],
     stockIssueDocketTypes: IdNameModel[],
     errorList: {},
+    totalAmount: number
 }
 export class ExportStocks extends React.Component<RouteComponentProps<{}>, ExportStockStates> {
     constructor(props: any) {
         super(props)
         this.state = {
-            model: new ExportStockModel(),
+            //model: new ExportStockModel(),
             issueDocket: new StockIssueDocketModel(),
             docketDetails: [] as StockIssueDocketDetailModel[],
             receipt: new ExpenditureDocketModel(),
             errorList: {},
             warehouses: [],
             stockIssueDocketTypes: [],
+            totalAmount: 0
         }
     }
 
@@ -59,38 +60,98 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         };
         this.setState(nextState);
     }
+
+    onReceiptFieldChange(model: any) {
+        const nextState = {
+            ...this.state,
+            receipt: {
+                ...this.state.receipt,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+
     onChooseCustomer(customer: CustomerModel) {
         let { receipt } = this.state;
         receipt.partnerId = customer.id;
         receipt.partnerName = customer.name;
         this.setState({ receipt: receipt });
     }
+
+    sumTotalAmount(docketDetails: StockIssueDocketDetailModel[]) {
+        let totalAmount = 0;
+        docketDetails.forEach((item) => {
+            totalAmount += item.totalAmount;
+        });
+        this.setState({ totalAmount: totalAmount});
+    }
+
     onChooseProduct(product: ProductModel) {
         let { docketDetails } = this.state;
         let detail = new StockIssueDocketDetailModel();
         let index = docketDetails.findIndex(d => d.productId == product.id);
+        
         if (index >= 0) {
             detail = docketDetails[index];
-            detail.quantity = detail.quantity + 1;
+            detail.quantity = Number(detail.quantity) + Number(1);
+            detail.totalAmount = detail.quantity * detail.amount;
             docketDetails[index] = detail;
+
         } else {
             detail.productId = product.id;
             detail.productName = product.name;
             detail.productUnitId = product.defaultUnitId;
             detail.quantity = 1;
+            detail.amount = 0;
+            detail.totalAmount = 0;
             docketDetails.push(detail);
         }
         this.setState({ docketDetails: docketDetails });
+        this.sumTotalAmount(docketDetails);
     }
     onRemoveProduct(productId: number) {
         let { docketDetails } = this.state;
         let choseProducts = docketDetails.filter(i => i.productId !== productId);
         this.setState({ docketDetails: choseProducts });
+        this.sumTotalAmount(choseProducts);
     }
-    onChangeQuantity(productId: number) {
-       
+    onChangeQuantity(event, index) {
+        let { docketDetails } = this.state;
+        if (index >= 0) {
+            let detail = docketDetails[index];
+            detail.quantity = event.target.value;
+            detail.totalAmount = detail.amount * detail.quantity;
+            docketDetails[index] = detail;
+        } 
+        this.setState({ docketDetails: docketDetails });
+        this.sumTotalAmount(docketDetails);
     }
-
+    onChangePrice(event, index) {
+        let { docketDetails } = this.state;
+        if (index >= 0) {
+            let detail = docketDetails[index];
+            detail.amount = event.target.value;
+            detail.totalAmount = detail.amount * detail.quantity;
+            docketDetails[index] = detail;
+        }
+        this.setState({ docketDetails: docketDetails });
+        this.sumTotalAmount(docketDetails);
+    }
+    onRemoveCustomer() {
+        let { receipt } = this.state;
+        receipt.partnerId = 0;
+        receipt.partnerName = "";
+        this.setState({ receipt: receipt });
+    }
+    onCreateExportStock() {
+        var model = new ExportStockModel();
+        model.receipt = this.state.receipt;
+        model.docketDetails = this.state.docketDetails;
+        model.issueDocket = this.state.issueDocket;
+        var json = JSON.stringify(model);
+        debugger
+    }
     renderTabInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
@@ -98,42 +159,44 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     <div className="panel-body">
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'input'}
-                                value={0}
+                                name={'stockIssueDocketTypeId'}
+                                value={this.state.issueDocket.stockIssueDocketTypeId}
                                 title={'Loại phiếu xuất'}
                                 placeHolder={'Loại phiếu xuất'}
                                 valueKey={'id'}
                                 nameKey={'name'}
-                                options={this.state.stockIssueDocketTypes} />
+                                options={this.state.stockIssueDocketTypes}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
                         </div>
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'warehouses'}
-                                value={0}
+                                name={'warehouseId'}
+                                value={this.state.issueDocket.warehouseId}
                                 title={'Kho xuất'}
                                 placeHolder={'Kho xuất'}
                                 valueKey={'id'}
                                 nameKey={'name'}
-                                options={this.state.warehouses} />
+                                options={this.state.warehouses}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
                         </div>
                         <div className="col-md-4">
                             <LabeledSingleDatePicker
-                                name={'fromDate'}
+                                name={'issueDate'}
                                 title={'Ngày tạo phiếu'}
                                 date={Moment()} />
                         </div>
                         <div className="col-sm-12">
-                            <div className="form-group-custom mg-bt-15">
-                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                                <div>
-                                    <input type="text" className="form-control" name="name" value="" placeholder="Ghi chú" />
-                                </div>
-                            </div>
+                            <LabeledTextArea
+                                rows={1}
+                                name={'description'}
+                                value={this.state.issueDocket.description}
+                                title={'Ghi chú'}
+                                placeHolder={'Ghi chú'}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
                         </div>
                     </div>
                 </div>
             </div>
-
         );
     }
     renderCustomer() {
@@ -148,37 +211,42 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                 {receipt.partnerId ?
                                     (
                                         <div className="row">
-                                            <div className='col-sm-12 mg-bt-15 mg-t-15 line-customer'>Khách hàng đã chọn: <strong>{receipt.partnerName}</strong></div>
+                                            <div className='col-sm-12 mg-bt-15 mg-t-15 line-customer display-flex justify-content-between'>
+                                                <span>
+                                                    Khách hàng đã chọn: <strong>{receipt.partnerName}</strong>
+                                                </span>
+                                                <span onClick={() => this.onRemoveCustomer()} className="glyphicon glyphicon-trash cursor-pointer" aria-hidden="true"></span>
+                                            </div>
                                             <div className='col-sm-12'>
                                                 <LabeledInput
-                                                    name={'name'}
-                                                    value={''}
+                                                    name={'billTemplateCode'}
+                                                    value={this.state.receipt.billTemplateCode}
                                                     title={'Mẫu số hóa đơn'}
                                                     placeHolder={'Mẫu số hóa đơn'}
-                                                    error={this.state.errorList['name']}
-                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                                    error={this.state.errorList['billTemplateCode']}
+                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
                                             </div>
                                             <div className='col-sm-12'>
                                                 <LabeledInput
-                                                    name={'name'}
-                                                    value={''}
+                                                    name={'billSerial'}
+                                                    value={this.state.receipt.billSerial}
                                                     title={'Số hiệu hóa đơn'}
                                                     placeHolder={'Số hiệu hóa đơn'}
-                                                    error={this.state.errorList['name']}
-                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                                    error={this.state.errorList['billSerial']}
+                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
                                             </div>
                                             <div className='col-sm-12'>
                                                 <LabeledInput
-                                                    name={'name'}
-                                                    value={''}
+                                                    name={'billCode'}
+                                                    value={this.state.receipt.billCode}
                                                     title={'Số hóa đơn'}
                                                     placeHolder={'Số hóa đơn'}
-                                                    error={this.state.errorList['name']}
-                                                    valueChange={this.onDocketFieldChange.bind(this)} />
+                                                    error={this.state.errorList['billCode']}
+                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
                                             </div>
                                             <div className='col-sm-12'>
                                                 <LabeledSingleDatePicker
-                                                    name={'fromDate'}
+                                                    name={'billDate'}
                                                     title={'Ngày hóa đơn'}
                                                     date={Moment()} />
                                             </div>
@@ -195,7 +263,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                 <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product)} />
                                 {
                                     docketDetails && docketDetails.length > 0 ?
-                                        <div className='mg-bt-15'>
+                                        <div>
                                             {this.renderProductsTable()}
                                         </div> : null
                                 }
@@ -204,7 +272,6 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     </div>
                 </div>
             </div>
-
         )
     }
 
@@ -212,12 +279,14 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         let { docketDetails } = this.state;
         return (
             <div className="table-responsive p-relative mg-t-15">
-                <table className="table table-striped table-hover">
+                <table className="table table-striped table-hover mg-0">
                     <thead>
                         <tr>
                             <th>Tên sản phẩm</th>
+                            <th>Đơn vị tính</th>
                             <th>Đơn giá</th>
                             <th>Số lượng</th>
+                            <th>Thành tiền</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -226,11 +295,13 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                             docketDetails.map((detail, idx) => {
                                 return <tr key={idx}>
                                     <td>{detail.productName}</td>
-                                    <td><input className="form-control" value={''} placeholder="Đơn giá" onChange={() => this.onChangeQuantity(detail.productId)} /></td>
-                                    <td><input className="form-control" value={1} onChange={() => this.onChangeQuantity(detail.productId)} /></td>
+                                    <td>{detail.productUnitId}</td>
+                                    <td><input type="number" className="form-control" min="0" name={'amount_' + idx} value={detail.amount} placeholder="Đơn giá" onChange={(e) => this.onChangePrice(e, idx)} /></td>
+                                    <td><input type="number" className="form-control max-w-100" min="1" name={'quantity_' + idx} value={detail.quantity} onChange={(e) => this.onChangeQuantity(e, idx)} /></td>
+                                    <td>{detail.totalAmount}</td>
                                     <td className="text-right">
                                         <Button bsStyle="default" className="btn-sm" onClick={() => this.onRemoveProduct(detail.productId)}>
-                                            <Glyphicon glyph="minus" /></Button>
+                                            <Glyphicon glyph="glyphicon glyphicon-trash cursor-pointer" /></Button>
                                     </td>
                                 </tr>
                             })
@@ -238,10 +309,9 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>34.800.000</strong></td>
+                            <td colSpan={4} className="text-right">Tổng tiền:</td>
+                            <td colSpan={2}><strong>{this.state.totalAmount}</strong></td>
                         </tr>
-
                     </tfoot>
                 </table>
             </div>
@@ -259,12 +329,11 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                 </nav>
                 {this.renderTabInfo()}
                 {this.renderCustomer()}
-
                 <div className="footer_total">
                     <div className="text-right">
                         <div className="text-right">
                             <button className="btn btn-danger mg-r-15">Hủy</button>
-                            <button className="btn btn-primary">Cập nhật</button>
+                            <button className="btn btn-primary" onClick={() => this.onCreateExportStock()}>Tạo phiếu</button>
                         </div>
                     </div>
                 </div>
