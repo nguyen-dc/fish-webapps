@@ -176,6 +176,9 @@ body{
   .display-flex .item{
       width: 20%;
   }
+.cursor-pointer {
+    cursor: pointer;
+}
 /*.main-nav li a.active,
 .main-nav li a.active:hover,
 .main-nav li a.active:focus {
@@ -540,3 +543,21 @@ th.th-sm-4, td.td-sm-4 {
         border-bottom-color: rgba(0,0,0,.2);
         content: '';
     }
+.line-customer{
+    border-bottom:1px solid #eee;
+    padding-bottom:10px;
+}
+.popover{
+    left:0!important;
+    right:0 !important;
+    max-width:100% !important;
+}
+.input-group .input-group-btn > .btn {
+    border-radius: 0 4px 4px 0;
+}
+.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
+    vertical-align: middle;
+}
+.max-w-100{
+    max-width:100px;
+}

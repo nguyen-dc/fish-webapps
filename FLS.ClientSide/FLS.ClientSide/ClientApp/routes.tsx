@@ -23,7 +23,7 @@ import { SpreadMedicines } from './components/livestock-proceed/spread-medicine'
 import { CollectDeadstocks } from './components/livestock-proceed/collect-deadstock';
 import { CheckLivestockInfos } from './components/livestock-proceed/check-livestock-info';
 import { ManageImports } from './components/import/manage-import';
-import { ImportStocks } from './components/import/import-stock';
+import { ImportStock2s } from './components/import/import-stock-2';
 import { ManageExports } from './components/export/manage-export';
 import { ExportStocks } from './components/export/export-stock';
 import { DisposeStocks } from './components/export/dispose-stock';
@@ -63,7 +63,7 @@ export const routes = <Layout>
         <Route exact path='/loaiphieuthuchi' component={ExpenditureTypes} />
         <Route exact path='/quanlynhap' component={ManageImports} />
         
-        <Route exact path='/nhapmuahang' component={ImportStocks} />
+        <Route exact path='/nhapmuahang' component={ImportStock2s} />
         <Route exact path='/quanlyxuat' component={ManageExports} />
         <Route exact path='/xuatbanhang' component={ExportStocks} />
         {/*  <Route exact path='/xuathuy' component={DisposeStocks} /> */}

@@ -5,6 +5,7 @@ import { PageFilterModel, PaginateModel } from "../../models/shared";
 import { ProductAPICaller } from "../../api-callers/product";
 import { ProductModel } from "../../models/product";
 import { EmptyTableMessage } from "../shared/view-only";
+import Pagination from "react-js-pagination";
 
 interface ProductSimpleSearchProps {
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
@@ -33,6 +34,10 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
     target = null;
     getTarget() {
         return ReactDOM.findDOMNode(this.target);
+    }
+
+    async componentWillMount() {
+        await this.onPageChange(1, true);
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
@@ -64,6 +69,9 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
             this.setState({ isSearching: false });
         }
     }
+    onTogglePopover() {
+        this.setState({ isPopUp: !this.state.isPopUp });
+    }
     onSearchKeyChange(e) {
         let searchModel = this.state.searchModel;
         searchModel.key = e.target.value;
@@ -85,7 +93,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
     }
     renderPopover() {
         let { isSearching, products } = this.state;
-        return <Popover>
+        return <Popover id='prdt-povr'>
             {isSearching && <div className="icon-loading"></div>}
             <table className="table table-striped table-hover">
                 <thead>
@@ -98,7 +106,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                 <tbody>
                     {
                         products.length == 0 ?
-                            <EmptyTableMessage /> :
+                            <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             products.map((product, index) => {
                                 return (
                                     <tr key={'ncc' + index}>
@@ -116,13 +124,18 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                     }
                 </tbody>
             </table>
+            <div className="row">
+                <div className="text-left">
+                    {this.state.products.length > 0 && this.renderPaging()}
+                </div>
+            </div>
         </Popover>
     }
     render() {
         let { isPopUp, searchModel } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
         return <div className="input-group" ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn sản phẩm..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+            <input type="text" className="form-control" name="search" placeholder="Chọn sản phẩm..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onTogglePopover()} />
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>
@@ -133,6 +146,24 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                 placement={placement}>
                     {this.renderPopover()}
             </Overlay>
+
         </div>
+    }
+
+    private renderPaging() {
+        return (
+            <div>
+                <div className="col-xs-8">
+                    <Pagination
+                        innerClass={'pagination mg-0'}
+                        activePage={this.state.pagingModel.currentPage}
+                        itemsCountPerPage={this.state.pagingModel.pageSize}
+                        totalItemsCount={this.state.pagingModel.totalItems}
+                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
+                        onChange={this.onPageChange.bind(this)}
+                    />
+                </div>
+            </div>
+        );
     }
 }

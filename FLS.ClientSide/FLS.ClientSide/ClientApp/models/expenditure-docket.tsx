@@ -27,4 +27,5 @@ export class ExpenditureDocketModel implements IExpenditureDocket {
     billCode: string;
     billSerial: string;
     billTemplateCode: string;
+    billDate: Date | string;
 }
