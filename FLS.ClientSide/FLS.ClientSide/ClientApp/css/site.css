@@ -179,69 +179,6 @@ body{
 .cursor-pointer {
     cursor: pointer;
 }
-/*.main-nav li a.active,
-.main-nav li a.active:hover,
-.main-nav li a.active:focus {
-    background-color: #4189C7;
-    color: white;
-}
-
-.main-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1;
-}
-.cursor-pointer{
-    cursor:pointer;
-}
-.form-group{
-    overflow:hidden;
-}
-
-@media (max-width: 767px) {
-    body {
-        padding-top: 50px;
-    }
-}
-
-@media (min-width: 768px) {
-    .main-nav {
-        height: 100%;
-        width: calc(25% - 20px);
-    }
-    .main-nav .navbar {
-        border-radius: 0px;
-        border-width: 0px;
-        height: 100%;
-    }
-    .main-nav .navbar-header {
-        float: none;
-    }
-    .main-nav .navbar-collapse {
-        border-top: 1px solid #444;
-        padding: 0px;
-    }
-    .main-nav .navbar ul {
-        float: none;
-    }
-    .main-nav .navbar li {
-        float: none;
-        font-size: 15px;
-        margin: 6px;
-    }
-    .main-nav .navbar li a {
-        padding: 10px 16px;
-        border-radius: 4px;
-    }
-    .main-nav .navbar a {
-        width: 100%;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-}*/
 
 /* Loading */
 
@@ -379,8 +316,13 @@ th.th-sm-4, td.td-sm-4 {
     max-width: 151px;
     width: 151px;
 }
+tr.clickable {
+    cursor: pointer
+}
+    tr.clickable:active {
+        background-color: #d9edf7 !important;
+    }
 /* ******* */
-
 /*navigation colors*/
 .navbar-ndc {
     background-color: #337ab7;
@@ -547,12 +489,35 @@ th.th-sm-4, td.td-sm-4 {
     border-bottom:1px solid #eee;
     padding-bottom:10px;
 }
+/********************/
 .popover{
     left:0!important;
     right:0 !important;
     max-width:100% !important;
 }
-.input-group .input-group-btn > .btn {
+.popover-content {
+    overflow: auto;
+}
+.popover-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 7;
+}
+.popover-front {
+    position: relative;
+    z-index: 8;
+}
+    .popover-front button, .popover-front button:focus, .popover-front input, .popover-front input:focus {
+        z-index: 8 !important;
+    }
+.popover.bottom > .arrow::after {
+    top: 2px;
+}
+    /********************/
+    .input-group .input-group-btn > .btn {
     border-radius: 0 4px 4px 0;
 }
 .table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
