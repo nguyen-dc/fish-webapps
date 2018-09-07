@@ -9,10 +9,12 @@ import Pagination from "react-js-pagination";
 
 interface ProductSimpleSearchProps {
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
+    stayPop?: boolean,
     onChooseProduct?: Function,
 }
 interface ProductSimpleSearchState {
     isPopUp: boolean,
+    stayPop: boolean,
     lastSearchModel: PageFilterModel,
     searchModel: PageFilterModel,
     pagingModel: PaginateModel,
@@ -24,6 +26,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
         super(props)
         this.state = {
             isPopUp: false,
+            stayPop: props.stayPop ? props.stayPop : false,
             searchModel: new PageFilterModel(),
             lastSearchModel: new PageFilterModel(),
             pagingModel: new PaginateModel(),
@@ -72,6 +75,14 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
     onTogglePopover() {
         this.setState({ isPopUp: !this.state.isPopUp });
     }
+    onOpenPopover() {
+        if (!this.state.isPopUp)
+            this.setState({ isPopUp: true });
+    }
+    onClosePopover() {
+        if (this.state.isPopUp)
+            this.setState({ isPopUp: false });
+    }
     onSearchKeyChange(e) {
         let searchModel = this.state.searchModel;
         searchModel.key = e.target.value;
@@ -87,7 +98,8 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
         this.setState({ isPopUp: true });
     }
     onChooseProduct(product: ProductModel) {
-        this.setState({ isPopUp: false });
+        if (!this.state.stayPop)
+            this.setState({ isPopUp: false });
         if (this.props.onChooseProduct)
             this.props.onChooseProduct(product);
     }
@@ -100,7 +112,8 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                     <tr>
                         <th>Mã</th>
                         <th>Tên</th>
-                        <th className='th-xs-1'></th>
+                        <th>Ngành hàng</th>
+                        <th>Nhóm hàng</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,15 +122,15 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                             <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             products.map((product, index) => {
                                 return (
-                                    <tr key={'ncc' + index}>
+                                    <tr
+                                        className='clickable'
+                                        key={'ncc' + index}
+                                        onClick={() => this.onChooseProduct(product)}
+                                    >
                                         <td>{product.id}</td>
                                         <td>{product.name}</td>
-                                        <td className="text-right">
-                                            {
-                                                <Button bsStyle="primary" className="btn-xs" onClick={() => this.onChooseProduct(product)}>
-                                                    <Glyphicon glyph="plus" /></Button>
-                                            }
-                                        </td>
+                                        <td>{product.productGroupId}</td>
+                                        <td>{product.productSubgroupId}</td>
                                     </tr>
                                 )
                             })
@@ -134,8 +147,11 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
     render() {
         let { isPopUp, searchModel } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
-        return <div className="input-group" ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn sản phẩm..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onTogglePopover()} />
+        let wrapperClass = {
+            className: isPopUp ? 'input-group popover-front' : 'input-group'
+        }
+        return <div {...wrapperClass} ref={thisref => { this.target = thisref }}>
+            <input type="text" className="form-control" name="search" placeholder="Chọn sản phẩm..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onOpenPopover()}/>
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>
@@ -146,7 +162,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
                 placement={placement}>
                     {this.renderPopover()}
             </Overlay>
-
+            {isPopUp ? <div className='popover-backdrop' onClick={() => this.onClosePopover()} /> : null}
         </div>
     }
 
