@@ -231,83 +231,79 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
                     <div className="panel-body">
-                        <div className='row'>
-                            <div className="col-md-4">
-                                <LabeledInput
-                                    name={'name'}
-                                    value={''}
-                                    title={'Mã phiếu xuất'}
-                                    placeHolder={'Mã phiếu xuất'}
-                                    error={this.state.errorList['name']}
-                                    readOnly={true}
-                                    valueChange={this.onDocketFieldChange.bind(this)} />
-                                <LabeledSelect
-                                    name={'input'}
-                                    value={0}
-                                    title={'Loại phiếu xuất'}
-                                    placeHolder={'Loại phiếu xuất'}
-                                    valueKey={'id'}
-                                    nameKey={'name'}
-                                    options={this.state.stockReceiveDocketTypes} />
-                                <LabeledSelect
-                                    name={'warehouses'}
-                                    value={0}
-                                    title={'Kho xuất'}
-                                    placeHolder={'Kho xuất'}
-                                    valueKey={'id'}
-                                    nameKey={'name'}
-                                    options={this.state.warehouses} />
-                            </div>
-                            <div className="col-md-4">
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Khách hàng:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Khách hàng" />
-                                    </div>
-                                </div>
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Địa chỉ:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Địa chỉ" />
-                                    </div>
-                                </div>
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số điện thoại:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Số điện thoại" />
-                                    </div>
+                        <div className="col-md-4">
+                            <LabeledInput
+                                name={'name'}
+                                value={''}
+                                title={'Mã phiếu xuất'}
+                                placeHolder={'Mã phiếu xuất'}
+                                error={this.state.errorList['name']}
+                                readOnly={true}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
+                            <LabeledSelect
+                                name={'input'}
+                                value={0}
+                                title={'Loại phiếu xuất'}
+                                placeHolder={'Loại phiếu xuất'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                options={this.state.stockReceiveDocketTypes} />
+                            <LabeledSelect
+                                name={'warehouses'}
+                                value={0}
+                                title={'Kho xuất'}
+                                placeHolder={'Kho xuất'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                options={this.state.warehouses} />
+                        </div>
+                        <div className="col-md-4">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Khách hàng:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Khách hàng" />
                                 </div>
                             </div>
-                            <div className="col-md-4">
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số hóa đơn:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Số hóa đơn" />
-                                    </div>
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Địa chỉ:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Địa chỉ" />
                                 </div>
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ngày hóa đơn:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Ngày hóa đơn" />
-                                    </div>
+                            </div>
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số điện thoại:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Số điện thoại" />
                                 </div>
-                                <LabeledInput
-                                    name={'datetime'}
-                                    value={'Ngày tạo phiếu'}
-                                    title={'Ngày tạo phiếu'}
-                                    placeHolder={'Ngày tạo phiếu'}
-                                    error={this.state.errorList['datetime']}
-                                    readOnly={true}
-                                    valueChange={this.onDocketFieldChange.bind(this)} />
                             </div>
                         </div>
-                        <div className='row'>
-                            <div className="col-sm-12">
-                                <div className="form-group-custom mg-bt-15">
-                                    <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
-                                    <div>
-                                        <input type="text" className="form-control" name="name" value="" placeholder="Ghi chú" />
-                                    </div>
+                        <div className="col-md-4">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Số hóa đơn:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Số hóa đơn" />
+                                </div>
+                            </div>
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ngày hóa đơn:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Ngày hóa đơn" />
+                                </div>
+                            </div>
+                            <LabeledInput
+                                name={'datetime'}
+                                value={'Ngày tạo phiếu'}
+                                title={'Ngày tạo phiếu'}
+                                placeHolder={'Ngày tạo phiếu'}
+                                error={this.state.errorList['datetime']}
+                                readOnly={true}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
+                        </div>
+                        <div className="col-sm-12">
+                            <div className="form-group-custom mg-bt-15">
+                                <label className="control-label  min-w-140 float-left" htmlFor="firstName">Ghi chú:</label>
+                                <div>
+                                    <input type="text" className="form-control" name="name" value="" placeholder="Ghi chú" />
                                 </div>
                             </div>
                         </div>
