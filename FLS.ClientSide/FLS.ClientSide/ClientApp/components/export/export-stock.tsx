@@ -61,12 +61,36 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         this.setState(nextState);
     }
 
+    onDocketFieldDateChange(model: any) {
+        let date = model.value as Moment.Moment;
+        const nextState = {
+            ...this.state,
+            issueDocket: {
+                ...this.state.issueDocket,
+                [model.name]: date.toDate(),
+            }
+        };
+        this.setState(nextState);
+    }
+
     onReceiptFieldChange(model: any) {
         const nextState = {
             ...this.state,
             receipt: {
                 ...this.state.receipt,
                 [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+    }
+
+    onFieldDateChange(model: any) {
+        let date = model.value as Moment.Moment;
+        const nextState = {
+            ...this.state,
+            receipt: {
+                ...this.state.receipt,
+                [model.name]: date.toDate(),
             }
         };
         this.setState(nextState);
@@ -183,7 +207,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                             <LabeledSingleDatePicker
                                 name={'issueDate'}
                                 title={'Ngày tạo phiếu'}
-                                date={Moment()} />
+                                date={Moment()}
+                                dateChange={this.onDocketFieldDateChange.bind(this)} />
                         </div>
                         <div className="col-sm-12">
                             <LabeledTextArea
@@ -248,7 +273,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                                 <LabeledSingleDatePicker
                                                     name={'billDate'}
                                                     title={'Ngày hóa đơn'}
-                                                    date={Moment()} />
+                                                    date={Moment()}
+                                                    dateChange={this.onFieldDateChange.bind(this)} />
                                             </div>
                                         </div>
                                     ) : null}

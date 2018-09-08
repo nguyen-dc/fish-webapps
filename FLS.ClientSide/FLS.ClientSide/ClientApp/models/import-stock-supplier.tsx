@@ -5,6 +5,7 @@ interface IImportStockSupplier {
     billCode: string;
     billSerial: string;
     billTemplateCode: string;
+    billDate: Date | string;
     receiveDocketDetails: StockReceiveDocketDetailModel[];
 }
 
@@ -16,4 +17,5 @@ export class ImportStockSupplierModel implements IImportStockSupplier {
     receiveDocketDetails: StockReceiveDocketDetailModel[] = [];
     //----
     supplierBranchName: string = "";
+    billDate: Date | string;
 }

@@ -526,3 +526,15 @@ tr.clickable {
 .max-w-100{
     max-width:100px;
 }
+.panne-color {
+    background: #fbfbfb;
+}
+.panel-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+.total-review span{
+    display:inline-block;
+    padding:10px 0;
+}
