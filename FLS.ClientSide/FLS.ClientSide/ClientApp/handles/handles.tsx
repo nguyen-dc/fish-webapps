@@ -40,14 +40,16 @@ export const StringHandle = {
 const NumberFormat = new Intl.NumberFormat('vi-VN');
 const CurrencyFormat = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
 export const NumberHandle = {
-    FormatCurrency(input: number): string {
-        if (Number.isNaN(input))
+    FormatCurrency(input: any): string {
+        let number = Number(input);
+        if (Number.isNaN(number))
             return 'NaN';
-        return CurrencyFormat.format(input);
+        return CurrencyFormat.format(number);
     },
-    FormatNumber(input: number): string {
-        if (Number.isNaN(input))
+    FormatNumber(input: any): string {
+        let number = Number(input);
+        if (Number.isNaN(number))
             return 'NaN';
-        return NumberFormat.format(input);
+        return NumberFormat.format(number);
     }
 }

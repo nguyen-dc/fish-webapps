@@ -3,10 +3,7 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { Modal, Button } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
-import { TextArea } from "../shared/TextArea";
-import { Input } from "../shared/SingleInput";
-import { Select } from "../shared/Select";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel } from "../../models/shared";
 
 interface IStockReceiveProps {

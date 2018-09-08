@@ -1,7 +1,6 @@
 ﻿import * as React from "react";
 import { Button, Glyphicon, Modal } from "react-bootstrap";
 import { ProductModel } from "../../models/product";
-import { Input } from "../shared/SingleInput";
 import { ProductTable } from "./product-table";
 import { PageFilterModel, PaginateModel } from "../../models/shared";
 import { ProductAPICaller } from "../../api-callers/product";

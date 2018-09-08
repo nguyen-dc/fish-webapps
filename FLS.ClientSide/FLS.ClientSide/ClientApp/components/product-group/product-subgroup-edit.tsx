@@ -2,7 +2,7 @@
 import { RouteComponentProps } from 'react-router';
 import { Modal, Button } from 'react-bootstrap';
 import { ProductSubGroupModel } from "../../models/product-subgroup";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
 import { StringHandle } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
