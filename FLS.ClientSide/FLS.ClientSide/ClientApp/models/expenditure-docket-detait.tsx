@@ -19,4 +19,6 @@ export class ExpenditureDocketDetailModel implements IExpenditureDocketDetail {
     vat: number = 0;
     amount: number = 0;
     totalAmount: number = 0;
+    //
+    expenditureTypeName:string = ""
 }

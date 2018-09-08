@@ -13,3 +13,9 @@ export class ImportStockModel {
         this.paySlipDetails = [] as ExpenditureDocketDetailModel[];
     };
 }
+
+export class CostsModel {
+    paySlipTypeId: number = 0;
+    description: string = "";
+    amount: number = 0;
+}
