@@ -260,7 +260,9 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     <div className="panel panel-info">
                         <div className="panel-body">
                             <div className="col-sm-12">
-                                <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product)} />
+                                <ProductSimpleSearch
+                                    onChooseProduct={(product) => this.onChooseProduct(product)}
+                                    stayPop={true} />
                                 {
                                     docketDetails && docketDetails.length > 0 ?
                                         <div>

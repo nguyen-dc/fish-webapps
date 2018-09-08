@@ -8,10 +8,12 @@ import { EmptyTableMessage } from "../shared/view-only";
 
 interface SupplierSimpleSearchProps {
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
+    stayPop?: boolean,
     onChooseSupplier?: Function,
 }
 interface SupplierSimpleSearchState {
     isPopUp: boolean,
+    stayPop: boolean,
     lastSearchModel: PageFilterModel,
     searchModel: PageFilterModel,
     pagingModel: PaginateModel,
@@ -23,6 +25,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
         super(props)
         this.state = {
             isPopUp: false,
+            stayPop: props.stayPop ? props.stayPop : false,
             searchModel: new PageFilterModel(),
             lastSearchModel: new PageFilterModel(),
             pagingModel: new PaginateModel(),
@@ -71,6 +74,14 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
     onTogglePopover() {
         this.setState({ isPopUp: !this.state.isPopUp });
     }
+    onOpenPopover() {
+        if (!this.state.isPopUp)
+            this.setState({ isPopUp: true });
+    }
+    onClosePopover() {
+        if (this.state.isPopUp)
+            this.setState({ isPopUp: false });
+    }
     onSearchKeyChange(e) {
         let searchModel = this.state.searchModel;
         searchModel.key = e.target.value;
@@ -86,7 +97,8 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
         this.setState({ isPopUp: true });
     }
     onChooseSupplier(supplier: SupplierModel) {
-        this.setState({ isPopUp: false });
+        if (!this.state.stayPop)
+            this.setState({ isPopUp: false });
         if (this.props.onChooseSupplier)
             this.props.onChooseSupplier(supplier);
     }
@@ -94,12 +106,12 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
         let { isSearching, suppliers } = this.state;
         return <Popover id='splr-povr'>
             {isSearching && <div className="icon-loading"></div>}
-            <table className="table table-striped table-hover">
+            <table className="table table-striped table-hover z-index-50">
                 <thead>
                     <tr>
                         <th>Mã</th>
                         <th>Tên</th>
-                        <th className='th-xs-1'></th>
+                        <th>Địa chỉ</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -108,15 +120,13 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
                             <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             suppliers.map((supplier, index) => {
                                 return (
-                                    <tr key={'ncc' + index}>
+                                    <tr className='clickable'
+                                        key={'ncc' + index}
+                                        onClick={() => this.onChooseSupplier(supplier)}
+                                    >
                                         <td>{supplier.id}</td>
                                         <td>{supplier.name}</td>
-                                        <td className="text-right">
-                                            {
-                                                <Button bsStyle="primary" className="btn-xs" onClick={() => this.onChooseSupplier(supplier)}>
-                                                    <Glyphicon glyph="plus" /></Button>
-                                            }
-                                        </td>
+                                        <td>{supplier.address}</td>
                                     </tr>
                                 )
                             })
@@ -128,8 +138,11 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
     render() {
         let { isPopUp, searchModel } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
-        return <div className="input-group" ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn nhà cung cấp..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onTogglePopover()}/>
+        let wrapperClass = {
+            className: isPopUp ? 'input-group popover-front' : 'input-group'
+        }
+        return <div {...wrapperClass} ref={thisref => { this.target = thisref }}>
+            <input type="text" className="form-control" name="search" placeholder="Chọn nhà cung cấp..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onOpenPopover()}/>
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>
@@ -140,6 +153,8 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
                 placement={placement}>
                     {this.renderPopover()}
             </Overlay>
+            {isPopUp ? <div className='popover-backdrop' onClick={() => this.onClosePopover()} /> : null}
         </div>
+    
     }
 }

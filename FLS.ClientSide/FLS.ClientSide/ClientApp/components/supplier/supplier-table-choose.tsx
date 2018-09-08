@@ -1,6 +1,6 @@
 ﻿import * as React from "react";
 import { Button, Glyphicon, Modal, Label } from "react-bootstrap";
-import { SupplierModel } from "../../models/Supplier";
+import { SupplierModel } from "../../models/supplier";
 import { EmptyTableMessage } from "../shared/view-only";
 
 interface ISupplierTableChooseProps {

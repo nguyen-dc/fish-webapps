@@ -8,10 +8,12 @@ import { EmptyTableMessage } from "../shared/view-only";
 
 interface CustomerSimpleSearchProps {
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
+    stayPop?: boolean,
     onChooseCustomer?: Function,
 }
 interface CustomerSimpleSearchState {
     isPopUp: boolean,
+    stayPop: boolean,
     lastSearchModel: PageFilterModel,
     searchModel: PageFilterModel,
     pagingModel: PaginateModel,
@@ -23,6 +25,7 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
         super(props)
         this.state = {
             isPopUp: false,
+            stayPop: props.stayPop ? props.stayPop : false,
             searchModel: new PageFilterModel(),
             lastSearchModel: new PageFilterModel(),
             pagingModel: new PaginateModel(),
@@ -72,6 +75,14 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
     onTogglePopover() {
         this.setState({ isPopUp: !this.state.isPopUp });
     }
+    onOpenPopover() {
+        if (!this.state.isPopUp)
+            this.setState({ isPopUp: true });
+    }
+    onClosePopover() {
+        if (this.state.isPopUp)
+            this.setState({ isPopUp: false });
+    }
     onSearchKeyChange(e) {
         let searchModel = this.state.searchModel;
         searchModel.key = e.target.value;
@@ -87,7 +98,8 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
         this.setState({ isPopUp: true });
     }
     onChooseCustomer(customer: CustomerModel) {
-        this.setState({ isPopUp: false });
+        if (!this.state.stayPop)
+            this.setState({ isPopUp: false });
         if (this.props.onChooseCustomer)
             this.props.onChooseCustomer(customer);
     }
@@ -100,7 +112,8 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
                     <tr>
                         <th>Mã</th>
                         <th>Tên</th>
-                        <th className='th-xs-1'></th>
+                        <th>Địa chỉ</th>
+                        <th>Số điện thoại</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,15 +122,15 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
                             <EmptyTableMessage message='Nhập chuỗi cần tìm, nhấn enter hoặc bấm nút tìm kiếm!'/> :
                             customers.map((customer, index) => {
                                 return (
-                                    <tr key={'ncc' + index}>
+                                    <tr
+                                        className='clickable'
+                                        key={'ncc' + index}
+                                        onClick={() => this.onChooseCustomer(customer)}
+                                    >
                                         <td>{customer.id}</td>
                                         <td>{customer.name}</td>
-                                        <td className="text-right">
-                                            {
-                                                <Button bsStyle="primary" className="btn-xs" onClick={() => this.onChooseCustomer(customer)}>
-                                                    <Glyphicon glyph="plus" /></Button>
-                                            }
-                                        </td>
+                                        <td>{customer.address}</td>
+                                        <td>{customer.phone}</td>
                                     </tr>
                                 )
                             })
@@ -129,8 +142,11 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
     render() {
         let { isPopUp, searchModel } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
-        return <div className="input-group" ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn khách hàng..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onTogglePopover()}/>
+        let wrapperClass = {
+            className: isPopUp ? 'input-group popover-front' : 'input-group'
+        }
+        return <div {...wrapperClass} ref={thisref => { this.target = thisref }}>
+            <input type="text" className="form-control" name="search" placeholder="Chọn khách hàng..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onOpenPopover()}/>
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>
@@ -141,6 +157,7 @@ export class CustomerSimpleSearch extends React.Component<CustomerSimpleSearchPr
                 placement={placement}>
                     {this.renderPopover()}
             </Overlay>
+            {isPopUp ? <div className='popover-backdrop' onClick={() => this.onClosePopover()} /> : null}
         </div>
     }
 }
