@@ -1,11 +1,8 @@
 ﻿import * as React from "react";
 import { RouteComponentProps } from 'react-router';
 import { Modal, Button } from 'react-bootstrap';
-import { Input } from '../shared/SingleInput';
-import { TextArea } from '../shared/TextArea';
-import { Select } from '../shared/Select';
 import { ProductGroupModel } from "../../models/product-group";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { ProductGroups } from "./product-group";
 import { StringHandle } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";

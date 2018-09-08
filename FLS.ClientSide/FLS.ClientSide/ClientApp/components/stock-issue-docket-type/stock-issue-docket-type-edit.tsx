@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { StockIssueDocketTypeModel } from "../../models/stock-issue-docket-type";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox, RadioGroups } from "../shared/input/labeled-input";

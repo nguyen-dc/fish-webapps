@@ -495,9 +495,6 @@ tr.clickable {
     right:0 !important;
     max-width:100% !important;
 }
-.popover-content {
-    overflow: auto;
-}
 .popover-backdrop {
     position: fixed;
     top: 0;
@@ -513,6 +510,9 @@ tr.clickable {
     .popover-front button, .popover-front button:focus, .popover-front input, .popover-front input:focus {
         z-index: 8 !important;
     }
+.popover.bottom {
+    overflow: auto;
+}
 .popover.bottom > .arrow::after {
     top: 2px;
 }

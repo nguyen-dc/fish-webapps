@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { FishPondModel } from "../../models/fish-pond";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";

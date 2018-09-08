@@ -19,6 +19,7 @@ import { CustomerSimpleSearch } from "../customer/customer-simple-search";
 import { CustomerModel } from "../../models/customer";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { Glyphicon, Button } from "react-bootstrap";
+import { FormatedInput } from "../shared/input/formated-input";
 
 interface ExportStockStates {
     issueDocket: StockIssueDocketModel,
@@ -44,7 +45,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         }
     }
 
-    async componentWillMount() {
+    async componentMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
         this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data });
@@ -116,25 +117,14 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         this.setState({ docketDetails: choseProducts });
         this.sumTotalAmount(choseProducts);
     }
-    onChangeQuantity(event, index) {
+    onChangeDetail(model, index) {
         let { docketDetails } = this.state;
         if (index >= 0) {
             let detail = docketDetails[index];
-            detail.quantity = event.target.value;
+            detail[model.name] = model.value;
             detail.totalAmount = detail.amount * detail.quantity;
             docketDetails[index] = detail;
         } 
-        this.setState({ docketDetails: docketDetails });
-        this.sumTotalAmount(docketDetails);
-    }
-    onChangePrice(event, index) {
-        let { docketDetails } = this.state;
-        if (index >= 0) {
-            let detail = docketDetails[index];
-            detail.amount = event.target.value;
-            detail.totalAmount = detail.amount * detail.quantity;
-            docketDetails[index] = detail;
-        }
         this.setState({ docketDetails: docketDetails });
         this.sumTotalAmount(docketDetails);
     }
@@ -298,8 +288,26 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                 return <tr key={idx}>
                                     <td>{detail.productName}</td>
                                     <td>{detail.productUnitId}</td>
-                                    <td><input type="number" className="form-control" min="0" name={'amount_' + idx} value={detail.amount} placeholder="Đơn giá" onChange={(e) => this.onChangePrice(e, idx)} /></td>
-                                    <td><input type="number" className="form-control max-w-100" min="1" name={'quantity_' + idx} value={detail.quantity} onChange={(e) => this.onChangeQuantity(e, idx)} /></td>
+                                    <td>
+                                        <FormatedInput
+                                            type="currency"
+                                            className="form-control"
+                                            min={0}
+                                            name='amount'
+                                            value={detail.amount}
+                                            //onValueChange={(m) => this.onChangeDetail(m, idx)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <FormatedInput
+                                            type="number"
+                                            className="form-control max-w-100"
+                                            min={1}
+                                            name='quantity'
+                                            value={detail.quantity}
+                                            //onValueChange={(m) => this.onChangeDetail(m, idx)}
+                                        />
+                                    </td>
                                     <td>{detail.totalAmount}</td>
                                     <td className="text-right">
                                         <Button bsStyle="default" className="btn-sm" onClick={() => this.onRemoveProduct(detail.productId)}>
