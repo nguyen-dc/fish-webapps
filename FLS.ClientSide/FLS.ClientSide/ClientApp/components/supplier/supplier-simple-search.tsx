@@ -34,6 +34,10 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
     getTarget() {
         return ReactDOM.findDOMNode(this.target);
     }
+    async componentWillMount() {
+        await this.onPageChange(1, true);
+    }
+
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
         searchModel.page = page;
