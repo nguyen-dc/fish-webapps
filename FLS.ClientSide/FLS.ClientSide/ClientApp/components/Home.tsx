@@ -17,11 +17,67 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
             </div>
             <div className="column">
                 <div className="contents">
-                    <div>
-                        <h3>Ngày cập nhật: 11/09/2018</h3>
-                        <p>A sublime plugin complete with Bootstrap 3 snippets</p>
-                        <p>Feel free to let me know what else you want added via:</p>
-                        <p>Bootstrap 3 - Sublime Plugin is open-sourced software licensed under the</p>
+                    <div className="times-line">
+                        <ul>
+                            <li><span></span>
+                                <div>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in css</div>
+                                    <div className="type">Presentation</div>
+                                </div>
+                                <span className="number">
+                                    <span>9/9/2018</span>
+                                </span>
+                            </li>
+                            <li>
+                                <div><span></span>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in javascript</div>
+                                    <div className="type">Presentation</div>
+                                </div>
+                                <span className="number">
+                                    <span>7/9/2018</span>
+                                </span>
+                            </li>
+                            <li>
+                                <div><span></span>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in css</div>
+                                    <div className="type">Review</div>
+                                </div> <span className="number">
+                                    <span>5/9/2018</span>
+                                </span>
+                            </li>
+                            <li><span></span>
+                                <div>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in css</div>
+                                    <div className="type">Presentation</div>
+                                </div>
+                                <span className="number">
+                                    <span>10:00</span>
+                                </span>
+                            </li>
+                            <li>
+                                <div><span></span>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in javascript</div>
+                                    <div className="type">Presentation</div>
+                                </div>
+                                <span className="number">
+                                    <span>13:00</span>
+                                </span>
+                            </li>
+                            <li>
+                                <div><span></span>
+                                    <div className="title">Codify</div>
+                                    <div className="info">Let&apos;s make coolest things in css</div>
+                                    <div className="type">Review</div>
+                                </div> <span className="number">
+                                    <span>17:45</span>
+                                </span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
