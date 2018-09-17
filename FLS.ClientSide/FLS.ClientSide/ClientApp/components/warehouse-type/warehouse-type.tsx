@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { WarehouseTypeEdit } from "./warehouse-type-edit";
 import { WarehouseTypeAPICaller } from "../../api-callers/warehouse-type";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, WarehouseTypeState> {
@@ -93,7 +93,7 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
     render() {
         let dataTable = this.renderTable(this.state.listWarehouseType);
         let renderPaging = this.state.listWarehouseType.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

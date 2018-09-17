@@ -4,7 +4,7 @@ import { Modal, Button } from 'react-bootstrap';
 import { ProductGroupModel } from "../../models/product-group";
 import { FormErrors } from "../shared/form-errors";
 import { ProductGroups } from "./product-group";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 
@@ -58,7 +58,7 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên nghành hàng';
         }
         return errors;

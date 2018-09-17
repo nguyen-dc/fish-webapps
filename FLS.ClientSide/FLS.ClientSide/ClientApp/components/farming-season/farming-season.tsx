@@ -10,8 +10,8 @@ import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
 import { FishPondModel } from "../../models/fish-pond";
 import { FishPonds } from "../fish-pond/fish-pond";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
-import { DateTimeHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
+import { _HDateTime } from "../../handles/handles";
 import * as Moment from 'moment';
 import { FilterEnum } from "../../enums/filter-enum";
 
@@ -74,13 +74,13 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
             this.setState({ isTableLoading: true });
             var result = await this.loadData(page, newSearch);
             if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
+                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
                 return;
             }
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ listFarmingSeason: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            this.setState({ listFarmingSeason: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -131,7 +131,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
     render() {
         let dataTable = this.renderTable(this.state.listFarmingSeason);
         let renderPaging = this.state.listFarmingSeason.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         let lastedFilterValue = filterTitle0;
         if (this.state.lastSearchModel.filters[0].value > 0 && this.state.fishPonds && this.state.fishPonds.length > 0)
             lastedFilterValue = this.state.fishPonds.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
@@ -229,9 +229,9 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td>{m.fishPondId}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.startFarmDate)}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.finishFarmDateExpected)}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.finishFarmDate)}</td>
+                                        <td>{_HDateTime.DateFormat(m.startFarmDate)}</td>
+                                        <td>{_HDateTime.DateFormat(m.finishFarmDateExpected)}</td>
+                                        <td>{_HDateTime.DateFormat(m.finishFarmDate)}</td>
                                         <td className="text-right">
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>

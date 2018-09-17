@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button, Glyphicon } from 'react-bootstrap';
 import { isEqual } from 'lodash';
 import { ChangeEvent } from 'react';
-import { NumberHandle } from '../../../handles/handles';
+import { _HNumber } from '../../../handles/handles';
 interface FormatedInputProps {
     className?: string,
     type?: 'number' | 'currency',
@@ -14,7 +14,7 @@ interface FormatedInputProps {
     required?: boolean,
     placeholder?: string,
     readOnly?: boolean,
-    onValueChange?: Function,
+    onValueChange: Function,
 }
 interface FormatedInputState {
     className: string,
@@ -29,6 +29,7 @@ interface FormatedInputState {
     required: boolean,
     placeholder: string,
     readOnly: boolean,
+    isFocus: boolean,
 }
 export class FormatedInput extends React.PureComponent<FormatedInputProps, FormatedInputState>{
     constructor(props: FormatedInputProps) {
@@ -54,14 +55,26 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
             required: props.required ? props.required : false,
             placeholder: props.placeholder ? props.placeholder : null,
             readOnly: props.readOnly ? props.readOnly : false,
+            isFocus: false,
         };
     }
     componentWillReceiveProps(nextProps) {
         if (!isEqual(this.props, nextProps)) {
+            let { type, isFocus } = this.state;
+            let formatedValue = nextProps.value ? nextProps.value + '' : null;
+            formatedValue = this.formatValue(formatedValue, type);
+            let value = '';
+            if (type == 'number' || type == 'currency') {
+                value = nextProps.value ? nextProps.value + '' : '0';
+            } else {
+                value = nextProps.value ? nextProps.value + '' : '';
+            }
+            let displayValue = isFocus ? value : formatedValue;
             this.setState({
                 className: nextProps.className ? nextProps.className : null,
-                type: nextProps.type ? nextProps.type : null,
-                value: nextProps.value ? nextProps.value : null,
+                value: value,
+                formatedValue: formatedValue,
+                displayValue: displayValue,
                 min: nextProps.min ? nextProps.min : null,
                 max: nextProps.max ? nextProps.max : null,
                 required: nextProps.required ? nextProps.required : false,
@@ -75,29 +88,30 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
             type = this.state.type;
         let formated = value + '';
         if (type == 'number') {
-            formated = NumberHandle.FormatNumber(value);
+            formated = _HNumber.FormatNumber(value);
         }
         if (type == 'currency') {
-            formated = NumberHandle.FormatCurrency(value);
+            formated = _HNumber.FormatCurrency(value);
         }
         return formated;
     }
     onFocus() {
-        this.setState({ displayValue: this.state.value });
+        this.setState({ displayValue: this.state.value, isFocus: true });
     }
     onBlur() {
         let { value, formatedValue } = this.state;
         if (this.state.type == 'number' || this.state.type == 'currency')
             value = Number(value) + '';
-        this.setState({ displayValue: formatedValue, value: value });
+        this.setState({ displayValue: formatedValue, value: value, isFocus: false });
     }
     onValueChange(e) {
         let value = e.target.value;
-        let formated = value;
-        formated = this.formatValue(e.target.value);
-        this.setState({ value: value, displayValue: value, formatedValue: formated });
-        if (this.props.onValueChange)
-            this.props.onValueChange({ name: this.state.name, value: value });
+        //let formated = value;
+        //formated = this.formatValue(e.target.value);
+        //this.setState({ value: value, displayValue: value, formatedValue: formated }, () => {
+            if (this.props.onValueChange)
+                this.props.onValueChange({ name: this.state.name, value: value });
+        //});
     }
 
     render() {

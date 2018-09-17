@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockReceiveDocketTypeAPICaller } from "../../api-callers/stock-receive-docket-type";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 
 export class StockReceiveDocketTypeEdit extends React.Component<IStockReceiveDocketTypeProps, IStockReceiveDocketTypeState> {
@@ -49,7 +49,7 @@ export class StockReceiveDocketTypeEdit extends React.Component<IStockReceiveDoc
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên loại';
         }
         return errors;

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { DateTimeHandle } from "../handles/handles";
+import { _HDateTime } from "../handles/handles";
 import * as Moment from 'moment';
 
 interface IStockReceiveDocket {
@@ -25,7 +25,7 @@ interface IStockReceiveDocket {
 export class StockReceiveDocketModel implements IStockReceiveDocket {
     id: number = 0;
     actuallyReceivedCode: string;
-    executedDate: Date | string = DateTimeHandle.DateFormat(Moment().toDate());
+    executedDate: Date | string = _HDateTime.DateFormat(Moment().toDate());
     executorCode: string;
     approvedDate: Date | string | null;
     approverCode: string;

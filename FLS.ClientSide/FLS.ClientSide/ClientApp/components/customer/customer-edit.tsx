@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { CustomerAPICaller } from "../../api-callers/customer";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState> {
     constructor(props: ICustomerProps){
@@ -46,7 +46,7 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên khách hàng';
         }
         return errors;

@@ -7,7 +7,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ProductEdit } from "./product-edit";
 import { ProductAPICaller } from "../../api-callers/product";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductModel } from "../../models/product";
 
@@ -70,13 +70,13 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
             this.setState({ isTableLoading: true });
             var result = await this.loadData(page, newSearch);
             if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
+                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
                 return;
             }
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ listProduct: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            this.setState({ listProduct: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -123,7 +123,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
     render() {
         let dataTable = this.renderTable(this.state.listProduct);
         let renderPaging = this.state.listProduct.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

@@ -8,7 +8,7 @@ import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
 import { PaginateModel } from "../../models/shared";
 import { ProductGroupModel } from "../../models/product-group";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 
 export class ProductGroups extends React.Component<RouteComponentProps<{}>, any> {
@@ -93,7 +93,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
     render() {
         let dataTable = this.renderTable(this.state.listProductUnit);
         let renderPaging = this.state.listProductUnit.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

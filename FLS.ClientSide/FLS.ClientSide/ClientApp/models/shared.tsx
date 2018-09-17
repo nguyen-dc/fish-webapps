@@ -65,3 +65,17 @@ export class ErrorItem implements IErrorItem {
     name: string;
     value: string;
 }
+
+interface IApiResponse {
+    isSuccess: boolean,
+    status: number,
+    message: string,
+    data: any
+}
+export class ApiResponse implements IApiResponse 
+{
+    isSuccess: boolean;
+    status: number;
+    message: string;
+    data: any;
+}

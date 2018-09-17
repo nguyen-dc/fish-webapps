@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox, RadioGroups } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 
 const options = [
@@ -56,7 +56,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
    
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên loại';
         }
         return errors;

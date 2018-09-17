@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { SupplierAPICaller } from "../../api-callers/supplier";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState> {
     constructor(props: ISupplierProps){
@@ -46,7 +46,7 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên nhà cung cấp';
         }
         return errors;

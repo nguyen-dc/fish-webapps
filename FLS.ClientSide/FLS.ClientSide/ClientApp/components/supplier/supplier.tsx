@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { SupplierEdit } from "./supplier-edit";
 import { SupplierAPICaller } from "../../api-callers/supplier";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class Suppliers extends React.Component<RouteComponentProps<{}>, SupplierState> {
@@ -90,7 +90,7 @@ export class Suppliers extends React.Component<RouteComponentProps<{}>, Supplier
     render() {
         let dataTable = this.renderTable(this.state.listSupplier);
         let renderPaging = this.state.listSupplier.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

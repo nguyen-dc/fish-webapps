@@ -10,7 +10,7 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 interface IFishPondProps {
     isShow: boolean,
@@ -73,7 +73,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
 
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập ao nuôi';
         }
         if (!this.state.model.farmRegionId) {

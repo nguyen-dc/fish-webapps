@@ -10,7 +10,7 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 interface IFarmingSeasonProps {
     isShow: boolean,
@@ -75,7 +75,7 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên đợt nuôi';
         }
         if (!this.state.model.fishPondId) {

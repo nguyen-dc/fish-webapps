@@ -10,7 +10,7 @@ import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
 import { FarmRegionModel } from "../../models/farm-region";
 import { FarmRegions } from "../farm-region/farm-region";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 
 interface FishPondState {
@@ -72,13 +72,13 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             this.setState({ isTableLoading: true });
             var result = await this.loadData(page, newSearch);
             if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
+                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
                 return;
             }
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -125,7 +125,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
     render() {
         let dataTable = this.renderTable(this.state.listFishPond);
         let renderPaging = this.state.listFishPond.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         let lastedFilterValue = filterTitle0;
         if (this.state.lastSearchModel.filters[0].value > 0 && this.state.farmRegions && this.state.farmRegions.length > 0)
             lastedFilterValue = this.state.farmRegions.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;

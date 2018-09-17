@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ProductUnitAPICaller } from "../../api-callers/product-unit";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class ProductUnitEdit extends React.Component<IProductUnitProps, IProductUnitState> {
     constructor(props: IProductUnitProps){
@@ -46,7 +46,7 @@ export class ProductUnitEdit extends React.Component<IProductUnitProps, IProduct
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên đơn vị tính';
         }
         return errors;

@@ -21,7 +21,6 @@ export class NavMenu extends React.Component<{}, {}> {
                                 <ul className="dropdown-menu">
                                     <li><NavLink to="/vungnuoi" >Vùng nuôi</NavLink></li>
                                     <li><NavLink to="/aonuoi" >Ao nuôi</NavLink></li>
-                                    <li><NavLink to="/dotnuoi" >Đợt nuôi</NavLink></li>
                                     <li><NavLink to="/kho" >Kho</NavLink></li>
                                     <li className="divider-vertical"></li>
                                     <li><NavLink to="/nganhhang" >Ngành hàng</NavLink></li>
@@ -59,11 +58,14 @@ export class NavMenu extends React.Component<{}, {}> {
                             <li className="dropdown">
                                 <a className="dropdown-toggle" data-toggle="dropdown" href="#">Quản lý nuôi cá<span className="caret"></span></a>
                                 <ul className="dropdown-menu">
+                                    <li><NavLink to="/dotnuoi" >Đợt nuôi</NavLink></li>
+                                    <li className="divider-vertical"></li>
                                     <li><NavLink to="/nhapthaca" >Nhập thả cá</NavLink></li>
                                     <li><NavLink to="/choan" >Cho ăn</NavLink></li>
                                     <li><NavLink to="/raithuoc" >Rãi thuốc</NavLink></li>
                                     <li><NavLink to="/kiemcachet" >Kiểm cá chết</NavLink></li>
                                     <li><NavLink to="/kiemtratangtrong" >Kiểm tra tăng trọng</NavLink></li>
+                                    <li className="divider-vertical"></li>
                                     <li><NavLink to="/xuatbanca" >Xuất bán cá thành phẩm</NavLink></li>
                                     <li><NavLink to="/xuatbancachet" >Xuất bán cá chết</NavLink></li>
                                 </ul>

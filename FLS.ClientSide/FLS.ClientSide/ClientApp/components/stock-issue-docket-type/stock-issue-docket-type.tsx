@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { StockIssueDocketTypeEdit } from "./stock-issue-docket-type-edit";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{}>, StockIssueDocketTypeState> {
@@ -93,7 +93,7 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
     render() {
         let dataTable = this.renderTable(this.state.listStockIssueDocketType);
         let renderPaging = this.state.listStockIssueDocketType.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

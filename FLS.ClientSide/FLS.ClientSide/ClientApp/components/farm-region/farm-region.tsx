@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { FarmRegionEdit } from "./farm-region-edit";
 import { FarmRegionAPICaller } from "../../api-callers/farm-region";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRegionState> {
@@ -93,7 +93,7 @@ export class FarmRegions extends React.Component<RouteComponentProps<{}>, FarmRe
     render() {
         let dataTable = this.renderTable(this.state.listFarmRegion);
         let renderPaging = this.state.listFarmRegion.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

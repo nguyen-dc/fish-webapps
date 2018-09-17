@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
     constructor(props: IWarehouseProps){
@@ -46,7 +46,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên kho';
         }
         return errors;

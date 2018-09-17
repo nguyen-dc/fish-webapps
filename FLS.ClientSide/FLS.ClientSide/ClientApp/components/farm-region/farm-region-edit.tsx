@@ -9,7 +9,7 @@ import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FarmRegionAPICaller } from "../../api-callers/farm-region";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegionState> {
     constructor(props: IFarmRegionProps){
@@ -46,7 +46,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên vùng nuôi';
         }
         return errors;

@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
-import { DateTimeHandle, ArrayHandle, NumberHandle } from "../../handles/handles";
+import { _HDateTime, _HArray, _HNumber } from "../../handles/handles";
 import { ProductSearch } from "../product/product-search";
 import { EmptyRowMessage } from "../shared/view-only";
 import { ProductTable } from "../product/product-table";
@@ -51,11 +51,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         }
     }
 
-    async componentWillMount() {
+    async componentDidMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
         var paySlipTypes = await CacheAPI.PayslipType();
-        this.setState({ warehouses: warehouses.data, paySlipTypes: paySlipTypes.data });
+        this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data, paySlipTypes: paySlipTypes.data });
     }
 
     onDocketFieldChange(model: any) {
@@ -307,7 +307,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                             placeholder="Đơn giá"
                                             onChange={(e) => this.onChangeRowInput(e, supplierId, idx)} />
                                     </td>
-                                    <td>{NumberHandle.FormatCurrency(detail.amount ? detail.amount : 0)}</td>
+                                    <td>{_HNumber.FormatCurrency(detail.amount ? detail.amount : 0)}</td>
                                     <td>
                                         <Button bsStyle='default' className='btn-sm'
                                             onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
@@ -321,7 +321,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     <tfoot>
                         <tr>
                             <td colSpan={3} className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>{NumberHandle.FormatCurrency(totalPrice)}</strong></td>
+                            <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
                     </tfoot>
@@ -338,8 +338,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <LabeledSelect
                                 name={'stockReceiveDocketTypeId'}
                                 value={this.state.receiveDocket.stockReceiveDocketTypeId}
-                                title={'Loại phiếu xuất'}
-                                placeHolder={'Loại phiếu xuất'}
+                                title={'Loại phiếu nhập'}
+                                placeHolder={'Loại phiếu nhập'}
                                 valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={this.onDocketFieldChange.bind(this)}
@@ -349,8 +349,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <LabeledSelect
                                 name={'warehouseId'}
                                 value={this.state.receiveDocket.warehouseId}
-                                title={'Kho xuất'}
-                                placeHolder={'Kho xuất'}
+                                title={'Kho nhập'}
+                                placeHolder={'Kho nhập'}
                                 valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={this.onDocketFieldChange.bind(this)}
@@ -448,7 +448,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                             return <tr key={index}>
                                                 <td>{m.expenditureTypeName}</td>
                                                 <td>{m.title}</td>
-                                                <td>{NumberHandle.FormatCurrency(m.totalAmount)}</td>
+                                                <td>{_HNumber.FormatCurrency(m.totalAmount)}</td>
                                                 <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
                                             </tr>
                                         }) : <tr>
@@ -489,7 +489,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <span>Số lượng sản phẩm: </span>
                         </div>
                         <div className="col-xs-6 text-right">
-                            <span><strong>{NumberHandle.FormatNumber(productQuantity)}</strong></span>
+                            <span><strong>{_HNumber.FormatNumber(productQuantity)}</strong></span>
                         </div>
                     </div>
                     <div className="row">
@@ -497,7 +497,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <span>Tổng tiền sản phẩm:</span>
                         </div>
                         <div className="col-xs-6 text-right">
-                            <span><strong>{NumberHandle.FormatCurrency(productTotalAmount)}</strong></span>
+                            <span><strong>{_HNumber.FormatCurrency(productTotalAmount)}</strong></span>
                         </div>
                     </div>
                 </div>
@@ -507,7 +507,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <span>Chi phí đi kèm:</span>
                         </div>
                         <div className="col-xs-6 text-right">
-                            <span><strong>{NumberHandle.FormatNumber(expendQuantity)}</strong></span>
+                            <span><strong>{_HNumber.FormatNumber(expendQuantity)}</strong></span>
                         </div>
                     </div>
                     <div className="row">
@@ -515,7 +515,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <span>Tổng chi phí đi kèm:</span>
                         </div>
                         <div className="col-xs-6 text-right">
-                            <span><strong>{NumberHandle.FormatCurrency(expendTotalAmount)}</strong></span>
+                            <span><strong>{_HNumber.FormatCurrency(expendTotalAmount)}</strong></span>
                         </div>
                     </div>
                 </div>
@@ -525,7 +525,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <span>Tổng tiền trên phiếu:</span>
                         </div>
                         <div className="col-xs-6 text-right">
-                            <span><strong>{NumberHandle.FormatCurrency(totalAmount)}</strong></span>
+                            <span><strong>{_HNumber.FormatCurrency(totalAmount)}</strong></span>
                         </div>
                     </div>
                 </div>

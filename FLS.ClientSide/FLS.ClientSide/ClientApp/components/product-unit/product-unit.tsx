@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ProductUnitEdit } from "./product-unit-edit";
 import { ProductUnitAPICaller } from "../../api-callers/product-unit";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> {
@@ -93,7 +93,7 @@ export class ProductUnits extends React.Component<RouteComponentProps<{}>, any> 
     render() {
         let dataTable = this.renderTable(this.state.listProductUnit);
         let renderPaging = this.state.listProductUnit.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

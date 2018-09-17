@@ -6,7 +6,7 @@ import * as Moment from 'moment';
 import { ProductSearch, AddProductModal } from "../product/product-search";
 import { ProductModel } from "../../models/product";
 import { Button, Glyphicon, OverlayTrigger, Popover } from "react-bootstrap";
-import { ArrayHandle, DateTimeHandle } from "../../handles/handles";
+import { _HArray, _HDateTime } from "../../handles/handles";
 import { ProductTable } from "../product/product-table";
 import { CacheAPI } from "../../api-callers/cache";
 import { LabeledSelect, LabeledInput, LabeledCheckBox, LabeledTextArea } from "../shared/input/labeled-input";
@@ -47,12 +47,12 @@ export class ImportStock1s extends React.Component<RouteComponentProps<{}>, IImp
 
     private onSelectedProducts(products: ProductModel[]) {
         let stateProducts = this.state.products;
-        let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
+        let newList = _HArray.ConcatAndDeDuplicate('id', stateProducts, products);
         this.setState({ products: newList });
     }
     private onSelectedSuppliers(products: ProductModel[]) {
         let stateProducts = this.state.products;
-        let newList = ArrayHandle.ConcatAndDeDuplicate('id', stateProducts, products);
+        let newList = _HArray.ConcatAndDeDuplicate('id', stateProducts, products);
         this.setState({ products: newList });
     }
 

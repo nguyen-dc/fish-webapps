@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ExpenditureTypeEdit } from "./expenditure-type-edit";
 import { ExpenditureTypeAPICaller } from "../../api-callers/expenditure-type";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class ExpenditureTypes extends React.Component<RouteComponentProps<{}>, ExpenditureTypeState> {
@@ -90,7 +90,7 @@ export class ExpenditureTypes extends React.Component<RouteComponentProps<{}>, E
     render() {
         let dataTable = this.renderTable(this.state.listExpenditureType);
         let renderPaging = this.state.listExpenditureType.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

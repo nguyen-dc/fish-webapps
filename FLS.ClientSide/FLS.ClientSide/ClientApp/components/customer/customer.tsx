@@ -8,7 +8,7 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { CustomerEdit } from "./customer-edit";
 import { CustomerAPICaller } from "../../api-callers/customer";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class Customers extends React.Component<RouteComponentProps<{}>, CustomerState> {
@@ -90,7 +90,7 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
     render() {
         let dataTable = this.renderTable(this.state.listCustomer);
         let renderPaging = this.state.listCustomer.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
