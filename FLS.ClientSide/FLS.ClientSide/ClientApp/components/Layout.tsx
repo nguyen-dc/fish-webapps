@@ -13,6 +13,7 @@ interface LayoutState {
     type: 'success' | 'warning' | 'error',
     message: string;
 }
+const timeOut = 2500;
 export class Layout extends React.Component<LayoutProps, LayoutState> {
     constructor(props) {
         super(props);
@@ -31,32 +32,29 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
             ShowGlobalMessage: this.ShowGlobalMessage.bind(this),
         }
     }
-    public ShowGlobalMessage(type: 'success' | 'warning' | 'error', message: string) {
+    ShowGlobalMessage(type: 'success' | 'warning' | 'error', message: string) {
+        let prevThis = this;
         this.setState({
             isShowMessage: true,
             message: message,
             type: type
         }, () => {
             setTimeout(function (this) {
-                this.setState({
+                prevThis.setState({
                     isShowMessage: false,
                 })
-            }, 3000);
+            }, timeOut);
         });
     }
     public render() {
         let { isShowMessage, type, message } = this.state;
         let wrapperAttr = {
-            className: 'global-message ' + type
+            className: isShowMessage ? 'fade-in global-message ' + type : 'fade-out global-message ' + type
         }
         return <div className='container-fluid'>
-            {
-                isShowMessage ?
-                    <div {...wrapperAttr}>
-                        <strong>{message}</strong>
-                    </div>
-                    : null
-            }
+            <div {...wrapperAttr}>
+                <strong>{message}</strong>
+            </div>
             <div className='row'>
                 <div className='col-sm-12'>
                     <NavMenu />
@@ -64,7 +62,7 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
                 <div className='col-sm-12'>
                     { this.props.children }
                 </div>
-                <Notifications options={{ zIndex: 9999, top: '10px' }}  />
+                {/*<Notifications options={{ zIndex: 9999, top: '10px' }}  />*/}
             </div>
         </div>;
     }
