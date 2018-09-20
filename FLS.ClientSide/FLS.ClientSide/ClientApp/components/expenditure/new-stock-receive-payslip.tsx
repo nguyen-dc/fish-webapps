@@ -4,7 +4,6 @@ import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput } from "../shared/input/labeled-input";
 import { CostsModel } from "../../models/import-stock";
 import { IdNameModel } from "../../models/shared";
-import { NumberHandle } from "../../handles/handles";
 import { StockReceivePaySlipModel } from "../../models/stock_receive_pay_slip";
 import { Glyphicon, Button } from "react-bootstrap";
 import { CacheAPI } from "../../api-callers/cache";

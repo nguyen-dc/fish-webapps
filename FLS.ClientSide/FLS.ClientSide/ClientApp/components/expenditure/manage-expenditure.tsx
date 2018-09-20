@@ -10,7 +10,7 @@ import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { EmptyTableMessage } from "../shared/view-only";
-import { ObjectHandle } from "../../handles/handles";
+import { _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FishPondModel } from "../../models/fish-pond";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
@@ -61,13 +61,13 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
             this.setState({ isTableLoading: true });
             var result = await this.loadData(page, newSearch);
             if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
+                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
                 return;
             }
             var paging = new PaginateModel();
             paging.currentPage = result.data.currentPage;
             paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
         } finally {
             this.setState({ isTableLoading: false });
         }
