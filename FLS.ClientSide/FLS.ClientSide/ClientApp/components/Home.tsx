@@ -6,12 +6,69 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
             <div className="column">
                 <div id="nav_container">
                     <nav>
-                        <a href="/">Danh mục</a>
-                        <a href="/browse" className="active">Nhập xuất hàng hóa</a>
-                        <a href="/docs">Thu chi</a>
-                        <a href="/news">News</a> <a href="/stats">Quản lý nuôi cá</a>
-                        <a href="/about">Báo cáo</a>
-                        <a href="/say_thanks">Hệ thống</a>
+                        <a className="active" href="/">Danh mục
+                             <ul>
+                                <li><a >Vùng nuôi</a></li>
+                                <li><a className="a-active">Ao nuôi</a></li>
+                                <li><a>Đợt nuôi</a></li>
+                                <li><a>Kho</a></li>
+                                <li><a>Ngành hàng</a></li>
+                                <li><a>Nhóm hàng</a></li>
+                                <li><a>Đơn vị tính</a></li>
+                                <li><a>Sản phẩm</a></li>
+                                <li><a>Khách hàng</a></li>
+                                <li><a>Nhà cung cấp</a></li>
+                                <li><a>Loại kho</a></li>
+                                <li><a>Loại phiếu nhập</a></li>
+                                <li><a>Loại phiếu xuất</a></li>
+                                <li><a>Loại phiếu thu/chi</a></li>
+                            </ul>
+                            </a>
+                        <a href="/browse">
+                            Nhập xuất hàng hóa
+                            <ul>
+                                <li><a >Quản lý nhập</a></li>
+                                <li><a>Nhập mua hàng hóa thông thường</a></li>
+                                <li><a>Quản lý xuất</a></li>
+                                <li><a>Xuất bán hàng hóa thông thường</a></li>
+                            </ul>
+                        </a>
+                        <a href="/docs">Thu chi
+                             <ul>
+                                <li><a>Quản thu chi</a></li>
+                                <li><a>Tạo phiếu thu</a></li>
+                                <li><a>Tạo phiếu chi</a></li>
+                            </ul>
+                            </a>
+                        <a href="/stats">Quản lý nuôi cá
+                             <ul>
+                                <li><a>Nhập thả cá</a></li>
+                                <li><a>Cho ăn</a></li>
+                                <li><a>Rãi thuốc</a></li>
+                                <li><a>Kiểm tra cá chết</a></li>
+                                <li><a>Kiểm tra tăng trọng</a></li>
+                                <li><a>Xuất bán cá thành phẩm</a></li>
+                                <li><a>Xuất bán cá chết</a></li>
+                            </ul>
+                            </a>
+                        <a href="/about">Báo cáo
+                             <ul>
+                                <li><a>Nhật ký ao nuôi</a></li>
+                                <li><a>Theo dõi tăng trọng</a></li>
+                                <li><a>Theo dõi cá giống</a></li>
+                                <li><a>Xuất vật tư</a></li>
+                                <li><a>Nhập xuất tồn</a></li>
+                                <li><a>Thu chi theo ao</a></li>
+                                <li><a>Chi phí theo ao</a></li>
+                                <li><a>Theo dõi doanh thu</a></li>
+                            </ul>
+                            </a>
+                        <a href="/say_thanks">Hệ thống
+                             <ul>
+                                <li><a>Người dùng</a></li>
+                                <li><a>Quyền người dùng</a></li>
+                            </ul>
+                         </a>
                     </nav>
                 </div>
             </div>

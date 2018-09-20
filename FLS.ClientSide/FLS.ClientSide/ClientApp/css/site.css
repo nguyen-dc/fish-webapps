@@ -540,12 +540,12 @@ tr.clickable {
 }   
 .column:first-child {
     background: #eee;
-    flex: 300px;
+    flex: 325px;
     padding: 20px 0;
 }
 .column:last-child {
     background: #e5e5e5;
-    flex: calc(100% - 300px);
+    flex: calc(100% - 325px);
     padding: 20px;
 }
 
@@ -557,6 +557,8 @@ tr.clickable {
     position: relative;
 }
     #nav_container nav a {
+        font-weight: bold;
+        text-decoration: none;
         color: #555;
         display: block;
         line-height: 1.6;
@@ -570,14 +572,29 @@ tr.clickable {
         -webkit-border-top-right-radius: 3px;
         border-top-right-radius: 3px;
     }
-        #nav_container nav a.active {
+        #nav_container > nav > a.active {
             background-color: #F5F7F8;
             border-left-color: #6F92BA;
             color: #000;
         }
-.contents h3{
-    margin-top:10px;
-}
+    #nav_container nav ul {
+        padding-left: 25px;
+        list-style: circle;
+        margin-top:5px;
+    }
+    #nav_container nav ul li a {
+        padding: 5px 0;
+        font-weight:normal;
+    }
+        #nav_container nav ul li a:hover{
+            color:#000;
+        }
+        #nav_container nav ul li a.a-active{
+            font-weight:bold;
+        }
+        .contents h3 {
+            margin-top: 10px;
+        }
 .times-line{
 
 }
@@ -595,7 +612,7 @@ tr.clickable {
         width: 1px;
         height: 100%;
         position: absolute;
-        border-left: 2px dashed #fff;
+        border-left: 2px solid #fff;
     }
 
     .times-line ul li {
