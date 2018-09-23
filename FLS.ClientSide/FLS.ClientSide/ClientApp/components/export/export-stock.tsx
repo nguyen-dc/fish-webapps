@@ -1,13 +1,10 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber, _HObject } from "../../handles/handles";
-import { ProductSearch } from "../product/product-search";
-import { EmptyRowMessage } from "../shared/view-only";
-import { ProductTable } from "../product/product-table";
 import { ProductModel } from "../../models/product";
 import { ExportStockModel } from "../../models/export-stock";
 import { StockIssueDocketModel } from "../../models/stock-issue-docket";
@@ -21,7 +18,6 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { Glyphicon, Button } from "react-bootstrap";
 import { FormatedInput } from "../shared/input/formated-input";
 import { ExportAPICaller } from "../../api-callers/export";
-import { PropTypes } from 'react';
 
 interface ExportStockStates {
     issueDocket: StockIssueDocketModel,
@@ -53,7 +49,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data });
     }
     static contextTypes = {
-        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessage: React.PropTypes.func,
     }
     onDocketFieldChange(model: any) {
         const nextState = {
@@ -157,7 +153,6 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         model.receipt = receipt;
         model.docketDetails = docketDetails;
         model.issueDocket = issueDocket;
-        console.log(model);
         let response = await ExportAPICaller.Create(model);
         if (response.ok) {
             let result = await response.json() as ApiResponse;

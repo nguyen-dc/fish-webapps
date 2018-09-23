@@ -1,19 +1,13 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber } from "../../handles/handles";
-import { ProductSearch } from "../product/product-search";
-import { EmptyRowMessage } from "../shared/view-only";
-import { ProductTable } from "../product/product-table";
 import { ProductModel } from "../../models/product";
 import { ImportStockModel, CostsModel } from "../../models/import-stock";
-import { StockIssueDocketModel } from "../../models/stock-issue-docket";
-import { StockIssueDocketDetailModel } from "../../models/stock_issue_docket_detail";
-import { ExpenditureDocketModel } from "../../models/expenditure-docket";
-import { IdNameModel } from "../../models/shared";
+import { IdNameModel, ApiResponse } from "../../models/shared";
 import { ProductSimpleSearch } from "../product/product-simple-search";
 import { SupplierSimpleSearch } from "../supplier/supplier-simple-search";
 import { SupplierModel } from "../../models/supplier";
@@ -23,9 +17,10 @@ import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-de
 import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
 import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import { ExportAPICaller } from "../../api-callers";
+import { ImportAPICaller } from "../../api-callers/import";
 
 interface ImportStockStates {
-    model: ImportStockModel,
     receiveDocket: StockReceiveDocketModel;
     suppliers: ImportStockSupplierModel[];
     paySlipDetails: ExpenditureDocketDetailModel[];
@@ -39,7 +34,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     constructor(props: any) {
         super(props)
         this.state = {
-            model: new ImportStockModel(),
             receiveDocket: new StockReceiveDocketModel(),
             suppliers: [] as ImportStockSupplierModel[],
             paySlipDetails: [] as ExpenditureDocketDetailModel[],
@@ -50,14 +44,15 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             costs: new CostsModel()
         }
     }
-
     async componentDidMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
         var paySlipTypes = await CacheAPI.PayslipType();
         this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data, paySlipTypes: paySlipTypes.data });
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+    }
     onDocketFieldChange(model: any) {
         const nextState = {
             ...this.state,
@@ -126,14 +121,12 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         suppliers[index] = supplier;
         this.setState({ suppliers: suppliers });
     }
-
     onImportStockSupplierChange(evt, _supplierId: number) {
         let suppliers = this.state.suppliers;
         var index = suppliers.findIndex(n => n.supplierBranchId == _supplierId);
         suppliers[index][evt.name] = evt.value;
         this.setState({ suppliers: suppliers });
     }
-
     onSupplierBillDateChange(evt, _supplierId) {
         let date = evt.value as Moment.Moment;
         let suppliers = this.state.suppliers;
@@ -141,14 +134,12 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         suppliers[index][evt.name] = date.toDate();
         this.setState({ suppliers: suppliers });
     }
-
     onReceiveDocketDateChange(evt) {
         let date = evt.value as Moment.Moment;
         let receiveDocket = this.state.receiveDocket;
         receiveDocket[evt.name] = date.toDate();
         this.setState({ receiveDocket: receiveDocket });
     }
-
     onChangeRowInput(event, supplierId, index) {
         let suppliers = this.state.suppliers;
         var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
@@ -163,7 +154,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.setState({ suppliers: suppliers });
         }
     }
-
     onPaySlipFieldChange(model: any) {
         const nextState = {
             ...this.state,
@@ -174,7 +164,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         };
         this.setState(nextState);
     }
-
     addPaySlip() {
         var paySlip = this.state.costs;
         var model = new ExpenditureDocketDetailModel();
@@ -191,7 +180,36 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         paySlipDetails.unshift(model);
         this.setState({ paySlipDetails: paySlipDetails });
     }
-
+    validateImport() {
+        let { receiveDocket, suppliers, paySlipDetails } = this.state;
+        if (!receiveDocket.warehouseId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn kho nhập');
+            return false;
+        }
+        if (!suppliers || suppliers.length == 0) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp hoặc sản phẩm cần nhập');
+            return false;
+        }
+        return true;
+    }
+    async onCreateImportStock() {
+        if (!this.validateImport())
+            return;
+        let { receiveDocket, paySlipDetails, suppliers } = this.state;
+        var model = new ImportStockModel();
+        model.receiveDocket = receiveDocket;
+        model.suppliers = suppliers;
+        model.paySlipDetails = paySlipDetails;
+        let response = await ImportAPICaller.Create(model);
+        if (response.ok) {
+            let result = await response.json() as ApiResponse;
+            if (result.isSuccess && result.data) {
+                this.props.history.push(this.props.location.pathname + '/' + result.data);
+            }
+            else
+                this.context.ShowGlobalMessage('error', result.message);
+        }
+    }
     renderSuppliers() {
         let { suppliers } = this.state;
         return suppliers.map((supplier, idx) => {
@@ -247,7 +265,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                 </div>
                             </div>
                         </div>
-                        <div className="col-sm-8">
+                        <div className="col-md-8">
                             <div className="panel panel-default mg-0">
                                 <div className="panel-heading">Sản phẩm</div>
                                 <div className="panel-body">
@@ -533,7 +551,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     <div className="row">
                         <div className="col-xs-12 text-right">
                             <button className="btn btn-default mg-r-15">Hủy</button>
-                            <button className="btn btn-primary">Tạo phiếu</button>
+                            <button className="btn btn-primary" onClick={() => this.onCreateImportStock()}>Tạo phiếu</button>
                         </div>
                     </div>
                 </div>
