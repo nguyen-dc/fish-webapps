@@ -19,22 +19,22 @@ export class NavMenu extends React.Component<{}, {}> {
                             <li className="dropdown">
                                 <a className="dropdown-toggle" data-toggle="dropdown" href="#">Danh mục<span className="caret"></span></a>
                                 <ul className="dropdown-menu">
-                                    <li><NavLink to="/vungnuoi" >Vùng nuôi</NavLink></li>
-                                    <li><NavLink to="/aonuoi" >Ao nuôi</NavLink></li>
-                                    <li><NavLink to="/kho" >Kho</NavLink></li>
+                                    <li><NavLink to="/vungnuoi" activeClassName="active">Vùng nuôi</NavLink></li>
+                                    <li><NavLink to="/aonuoi" activeClassName="active">Ao nuôi</NavLink></li>
+                                    <li><NavLink to="/kho" activeClassName="active">Kho</NavLink></li>
                                     <li className="divider-vertical"></li>
-                                    <li><NavLink to="/nganhhang" >Ngành hàng</NavLink></li>
-                                    <li><NavLink to="/nhomhang" >Nhóm hàng</NavLink></li>
-                                    <li><NavLink to="/donvitinh" >Đơn vị tính</NavLink></li>
-                                    <li><NavLink to="/sanpham" >Sản phẩm</NavLink></li>
+                                    <li><NavLink to="/nganhhang" activeClassName="active">Ngành hàng</NavLink></li>
+                                    <li><NavLink to="/nhomhang" activeClassName="active" >Nhóm hàng</NavLink></li>
+                                    <li><NavLink to="/donvitinh" activeClassName="active">Đơn vị tính</NavLink></li>
+                                    <li><NavLink to="/sanpham" activeClassName="active">Sản phẩm</NavLink></li>
                                     <li className="divider-vertical"></li>
-                                    <li><NavLink to="/khachhang" >Khách hàng</NavLink></li>
-                                    <li><NavLink to="/nhacungcap" >Nhà cung cấp</NavLink></li>
+                                    <li><NavLink to="/khachhang" activeClassName="active">Khách hàng</NavLink></li>
+                                    <li><NavLink to="/nhacungcap" activeClassName="active">Nhà cung cấp</NavLink></li>
                                     <li className="divider-vertical"></li>
-                                    <li><NavLink to="/loaikho" >Loại kho</NavLink></li>
-                                    <li><NavLink to="/loaiphieunhap" >Loại phiếu nhập</NavLink></li>
-                                    <li><NavLink to="/loaiphieuxuat" >Loại phiếu xuất</NavLink></li>
-                                    <li><NavLink to="/loaiphieuthuchi" >Loại phiếu thu/chi</NavLink></li>
+                                    <li><NavLink to="/loaikho" activeClassName="active">Loại kho</NavLink></li>
+                                    <li><NavLink to="/loaiphieunhap" activeClassName="active">Loại phiếu nhập</NavLink></li>
+                                    <li><NavLink to="/loaiphieuxuat" activeClassName="active">Loại phiếu xuất</NavLink></li>
+                                    <li><NavLink to="/loaiphieuthuchi" activeClassName="active">Loại phiếu thu/chi</NavLink></li>
                                 </ul>
                             </li>
                             <li className="dropdown">

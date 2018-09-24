@@ -25,7 +25,7 @@ interface IStockReceiveDocket {
 export class StockReceiveDocketModel implements IStockReceiveDocket {
     id: number = 0;
     actuallyReceivedCode: string;
-    executedDate: Date | string = _HDateTime.DateFormat(Moment().toDate());
+    executedDate: Date | string = new Date();
     executorCode: string;
     approvedDate: Date | string | null;
     approverCode: string;

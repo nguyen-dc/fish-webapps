@@ -131,13 +131,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         let date = evt.value as Moment.Moment;
         let suppliers = this.state.suppliers;
         var index = suppliers.findIndex(n => n.supplierBranchId == _supplierId);
-        suppliers[index][evt.name] = date.toDate();
+        suppliers[index][evt.name] = date;
         this.setState({ suppliers: suppliers });
     }
     onReceiveDocketDateChange(evt) {
         let date = evt.value as Moment.Moment;
         let receiveDocket = this.state.receiveDocket;
-        receiveDocket[evt.name] = date.toDate();
+        receiveDocket[evt.name] = date;
         this.setState({ receiveDocket: receiveDocket });
     }
     onChangeRowInput(event, supplierId, index) {
@@ -200,6 +200,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         model.receiveDocket = receiveDocket;
         model.suppliers = suppliers;
         model.paySlipDetails = paySlipDetails;
+        var json = JSON.stringify(model);
+        debugger
         let response = await ImportAPICaller.Create(model);
         if (response.ok) {
             let result = await response.json() as ApiResponse;

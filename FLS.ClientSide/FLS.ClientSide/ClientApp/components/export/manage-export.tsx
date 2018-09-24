@@ -3,48 +3,76 @@ import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
 import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
-import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
+import { LabeledInput, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { ExportAPICaller } from "../../api-callers/export";
+import { ManagerExportStockModel, ManagerExportSearchModel } from "../../models/manager-export-stock";
+import { CustomerAPICaller } from "../../api-callers";
 const urlLoadList = 'api/stock-receive-dockets';
+const filterTitle0 = 'Tất cả';
 
-export class ManageExports extends React.Component<RouteComponentProps<{}>, any> {
+interface IManageImportState {
+    listCustomer: ManagerExportStockModel[],
+    warehouses: IdNameModel[],
+    customers: IdNameModel[],
+    stockIssueDocketTypes: IdNameModel[],
+    pagingModel: PaginateModel,
+    searchKey: string,
+    lastedSearchKey: string,
+    isTableLoading: boolean,
+    searchModel: PageFilterModel,
+    lastSearchModel: PageFilterModel,
+    filterSearch: ManagerExportSearchModel
+}
+
+export class ManageExports extends React.Component<RouteComponentProps<{}>, IManageImportState> {
     constructor(props: any) {
         super(props)
+        let selectedFilter = new IdNameModel();
+        selectedFilter.id = 0;
+        selectedFilter.name = filterTitle0;
+
         this.state = {
-            listStockReceive: [],
+            listCustomer: [],
             pagingModel: new PaginateModel(),
-            searchKey: '',
-            lastedSearchKey: null,
-            editStockReceiveId: 0,
+            searchKey:'',
+            lastedSearchKey: '',
             isTableLoading: true,
-            editModalShow: false,
-            editModalTitle: '',
-            isHidden: true,
-            warehouses: []
+            warehouses: [],
+            customers: [],
+            stockIssueDocketTypes:[],
+            lastSearchModel: new PageFilterModel(),
+            searchModel: new PageFilterModel(),
+            filterSearch: new ManagerExportSearchModel()
         };
     }
 
     async componentWillMount() {
         await this.onPageChange(1, true);
         var warehouses = await CacheAPI.Warehouse();
-        this.setState({ warehouses: warehouses.data });
+
+        var search = new PageFilterModel();
+        search.page = 1;
+        search.pageSize = this.state.pagingModel.pageSize;
+        var customers = await CustomerAPICaller.GetList(search);
+        var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
+
+        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data, customers: customers });
     }
     async loadData(page: number, newSearch: boolean) {
-        let keySearch = this.state.lastedSearchKey;
-        if (newSearch)
-            keySearch = this.state.searchKey;
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
+        }
+        searchModel.filters.push();
 
-        let request = await ExportAPICaller.GetList({
-            page: page,
-            pageSize: this.state.pagingModel.pageSize,
-            key: keySearch,
-            filters: []
-        });
+        let request = await ExportAPICaller.GetList(searchModel);
         if (request.ok)
             return (await request.json());
         else {
@@ -67,28 +95,12 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
             this.setState({ isTableLoading: false });
         }
     }
-    async onDelete(id: number) {
-        //// 
-    }
-    toggleHidden() {
-        this.setState({
-            isHidden: !this.state.isHidden
-        })
-    }
+   
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
             this.onPageChange(this.state.pagingModel.currentPage, false)
     }
-    onOpenEdit(model: any) {
-        if (model.id > 0) {
-            this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa thông tin khách hàng', selectedModel: model });
-        }
-        else
-            this.setState({ editModalShow: true, editModalTitle: 'Tạo thông tin khách hàng', selectedModel: null });
-    }
-    onCloseEdit() {
-        this.setState({ editModalShow: false });
-    }
+   
     onSearchKeyChange(e) {
         this.setState({ searchKey: e.target.value });
     }
@@ -99,9 +111,9 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
     }
 
     render() {
-        let dataTable = this.renderTable(this.state.listStockReceive);
-        let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
-
+        let dataTable = this.renderTable(this.state.listCustomer);
+        let renderPaging = this.state.listCustomer.length > 0 ? this.renderPaging() : null;
+        let renderAdvanceSearch = this.renderAdvanceSearch(this.state.filterSearch);
         return (
             <div className="content-wapper">
                 <nav aria-label="breadcrumb">
@@ -112,7 +124,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                 </nav>
                 <div className="panel panel-default">
                     <div className="panel-body">
-                        {<AdvanceSearch />}
+                        {renderAdvanceSearch}
                         <div className="col-xs-8 mg-bt-15">
                             <div className="input-group">
                                 <div className="input-group-btn search-panel">
@@ -157,7 +169,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
         );
     }
 
-    private renderTable(models: StockReceiveDocketModel[]) {
+    private renderTable(models: ManagerExportStockModel[]) {
         return (
             <table className="table table-striped table-hover">
                 <thead>
@@ -175,7 +187,20 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
                     </tr>
                 </thead>
                 <tbody>
-
+                    {models != null && models.length > 0 ?
+                        models.map(item =>
+                            <tr key={item.id}>
+                                <td>{item.id}</td>
+                                <td>{item.approverCode}</td>
+                                <td>{item.stockIssueDocketTypeId}</td>
+                                <td>{item.warehouseId}</td>
+                                <td>{item.customerName}</td>
+                                <td>{item.totalAmount}</td>
+                                <td></td>
+                                <td></td>
+                                <td>{item.description}</td>
+                                <td></td>
+                        </tr>): null}
                 </tbody>
             </table>
         );
@@ -202,65 +227,56 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, any>
             </div>
         );
     }
-}
-const AdvanceSearch = () => (
-    <div className="col-sm-12">
-        <div className="row">
-            <div className="col-md-4">
-                <LabeledSingleDatePicker
-                    name={'fromDate'}
-                    title={'Từ ngày'}
-                    date={Moment()} />
-                <LabeledSingleDatePicker
-                    name={'toDate'}
-                    title={'Đến ngày'}
-                    date={Moment()} />
-            </div>
-            <div className="col-md-4">
-                <LabeledSelect
-                    name={'warehouses'}
-                    value={0}
-                    title={'Kho xuất'}
-                    placeHolder={'Kho xuất'}
-                    valueKey={'id'}
-                    nameKey={'name'}
-                    options={[{ id: 1, name: 'Kho 1' }, { id: 2, name: 'Kho 2' }]} />
-                <LabeledSelect
-                    name={'suppliers'}
-                    value={0}
-                    title={'Khách hàng'}
-                    placeHolder={'Khách hàng'}
-                    valueKey={'id'}
-                    nameKey={'name'}
-                    options={[{ id: 1, name: 'Khách hàng 1' }, { id: 2, name: 'Khách hàng 2' }]} />
-            </div>
-            <div className="col-md-4">
-                <LabeledSelect
-                    name={'input'}
-                    value={0}
-                    title={'Loại phiếu xuất'}
-                    placeHolder={'Loại phiếu xuất'}
-                    valueKey={'id'}
-                    nameKey={'name'}
-                    options={[{ id: 1, name: 'Loại phiếu xuất 1' }, { id: 2, name: 'Loại phiếu xuất 2' }]} />
-                <div className='form-group-custom mg-bt-15'>
-                    <label className="control-label min-w-140 float-left"></label>
-                    <div>
-                        <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
+    private renderAdvanceSearch(filters: ManagerExportSearchModel) {
+        return (
+            <div className="col-sm-12">
+                <div className="row">
+                    <div className="col-md-4">
+                        <LabeledSingleDatePicker
+                            name={'fromDate'}
+                            title={'Từ ngày'}
+                            date={Moment()} />
+                        <LabeledSingleDatePicker
+                            name={'toDate'}
+                            title={'Đến ngày'}
+                            date={Moment()} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledSelect
+                            name={'warehouseId'}
+                            value={filters.warehouseId}
+                            title={'Kho xuất'}
+                            placeHolder={'Kho xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={this.state.warehouses} />
+                        <LabeledSelect
+                            name={'customerId'}
+                            value={filters.customerId}
+                            title={'Khách hàng'}
+                            placeHolder={'Khách hàng'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={this.state.customers} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledSelect
+                            name={'stockIssueDocketTypeId'}
+                            value={filters.stockIssueDocketTypeId}
+                            title={'Loại phiếu xuất'}
+                            placeHolder={'Loại phiếu xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={this.state.stockIssueDocketTypes} />
+                        <LabeledCheckBox
+                            name={'status'}
+                            value={filters.status}
+                            title={'Loại phiếu xuất'}
+                            text='Đã hủy'
+                        />
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-)
-
-interface ManageImportState {
-    listStockReceive: StockReceiveDocketModel[],
-    pagingModel: PaginateModel,
-    searchKey: string,
-    lastedSearchKey: string,
-    editStockReceiveId: number,
-    isTableLoading: boolean,
-    editModalShow: boolean,
-    editModalTitle: string
+            )
+    }
 }
