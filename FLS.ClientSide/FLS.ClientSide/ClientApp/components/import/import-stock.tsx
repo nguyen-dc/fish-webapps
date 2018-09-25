@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
-import { _HDateTime, _HArray, _HNumber } from "../../handles/handles";
+import { _HDateTime, _HArray, _HNumber, _HString } from "../../handles/handles";
 import { ProductModel } from "../../models/product";
 import { ImportStockModel, CostsModel } from "../../models/import-stock";
 import { IdNameModel, ApiResponse } from "../../models/shared";
@@ -177,20 +177,29 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     addPaySlip() {
         let { costs } = this.state;
-        var model = new ExpenditureDocketDetailModel();
-        model.amount = costs.amount;
-        model.totalAmount = costs.amount;
-        model.expenditureTypeId = costs.paySlipTypeId;
-        model.title = costs.description;
-        var paySlipType = this.state.paySlipTypes.find(n => n.id == costs.paySlipTypeId);
-        if (paySlipType) {
-            model.expenditureTypeName = paySlipType.name;
-        }
-        //---------------------------------
-        let { paySlipDetails } = this.state;
-        paySlipDetails.unshift(model);
+        if (costs.paySlipTypeId > 0 || !_HString.IsNullOrEmpty(costs.description)) {
+            if (costs.amount < 0) {
+                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+                return;
+            }
+            var model = new ExpenditureDocketDetailModel();
+            model.amount = costs.amount;
+            model.totalAmount = costs.amount;
+            model.expenditureTypeId = costs.paySlipTypeId;
+            model.title = costs.description;
+            var paySlipType = this.state.paySlipTypes.find(n => n.id == costs.paySlipTypeId);
+            if (paySlipType) {
+                model.expenditureTypeName = paySlipType.name;
+            }
+            //---------------------------------
+            let { paySlipDetails } = this.state;
+            paySlipDetails.unshift(model);
 
-        this.setState({ paySlipDetails: paySlipDetails, costs: new CostsModel()});
+            this.setState({ paySlipDetails: paySlipDetails, costs: new CostsModel() });
+        }
+        else {
+            this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+        }
     }
     onRemovePaySlip(index: number) {
         let { paySlipDetails } = this.state;
