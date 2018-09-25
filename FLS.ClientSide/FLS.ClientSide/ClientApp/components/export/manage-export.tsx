@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ApiResponse } from "../../models/shared";
 import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
 import { LabeledInput, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
@@ -12,6 +12,7 @@ import { CacheAPI } from "../../api-callers/cache";
 import { ExportAPICaller } from "../../api-callers/export";
 import { ManagerExportStockModel, ManagerExportSearchModel } from "../../models/manager-export-stock";
 import { CustomerAPICaller } from "../../api-callers";
+import { Customers } from "../customer/customer";
 const urlLoadList = 'api/stock-receive-dockets';
 const filterTitle0 = 'Tất cả';
 
@@ -59,9 +60,12 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
         search.page = 1;
         search.pageSize = this.state.pagingModel.pageSize;
         var customers = await CustomerAPICaller.GetList(search);
+        if (customers.ok) {
+            let result = await customers.json() as ApiResponse;
+            this.setState({ customers: result.data });
+        }
         var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
-
-        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data, customers: customers });
+        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data});
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;

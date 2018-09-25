@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { CustomerModel } from "../../models/customer";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { IdNameModel, ErrorItem, ApiResponse } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
@@ -61,23 +61,25 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
             return;
         }
         if (this.props.isEdit) {
-            let request = await CustomerAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
+            let response = await CustomerAPICaller.Update(this.state.model.id, this.state.model);
+            if (response.ok) {
+                let result = await response.json() as ApiResponse;
+                if (result.isSuccess && result.data) {
                     this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
                 }
-            });
+                else
+                    this.context.ShowGlobalMessage('error', result.message);
+            }
         } else {
-            let request = await CustomerAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
+            let response = await CustomerAPICaller.Create(this.state.model);
+            if (response.ok) {
+                let result = await response.json() as ApiResponse;
+                if (result.isSuccess && result.data) {
                     this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
                 }
-            });
+                else
+                    this.context.ShowGlobalMessage('error', result.message);
+            }
         }
     }
     render() {

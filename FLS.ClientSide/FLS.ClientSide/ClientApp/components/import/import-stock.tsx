@@ -19,6 +19,7 @@ import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ExportAPICaller } from "../../api-callers";
 import { ImportAPICaller } from "../../api-callers/import";
+import { FormatedInput } from "../shared/input/formated-input";
 
 interface ImportStockStates {
     receiveDocket: StockReceiveDocketModel;
@@ -99,14 +100,16 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         if (index >= 0) {
             detail = supplier.receiveDocketDetails[index];
             detail.quantity = Number(detail.quantity) + 1;
-            detail.totalAmount = detail.quantity * detail.unitPrice;
             detail.amount = detail.quantity * detail.unitPrice;
+            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+            detail.totalAmount = (detail.quantity * detail.unitPrice) + detail.vat;
             supplier.receiveDocketDetails[index] = detail;
         } else {
             detail.productId = product.id;
             detail.productName = product.name;
             detail.productUnitId = product.defaultUnitId;
             detail.quantity = 1;
+            detail.vatPercent = product.taxPercentId;
             supplier.receiveDocketDetails.push(detail);
         }
         suppliers[supplierIndex] = supplier;
@@ -140,17 +143,25 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         receiveDocket[evt.name] = date;
         this.setState({ receiveDocket: receiveDocket });
     }
+
     onChangeRowInput(event, supplierId, index) {
         let suppliers = this.state.suppliers;
         var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
         if (indexSupplier > -1 && index >= 0) {
             let products = suppliers[indexSupplier].receiveDocketDetails;
             let detail = products[index];
-            detail[event.target.name] = event.target.value;
-            detail.totalAmount = detail.unitPrice * detail.quantity;
-            detail.amount = detail.unitPrice * detail.quantity;
+            detail[event.name] = event.value;
+            
+            if (event.name == "totalAmount") {
+                detail.unitPrice = (event.value / detail.quantity);
+                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+            }
+            else
+            {
+                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+                detail.totalAmount = (detail.unitPrice * detail.quantity) + detail.vat;
+            }
             products[index] = detail;
-
             this.setState({ suppliers: suppliers });
         }
     }
@@ -165,20 +176,25 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         this.setState(nextState);
     }
     addPaySlip() {
-        var paySlip = this.state.costs;
+        let { costs } = this.state;
         var model = new ExpenditureDocketDetailModel();
-        model.amount = paySlip.amount;
-        model.totalAmount = paySlip.amount;
-        model.expenditureTypeId = paySlip.paySlipTypeId;
-        model.title = paySlip.description;
-        var paySlipType = this.state.paySlipTypes.find(n => n.id == paySlip.paySlipTypeId);
+        model.amount = costs.amount;
+        model.totalAmount = costs.amount;
+        model.expenditureTypeId = costs.paySlipTypeId;
+        model.title = costs.description;
+        var paySlipType = this.state.paySlipTypes.find(n => n.id == costs.paySlipTypeId);
         if (paySlipType) {
             model.expenditureTypeName = paySlipType.name;
         }
         //---------------------------------
         let { paySlipDetails } = this.state;
         paySlipDetails.unshift(model);
-        this.setState({ paySlipDetails: paySlipDetails });
+
+        this.setState({ paySlipDetails: paySlipDetails, costs: new CostsModel()});
+    }
+    onRemovePaySlip(index: number) {
+        let { paySlipDetails } = this.state;
+        this.setState({ paySlipDetails: paySlipDetails.filter(m => m != paySlipDetails[index])});
     }
     validateImport() {
         let { receiveDocket, suppliers, paySlipDetails } = this.state;
@@ -200,8 +216,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         model.receiveDocket = receiveDocket;
         model.suppliers = suppliers;
         model.paySlipDetails = paySlipDetails;
-        var json = JSON.stringify(model);
-        debugger
         let response = await ImportAPICaller.Create(model);
         if (response.ok) {
             let result = await response.json() as ApiResponse;
@@ -291,7 +305,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         })
     }
     renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
-        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity), 0);
+        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat) , 0);
         return (
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover mg-0">
@@ -300,6 +314,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <th>Tên sản phẩm</th>
                             <th>Số lượng</th>
                             <th>Đơn giá</th>
+                            <th>% VAT</th>
+                            <th>VAT</th>
                             <th>Thành tiền</th>
                             <th className='th-sm-1'></th>
                         </tr>
@@ -307,27 +323,43 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     <tbody>
                         {
                             docketDetails.map((detail, idx) => {
-                                let totalAmount = detail.unitPrice * detail.quantity;
                                 return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
                                     <td>
-                                        <input type="number"
+                                        <FormatedInput
+                                            type="number"
                                             className="form-control max-w-100"
-                                            min="1"
-                                            name={'quantity'}
+                                            min={1}
+                                            name='quantity'
                                             value={detail.quantity}
-                                            onChange={(e) => this.onChangeRowInput(e, supplierId, idx)} />
+                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                        />
                                     </td>
                                     <td>
-                                        <input type="number"
+                                        <FormatedInput
+                                            type="currency"
                                             className="form-control"
-                                            min="0"
-                                            name={'unitPrice'}
+                                            min={0}
+                                            name='unitPrice'
                                             value={detail.unitPrice}
-                                            placeholder="Đơn giá"
-                                            onChange={(e) => this.onChangeRowInput(e, supplierId, idx)} />
+                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                        />
                                     </td>
-                                    <td>{_HNumber.FormatCurrency(detail.amount ? detail.amount : 0)}</td>
+                                    <td>
+                                        {detail.vatPercent ? detail.vatPercent : 0} %
+                                    </td>
+                                    <td>
+                                        {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
+                                    </td>
+                                    <td>
+                                        <FormatedInput
+                                            type="currency"
+                                            className="form-control"
+                                            min={0}
+                                            name='totalAmount'
+                                            value={detail.totalAmount}
+                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                        /></td>
                                     <td>
                                         <Button bsStyle='default' className='btn-sm'
                                             onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
@@ -340,7 +372,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={3} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td colSpan={5} className="text-right"><strong>Tổng tiền:</strong> </td>
                             <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
@@ -436,13 +468,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             />
                         </div>
                         <div className="col-md-4">
-                            <LabeledInput
-                                name={'amount'}
+                            <FormatedInput
+                                type="currency"
+                                className="form-control"
+                                min={0}
+                                name='amount'
                                 value={this.state.costs.amount}
-                                title={'Số tiền'}
-                                placeHolder={'Số tiền'}
-                                error={this.state.errorList['amount']}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
+                                onValueChange={this.onPaySlipFieldChange.bind(this)}
                             />
                         </div>
                         <div className="col-sm-1">
@@ -469,7 +501,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                                 <td>{m.expenditureTypeName}</td>
                                                 <td>{m.title}</td>
                                                 <td>{_HNumber.FormatCurrency(m.totalAmount)}</td>
-                                                <td><Button bsStyle="default" className="btn-sm"><Glyphicon glyph="minus" /></Button></td>
+                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.onRemovePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
                                             </tr>
                                         }) : <tr>
                                             <td className="text-center" colSpan={4}>Chưa có chi phí nào</td>
@@ -492,7 +524,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         let { suppliers, paySlipDetails } = this.state;
         suppliers.forEach((item) => {
             productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
-            productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity), 0);
+            productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
 
         expendQuantity = paySlipDetails.length;
