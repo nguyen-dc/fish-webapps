@@ -20,6 +20,10 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
             errorList: {}
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     componentDidMount() {
         //init comboboxes
         ////
@@ -61,23 +65,27 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
             return;
         }
         if (this.props.isEdit) {
-            let request = await FarmRegionAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await FarmRegionAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật vùng nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await FarmRegionAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await FarmRegionAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo vùng nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {
@@ -89,7 +97,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
                     <Modal.Title id="contained-modal-title-lg">{this.props.title}</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="form-horizontal">
+                    <div className="form-horizontal">
                         {this.state.errorList ? <FormErrors formErrors={this.state.errorList} /> : null}
                         {
                             this.props.isEdit ? 
@@ -108,7 +116,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
                             placeHolder={'Tên vùng nuôi'}
                             error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />
-                    </form>
+                    </div>
                 </Modal.Body>
                 <Modal.Footer>
                     <Button bsStyle="primary" onClick={this.onFormSubmit.bind(this)}>{this.props.isEdit ? 'Cập nhật' : 'Tạo'} </Button>

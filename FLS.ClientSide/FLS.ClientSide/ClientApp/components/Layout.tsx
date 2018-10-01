@@ -25,12 +25,13 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
         }
     }
     static childContextTypes = {
-        ShowGlobalMessages: PropTypes.func,
         ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessages: PropTypes.func,
     }
 
     getChildContext() {
         return {
+            ShowGlobalMessage: this.ShowGlobalMessage.bind(this),
             ShowGlobalMessages: this.ShowGlobalMessages.bind(this),
         }
     }
