@@ -6,7 +6,7 @@ import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import { Content } from "react-bootstrap/lib/Tab";
 import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, ResponseConsult } from "../../models/shared";
 import { ProductGroupModel } from "../../models/product-group";
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
@@ -28,35 +28,40 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
     async componentDidMount() {
         await this.onPageChange(1, true);
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
         if (newSearch)
             keySearch = this.state.searchKey;
 
-        let request = await ProductGroupAPICaller.GetList({
+        return await ProductGroupAPICaller.GetList({
             page: page,
             pageSize: this.state.pagingModel.pageSize,
             key: keySearch,
             filters: []
         });
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) { return; }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listProductUnit: result.data.items, pagingModel: paging });
-            if (newSearch)
-                this.setState({ lastedSearchKey: this.state.searchKey });
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listProductGroup: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastedSearchKey: this.state.searchKey });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }

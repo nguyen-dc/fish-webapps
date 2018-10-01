@@ -3,7 +3,7 @@ import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
 import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
@@ -40,34 +40,40 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
         await this.onPageChange(1, true);
     }
 
-    async loadData(page: number, newSearch: boolean) {
-        let searchModel = this.state.lastSearchModel;
-        searchModel.page = page;
-        if (newSearch) {
-            searchModel = this.state.searchModel;
-            searchModel.page = 1;
-        }
-        let request = await FishPondAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
-    
+    async loadData(page: number, newSearch: boolean) {
+        let keySearch = this.state.lastedSearchKey;
+        if (newSearch)
+            keySearch = this.state.searchKey;
+
+        //return await ExpenditureAPICaller.GetList({
+        //    page: page,
+        //    pageSize: this.state.pagingModel.pageSize,
+        //    key: keySearch,
+        //    filters: []
+        //});
+    }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
-                return;
+            var result;// = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listExpenditure: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastedSearchKey: this.state.searchKey });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }

@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { FarmingSeasonModel } from "../../models/farming-season";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
@@ -53,34 +53,40 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
         this.setState({ fishPonds: fishPonds.data });
         await this.onPageChange(1, true);
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
-        let searchModel = this.state.lastSearchModel;
-        searchModel.page = page;
-        if (newSearch) {
-            searchModel = this.state.searchModel;
-            searchModel.page = 1;
-        }
-        let request = await FarmingSeasonAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        let modelSearch = this.state.lastSearchModel;
+        if (newSearch)
+            modelSearch = this.state.searchModel;
+
+        return await FarmingSeasonAPICaller.GetList({
+            page: page,
+            pageSize: this.state.pagingModel.pageSize,
+            key: modelSearch.key,
+            filters: []
+        });
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listFarmingSeason: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listFarmingSeason: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
