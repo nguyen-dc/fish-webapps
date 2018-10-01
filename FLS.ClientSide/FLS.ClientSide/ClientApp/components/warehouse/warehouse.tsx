@@ -7,7 +7,6 @@ import { WarehouseModel } from "../../models/warehouse";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { WarehouseEdit } from "./warehouse-edit";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
-import { Last } from "react-bootstrap/lib/Pagination";
 import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 

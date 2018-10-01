@@ -79,3 +79,32 @@ export class ApiResponse implements IApiResponse
     message: string;
     data: any;
 }
+
+interface IResponseConsult {
+    hasError: boolean;
+    hasWarning: boolean;
+    errors: IStringStringPair[];
+    warnings: IStringStringPair[];
+    data: any;
+}
+
+export class ResponseConsult implements IResponseConsult {
+    hasError: boolean = false;
+    hasWarning: boolean = false;
+    errors: IStringStringPair[];
+    warnings: IStringStringPair[];
+    data: any;
+}
+
+interface IStringStringPair {
+    key: string,
+    value: string,
+}
+export class StringStringPair implements IStringStringPair {
+    key: string;
+    value: string;
+    constructor(key: string = null, value: string = null) {
+        this.key = key;
+        this.value = value;
+    }
+}

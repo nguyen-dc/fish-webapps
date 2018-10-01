@@ -3,6 +3,7 @@ import { NavMenu } from './NavMenu';
 import Notifications, { notify } from 'react-notify-toast';
 import { PropTypes } from 'react';
 import './index.css';
+import { StringStringPair } from '../models/shared';
 
 export interface LayoutProps {
     children?: React.ReactNode;
@@ -11,7 +12,7 @@ export interface LayoutProps {
 interface LayoutState {
     isShowMessage: boolean;
     type: 'success' | 'warning' | 'error',
-    message: string;
+    messages: StringStringPair[];
 }
 const timeOut = 2500;
 export class Layout extends React.Component<LayoutProps, LayoutState> {
@@ -19,24 +20,41 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
         super(props);
         this.state = {
             isShowMessage: false,
-            message: '',
+            messages: [],
             type: 'error',
         }
     }
     static childContextTypes = {
+        ShowGlobalMessages: PropTypes.func,
         ShowGlobalMessage: PropTypes.func,
     }
 
     getChildContext() {
         return {
-            ShowGlobalMessage: this.ShowGlobalMessage.bind(this),
+            ShowGlobalMessages: this.ShowGlobalMessages.bind(this),
         }
     }
     ShowGlobalMessage(type: 'success' | 'warning' | 'error', message: string) {
         let prevThis = this;
+        let messages = [] as StringStringPair[];
+        messages.push(new StringStringPair('t-gn-mssg', message));
         this.setState({
             isShowMessage: true,
-            message: message,
+            messages: messages,
+            type: type
+        }, () => {
+            setTimeout(function (this) {
+                prevThis.setState({
+                    isShowMessage: false,
+                })
+            }, timeOut);
+        });
+    }
+    ShowGlobalMessages(type: 'success' | 'warning' | 'error', messages: StringStringPair[]) {
+        let prevThis = this;
+        this.setState({
+            isShowMessage: true,
+            messages: messages,
             type: type
         }, () => {
             setTimeout(function (this) {
@@ -47,13 +65,17 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
         });
     }
     public render() {
-        let { isShowMessage, type, message } = this.state;
+        let { isShowMessage, type, messages } = this.state;
         let wrapperAttr = {
             className: isShowMessage ? 'fade-in global-message ' + type : 'fade-out global-message ' + type
         }
         return <div className='container-fluid'>
             <div {...wrapperAttr}>
-                <strong>{message}</strong>
+                {
+                    messages.map((m, i) => {
+                        return <p key={type + '-' + i + '-' + m.key}><strong>{m.value}</strong></p>
+                    })
+                }
             </div>
             <div className='row'>
                 <div className='col-sm-12'>

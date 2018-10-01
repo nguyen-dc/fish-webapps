@@ -3,7 +3,7 @@ import { ImportStockModel } from "../models/import-stock";
 import { APICallerBase } from "./api-caller-base";
 
 export const ImportAPICaller = {
-    GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/stock-receive-dockets`, null, model),
-    Create: async (model: ImportStockModel) => await APICallerBase.Post("api/stock-receive-dockets/add", null, model),
-    Update: async (docketId: number, model: ImportStockModel) => await APICallerBase.Post(`api/stock-receive-dockets/${docketId}/modify`, null, model),
+    GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/stock-receive-dockets`, model),
+    Create: async (model: ImportStockModel) => await APICallerBase.Post("api/stock-receive-dockets/add", model),
+    Update: async (docketId: number, model: ImportStockModel) => await APICallerBase.Post(`api/stock-receive-dockets/${docketId}/modify`, model),
 }

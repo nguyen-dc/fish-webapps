@@ -225,6 +225,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         model.receiveDocket = receiveDocket;
         model.suppliers = suppliers;
         model.paySlipDetails = paySlipDetails;
+        model.receiveDocket.isActuallyReceived = true;
         let response = await ImportAPICaller.Create(model);
         if (response.ok) {
             let result = await response.json() as ApiResponse;
