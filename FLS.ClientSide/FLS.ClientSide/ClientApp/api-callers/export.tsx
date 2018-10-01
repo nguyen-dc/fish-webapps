@@ -1,35 +1,9 @@
 import { PageFilterModel } from "../models/shared";
 import { ExportStockModel } from "../models/export-stock";
+import { APICallerBase } from "./api-caller-base";
 
 export const ExportAPICaller = {
-    GetList: async (model: PageFilterModel) => {
-        return await fetch(`api/stock-issue-dockets`, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-    },
-    Create: async (model: ExportStockModel) => {
-        return await fetch("api/stock-issue-dockets/add", {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-    },
-    Update: async (model: ExportStockModel) => {
-        return await fetch(`api/stock-issue-dockets/${model.issueDocket.id}/modify`, {
-            method: 'put',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-    }
+    GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/stock-issue-dockets`, model),
+    Create: async (model: ExportStockModel) => await APICallerBase.Post(`api/stock-issue-dockets/add`, model),
+    Update: async (model: ExportStockModel) => await APICallerBase.Put(`api/stock-issue-dockets/${model.issueDocket.id}/modify`, model),
 }
