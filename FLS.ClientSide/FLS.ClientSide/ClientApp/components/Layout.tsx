@@ -14,7 +14,7 @@ interface LayoutState {
     type: 'success' | 'warning' | 'error',
     messages: StringStringPair[];
 }
-const timeOut = 250000000;
+const timeOut = 2500;
 export class Layout extends React.Component<LayoutProps, LayoutState> {
     constructor(props) {
         super(props);
