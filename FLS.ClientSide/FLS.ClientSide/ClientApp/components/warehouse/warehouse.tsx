@@ -27,6 +27,10 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
     async componentDidMount() {
         await this.onPageChange(1, true);
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
         if (newSearch)

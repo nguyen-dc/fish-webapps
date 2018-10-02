@@ -78,7 +78,9 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
                 paging.totalItems = result.data.totalItems;
-                this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
+                this.setState({ listFishPond: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
             if (result.hasWarning) {
                 this.context.ShowGlobalMessages('warning', result.warnings);
