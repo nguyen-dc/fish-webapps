@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { WarehouseModel } from "../../models/warehouse";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
@@ -12,7 +12,7 @@ import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
-    constructor(props: IWarehouseProps){
+    constructor(props: IWarehouseProps) {
         super(props)
         this.state = {
             isShow: props.isShow,
@@ -60,26 +60,27 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
             });
             return;
         }
+
         if (this.props.isEdit) {
-            let request = await WarehouseAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
-        } else {
-            let request = await WarehouseAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let result = await WarehouseAPICaller.Update(this.state.model) as ResponseConsult;
+            return this.onSuccessCallApi(result);
+        }
+        else {
+            let result = await WarehouseAPICaller.Create(this.state.model) as ResponseConsult;
+            return this.onSuccessCallApi(result);
         }
     }
+    private onSuccessCallApi(result: ResponseConsult) {
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessages('error', result.errors);
+        } else {
+            this.onCloseModal();
+            if (this.props.onFormAfterSubmit)
+                this.props.onFormAfterSubmit(true, this.state.model);
+        }
+    }
+
     render() {
         return (
             <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
@@ -92,14 +93,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <form className="form-horizontal">
                         {this.state.errorList ? <FormErrors formErrors={this.state.errorList} /> : null}
                         {
-                            this.props.isEdit ? 
+                            this.props.isEdit ?
                                 <LabeledInput
                                     name={'id'}
                                     value={this.state.model.id}
                                     readOnly={true}
                                     title={'Mã kho'}
-                                    placeHolder={'Mã kho'}/>
-                            : null
+                                    placeHolder={'Mã kho'} />
+                                : null
                         }
                         <LabeledInput
                             name={'name'}
@@ -115,7 +116,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
-            );
+        );
     }
 }
 

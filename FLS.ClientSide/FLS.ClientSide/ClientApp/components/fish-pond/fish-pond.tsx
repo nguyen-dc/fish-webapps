@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel, FilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, FilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { FishPondModel } from "../../models/fish-pond";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
@@ -46,6 +46,11 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             lastSearchModel: new PageFilterModel()
         };
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
+
     async componentWillMount() {
         var farmRegions = await CacheAPI.FarmRegion();
         this.setState({ farmRegions: farmRegions.data });
@@ -59,26 +64,25 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await FishPondAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await FishPondAPICaller.GetList(searchModel);
     }
+
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: _HObject.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -154,7 +158,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                         })}
                                     </ul>
                                 </div>
-                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key || '' } onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
                                 <span className="input-group-btn">
                                     <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
                                 </span>

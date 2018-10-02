@@ -7,6 +7,7 @@ import { ProductGroups } from "./product-group";
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
+import { ResponseConsult } from "../../models/shared";
 
 interface IProductGroupProps {
     isShow: boolean,
@@ -73,25 +74,25 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
             return;
         }
         if (this.props.isEdit) {
-            let request = await ProductGroupAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
-        } else {
-            let request = await ProductGroupAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let request = await ProductGroupAPICaller.Update(this.state.model) as ResponseConsult;
+            return this.onSuccessCallApi(request);
+        }
+        else {
+            let request = await ProductGroupAPICaller.Create(this.state.model) as ResponseConsult;
+            return this.onSuccessCallApi(request);
         }
     }
+    private onSuccessCallApi(result: ResponseConsult) {
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessages('error', result.errors);
+        } else {
+            this.onCloseModal();
+            if (this.props.onFormAfterSubmit)
+                this.props.onFormAfterSubmit(true, this.state.model);
+        }
+    }
+
     render() {
         return (
             <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}

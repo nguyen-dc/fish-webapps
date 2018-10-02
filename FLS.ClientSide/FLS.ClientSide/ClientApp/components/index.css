@@ -1,14 +1,10 @@
 ﻿.global-message {
     position: fixed;
-    top: 15px;
+    bottom: 0;
     z-index: 999;
-    padding: 15px;
-    left: 50%;
-    margin-left: -150px;
-    width: 300px;
     text-align: center;
+    left: 0;
 }
-
     .global-message.error {
         background-color: #dc3545;
         color: #ddd;

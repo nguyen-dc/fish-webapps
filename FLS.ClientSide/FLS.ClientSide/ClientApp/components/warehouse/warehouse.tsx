@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { WarehouseModel } from "../../models/warehouse";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
@@ -32,30 +32,31 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
         if (newSearch)
             keySearch = this.state.searchKey;
 
-        let request = await WarehouseAPICaller.GetList({
+        return await WarehouseAPICaller.GetList({
             page: page,
             pageSize: this.state.pagingModel.pageSize,
             key: keySearch,
             filters: []
         });
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) { return; }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listWarehouse: result.data.items, pagingModel: paging });
-            if (newSearch)
-                this.setState({ lastedSearchKey: this.state.searchKey });
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listWarehouse: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastedSearchKey: this.state.searchKey });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
