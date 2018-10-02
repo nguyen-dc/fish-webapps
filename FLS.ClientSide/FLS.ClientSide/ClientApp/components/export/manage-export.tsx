@@ -59,11 +59,9 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
         var search = new PageFilterModel();
         search.page = 1;
         search.pageSize = this.state.pagingModel.pageSize;
-        var customers = await CustomerAPICaller.GetList(search);
-        if (customers.ok) {
-            let result = await customers.json() as ApiResponse;
+        let result = await CustomerAPICaller.GetList(search);
+        if(!result.hasError && result.data)
             this.setState({ customers: result.data });
-        }
         var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
         this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data});
     }

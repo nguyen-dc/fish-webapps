@@ -154,13 +154,11 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         model.docketDetails = docketDetails;
         model.issueDocket = issueDocket;
         let response = await ExportAPICaller.Create(model);
-        if (response.ok) {
-            let result = await response.json() as ApiResponse;
-            if (result.isSuccess && result.data) {
-                this.props.history.push(this.props.location.pathname + '/' + result.data);
-            }
-            /// else thông báo lỗi
+        if (!response.hasError && response.data) {
+            this.props.history.push(this.props.location.pathname + '/' + response.data);
         }
+        else
+            this.context.ShowGlobalMessages('error', response.errors);
     }
     sumTotalAmount(docketDetails: StockIssueDocketDetailModel[]) {
         let totalAmount = 0;
