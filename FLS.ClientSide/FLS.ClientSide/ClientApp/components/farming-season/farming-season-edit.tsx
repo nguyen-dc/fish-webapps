@@ -39,6 +39,10 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
             fishPonds: [],
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async componentWillMount() {
         //init comboboxes
     }
@@ -93,25 +97,27 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
             return;
         }
         if (this.props.isEdit) {
-            let request = await FarmingSeasonAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await FarmingSeasonAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật đợt nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await FarmingSeasonAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await FarmingSeasonAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo đợt nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

@@ -20,6 +20,10 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
             errorList: {}
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     componentDidMount() {
         //init comboboxes
         ////
@@ -61,24 +65,26 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
             return;
         }
         if (this.props.isEdit) {
-            let response = await CustomerAPICaller.Update(this.state.model.id, this.state.model);
-            if (response.ok) {
-                let result = await response.json() as ApiResponse;
-                if (result.isSuccess && result.data) {
-                    this.onCloseModal();
-                }
-                else
-                    this.context.ShowGlobalMessage('error', result.message);
+            let response = await CustomerAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật khách hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
             }
         } else {
             let response = await CustomerAPICaller.Create(this.state.model);
-            if (response.ok) {
-                let result = await response.json() as ApiResponse;
-                if (result.isSuccess && result.data) {
-                    this.onCloseModal();
-                }
-                else
-                    this.context.ShowGlobalMessage('error', result.message);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo khách hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
             }
         }
     }

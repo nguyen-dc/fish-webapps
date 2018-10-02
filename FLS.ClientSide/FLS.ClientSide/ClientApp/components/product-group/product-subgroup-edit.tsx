@@ -35,6 +35,10 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
             productGroups:[]
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async componentWillMount() {
         //init comboboxes
     }
@@ -79,27 +83,28 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
             });
             return;
         }
-
         if (this.props.isEdit) {
-            let request = await ProductSubGroupAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ProductSubGroupAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật nhóm hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ProductSubGroupAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ProductSubGroupAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo nhóm hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

@@ -20,6 +20,10 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
             errorList: {}
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     componentDidMount() {
         //init comboboxes
         ////
@@ -61,23 +65,27 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
             return;
         }
         if (this.props.isEdit) {
-            let request = await SupplierAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await SupplierAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật nhà cung cấp thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await SupplierAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await SupplierAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo nhà cung cấp thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

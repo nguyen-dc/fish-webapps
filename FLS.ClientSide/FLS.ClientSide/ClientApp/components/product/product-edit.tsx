@@ -45,6 +45,10 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
             taxPercents:[]
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async componentWillMount() {
         //init comboboxes
         await this._loadDataCache();
@@ -107,25 +111,27 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
         }
 
         if (this.props.isEdit) {
-            let request = await ProductAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ProductAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật sản phẩm thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ProductAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ProductAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo sản phẩm thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

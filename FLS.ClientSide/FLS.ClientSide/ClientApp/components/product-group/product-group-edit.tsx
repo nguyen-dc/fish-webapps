@@ -1,9 +1,7 @@
 ﻿import * as React from "react";
-import { RouteComponentProps } from 'react-router';
 import { Modal, Button } from 'react-bootstrap';
 import { ProductGroupModel } from "../../models/product-group";
 import { FormErrors } from "../shared/form-errors";
-import { ProductGroups } from "./product-group";
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
@@ -31,6 +29,10 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
             model: props.model ? props.model : new ProductGroupModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -73,23 +75,27 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
             return;
         }
         if (this.props.isEdit) {
-            let request = await ProductGroupAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ProductGroupAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật ngành hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ProductGroupAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ProductGroupAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo ngành hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {
