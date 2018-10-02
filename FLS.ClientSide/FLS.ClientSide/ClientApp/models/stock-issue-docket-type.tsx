@@ -6,7 +6,7 @@ interface IStockIssueDocketType {
     receiptNeeded: boolean ,
     receiptTypeId: number ,
     approvalNeeded: boolean ,
-    pickingPrice: string ,
+    pickingPrice: number ,
     isSystem: boolean,
     description: string ,
 }
@@ -17,7 +17,7 @@ export class StockIssueDocketTypeModel implements IStockIssueDocketType {
     receiptNeeded: boolean = false;
     receiptTypeId: number = 0;
     approvalNeeded: boolean = false;
-    pickingPrice: string = '0';
+    pickingPrice: number = 0;
     isSystem: boolean = false;
     description: string = '';
 }

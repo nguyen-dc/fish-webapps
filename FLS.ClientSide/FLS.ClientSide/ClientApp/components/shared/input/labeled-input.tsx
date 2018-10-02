@@ -330,7 +330,7 @@ export class LabeledCheckBox extends React.PureComponent<LabeledCheckBoxProps, L
 interface IRadioGroupProps {
     name: string,
     type: string,
-    selectedOptions: string,
+    selectedOptions: number,
     className?: string,
     disabled?: boolean,
     options: IOption[],
@@ -358,7 +358,7 @@ export class RadioGroups extends React.PureComponent<IRadioGroupProps, {}> {
                     return (
                         <label className="radio-inline" key={opt.value}>
                             <input type={this.props.type}
-                                checked={this.props.selectedOptions.indexOf(opt.value) > -1}
+                                checked={this.props.selectedOptions.toString() == opt.value ? true : false}
                                 name={this.props.name}
                                 value={opt.value}
                                 onChange={this.onFieldValueChange.bind(this)}
