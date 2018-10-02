@@ -48,13 +48,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await SupplierAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await SupplierAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {

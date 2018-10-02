@@ -49,13 +49,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await ProductAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await ProductAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
