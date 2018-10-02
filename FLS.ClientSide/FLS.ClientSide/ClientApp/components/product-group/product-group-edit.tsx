@@ -5,6 +5,7 @@ import { FormErrors } from "../shared/form-errors";
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
+import { ResponseConsult } from "../../models/shared";
 
 interface IProductGroupProps {
     isShow: boolean,

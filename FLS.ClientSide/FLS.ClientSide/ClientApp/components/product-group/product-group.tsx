@@ -47,15 +47,17 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
+
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
                 this.context.ShowGlobalMessages('error', result.errors);
-            } else {
+            }
+            else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
                 paging.totalItems = result.data.totalItems;
-                this.setState({ listProductGroup: result.data.items, pagingModel: paging });
+                this.setState({ listProductUnit: result.data.items, pagingModel: paging });
                 if (newSearch)
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }

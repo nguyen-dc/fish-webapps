@@ -4,7 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { WarehouseModel } from "../../models/warehouse";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
@@ -12,7 +12,7 @@ import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
-    constructor(props: IWarehouseProps){
+    constructor(props: IWarehouseProps) {
         super(props)
         this.state = {
             isShow: props.isShow,
@@ -64,6 +64,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
             });
             return;
         }
+
         if (this.props.isEdit) {
             let response = await WarehouseAPICaller.Update(this.state.model);
             if (!response.hasError) {
@@ -88,6 +89,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
             }
         }
     }
+
     render() {
         return (
             <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
@@ -100,14 +102,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <form className="form-horizontal">
                         {this.state.errorList ? <FormErrors formErrors={this.state.errorList} /> : null}
                         {
-                            this.props.isEdit ? 
+                            this.props.isEdit ?
                                 <LabeledInput
                                     name={'id'}
                                     value={this.state.model.id}
                                     readOnly={true}
                                     title={'Mã kho'}
-                                    placeHolder={'Mã kho'}/>
-                            : null
+                                    placeHolder={'Mã kho'} />
+                                : null
                         }
                         <LabeledInput
                             name={'name'}
@@ -123,7 +125,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
-            );
+        );
     }
 }
 

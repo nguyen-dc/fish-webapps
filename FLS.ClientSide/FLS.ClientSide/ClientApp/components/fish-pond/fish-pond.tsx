@@ -46,27 +46,27 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             lastSearchModel: new PageFilterModel()
         };
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
+
     async componentWillMount() {
         var farmRegions = await CacheAPI.FarmRegion();
         this.setState({ farmRegions: farmRegions.data });
         await this.onPageChange(1, true);
     }
-    static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
-    }
-    async loadData(page: number, newSearch: boolean) {
-        let modelSearch = this.state.lastSearchModel;
-        if (newSearch)
-            modelSearch = this.state.searchModel;
 
-        return await FishPondAPICaller.GetList({
-            page: page,
-            pageSize: this.state.pagingModel.pageSize,
-            key: modelSearch.key,
-            filters: []
-        });
+    async loadData(page: number, newSearch: boolean) {
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
+        }
+        return await FishPondAPICaller.GetList(searchModel);
     }
+
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
@@ -160,7 +160,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                         })}
                                     </ul>
                                 </div>
-                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key || '' } onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
                                 <span className="input-group-btn">
                                     <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
                                 </span>
