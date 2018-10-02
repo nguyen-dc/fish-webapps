@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { FarmingSeasonModel } from "../../models/farming-season";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
@@ -10,8 +10,8 @@ import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
 import { FishPondModel } from "../../models/fish-pond";
 import { FishPonds } from "../fish-pond/fish-pond";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
-import { DateTimeHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
+import { _HDateTime } from "../../handles/handles";
 import * as Moment from 'moment';
 import { FilterEnum } from "../../enums/filter-enum";
 
@@ -53,34 +53,40 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
         this.setState({ fishPonds: fishPonds.data });
         await this.onPageChange(1, true);
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
-        let searchModel = this.state.lastSearchModel;
-        searchModel.page = page;
-        if (newSearch) {
-            searchModel = this.state.searchModel;
-            searchModel.page = 1;
-        }
-        let request = await FarmingSeasonAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        let modelSearch = this.state.lastSearchModel;
+        if (newSearch)
+            modelSearch = this.state.searchModel;
+
+        return await FarmingSeasonAPICaller.GetList({
+            page: page,
+            pageSize: this.state.pagingModel.pageSize,
+            key: modelSearch.key,
+            filters: []
+        });
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listFarmingSeason: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listFarmingSeason: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -131,7 +137,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
     render() {
         let dataTable = this.renderTable(this.state.listFarmingSeason);
         let renderPaging = this.state.listFarmingSeason.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         let lastedFilterValue = filterTitle0;
         if (this.state.lastSearchModel.filters[0].value > 0 && this.state.fishPonds && this.state.fishPonds.length > 0)
             lastedFilterValue = this.state.fishPonds.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
@@ -229,9 +235,9 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td>{m.fishPondId}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.startFarmDate)}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.finishFarmDateExpected)}</td>
-                                        <td>{DateTimeHandle.DateFormat(m.finishFarmDate)}</td>
+                                        <td>{_HDateTime.DateFormat(m.startFarmDate)}</td>
+                                        <td>{_HDateTime.DateFormat(m.finishFarmDateExpected)}</td>
+                                        <td>{_HDateTime.DateFormat(m.finishFarmDate)}</td>
                                         <td className="text-right">
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>

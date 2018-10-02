@@ -1,7 +1,7 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel, FilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, FilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { FishPondModel } from "../../models/fish-pond";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
@@ -10,7 +10,7 @@ import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
 import { FarmRegionModel } from "../../models/farm-region";
 import { FarmRegions } from "../farm-region/farm-region";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 
 interface FishPondState {
@@ -46,6 +46,11 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             lastSearchModel: new PageFilterModel()
         };
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
+
     async componentWillMount() {
         var farmRegions = await CacheAPI.FarmRegion();
         this.setState({ farmRegions: farmRegions.data });
@@ -59,26 +64,27 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await FishPondAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await FishPondAPICaller.GetList(searchModel);
     }
+
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listFishPond: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listFishPond: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -125,7 +131,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
     render() {
         let dataTable = this.renderTable(this.state.listFishPond);
         let renderPaging = this.state.listFishPond.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         let lastedFilterValue = filterTitle0;
         if (this.state.lastSearchModel.filters[0].value > 0 && this.state.farmRegions && this.state.farmRegions.length > 0)
             lastedFilterValue = this.state.farmRegions.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
@@ -154,7 +160,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                         })}
                                     </ul>
                                 </div>
-                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
+                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchModel.key || '' } onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
                                 <span className="input-group-btn">
                                     <button className="btn btn-default" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"></span></button>
                                 </span>

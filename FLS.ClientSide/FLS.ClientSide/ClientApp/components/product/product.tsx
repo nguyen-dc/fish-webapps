@@ -1,13 +1,13 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel, FilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, FilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ProductEdit } from "./product-edit";
 import { ProductAPICaller } from "../../api-callers/product";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductModel } from "../../models/product";
 
@@ -49,34 +49,40 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
         this.setState({ productGroups: productGroups.data });
         await this.onPageChange(1, true);
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
-        let searchModel = this.state.lastSearchModel;
-        searchModel.page = page;
-        if (newSearch) {
-            searchModel = this.state.searchModel;
-            searchModel.page = 1;
-        }
-        let request = await ProductAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        let modelSearch = this.state.lastSearchModel;
+        if (newSearch)
+            modelSearch = this.state.searchModel;
+
+        return await ProductAPICaller.GetList({
+            page: page,
+            pageSize: this.state.pagingModel.pageSize,
+            key: modelSearch.key,
+            filters: []
+        });
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listProduct: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listProduct: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -123,7 +129,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
     render() {
         let dataTable = this.renderTable(this.state.listProduct);
         let renderPaging = this.state.listProduct.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

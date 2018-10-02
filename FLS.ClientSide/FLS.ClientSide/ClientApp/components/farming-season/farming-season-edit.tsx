@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { FarmingSeasonModel } from "../../models/farming-season";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 interface IFarmingSeasonProps {
     isShow: boolean,
@@ -38,6 +38,10 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
             errorList: {},
             fishPonds: [],
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes
@@ -75,7 +79,7 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên đợt nuôi';
         }
         if (!this.state.model.fishPondId) {
@@ -93,25 +97,27 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
             return;
         }
         if (this.props.isEdit) {
-            let request = await FarmingSeasonAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await FarmingSeasonAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật đợt nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await FarmingSeasonAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await FarmingSeasonAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo đợt nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

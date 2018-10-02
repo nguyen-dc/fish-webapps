@@ -1,14 +1,14 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { StockIssueDocketTypeModel } from "../../models/stock-issue-docket-type";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { StockIssueDocketTypeEdit } from "./stock-issue-docket-type-edit";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{}>, StockIssueDocketTypeState> {
@@ -28,35 +28,40 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
     async componentWillMount() {
         await this.onPageChange(1, true);
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
         if (newSearch)
             keySearch = this.state.searchKey;
 
-        let request = await StockIssueDocketTypeAPICaller.GetList({
+        return await StockIssueDocketTypeAPICaller.GetList({
             page: page,
             pageSize: this.state.pagingModel.pageSize,
             key: keySearch,
             filters: []
         });
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) { return; }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listStockIssueDocketType: result.data.items, pagingModel: paging });
-            if (newSearch)
-                this.setState({ lastedSearchKey: this.state.searchKey });
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listStockIssueDocketType: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastedSearchKey: this.state.searchKey });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -68,11 +73,8 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
         if (isSuccess)
             this.onPageChange(this.state.pagingModel.currentPage, false)
     }
-    onOpenEdit(id: number, name: string) {
-        if (id > 0) {
-            let model = new StockIssueDocketTypeModel();
-            model.id = id;
-            model.name = name;
+    onOpenEdit(model: StockIssueDocketTypeModel) {
+        if (model.id > 0) {
             this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa loại phiếu xuất', selectedModel: model });
         }
         else
@@ -93,7 +95,7 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
     render() {
         let dataTable = this.renderTable(this.state.listStockIssueDocketType);
         let renderPaging = this.state.listStockIssueDocketType.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -169,7 +171,7 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
                                     <td>{m.name}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
                                             <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>

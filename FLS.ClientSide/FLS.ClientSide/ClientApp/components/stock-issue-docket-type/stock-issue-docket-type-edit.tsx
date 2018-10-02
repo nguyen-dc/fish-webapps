@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { StockIssueDocketTypeModel } from "../../models/stock-issue-docket-type";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox, RadioGroups } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 
 const options = [
@@ -27,6 +27,10 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
             errorList: {},
             receiptTypes: []
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     async componentDidMount() {
         //init comboboxes
@@ -56,7 +60,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
    
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên loại';
         }
         return errors;
@@ -71,23 +75,27 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
             return;
         }
         if (this.props.isEdit) {
-            let request = await StockIssueDocketTypeAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await StockIssueDocketTypeAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật loại phiếu xuất thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await StockIssueDocketTypeAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await StockIssueDocketTypeAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo loại phiếu xuất thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {
@@ -119,7 +127,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             options={this.state.receiptTypes}
-                            name={'payslipTypeId'}
+                            name={'receiptTypeId'}
                             value={this.state.model.receiptTypeId}
                             title={'Loại phiếu thu'}
                             placeHolder={'Loại phiếu thu'}

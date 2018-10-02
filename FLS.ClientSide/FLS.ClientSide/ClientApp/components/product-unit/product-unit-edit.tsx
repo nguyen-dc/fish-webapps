@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { ProductUnitModel } from "../../models/product-unit";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ProductUnitAPICaller } from "../../api-callers/product-unit";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class ProductUnitEdit extends React.Component<IProductUnitProps, IProductUnitState> {
     constructor(props: IProductUnitProps){
@@ -19,6 +19,10 @@ export class ProductUnitEdit extends React.Component<IProductUnitProps, IProduct
             model: props.model ? props.model : new ProductUnitModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -46,7 +50,7 @@ export class ProductUnitEdit extends React.Component<IProductUnitProps, IProduct
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên đơn vị tính';
         }
         return errors;
@@ -61,23 +65,27 @@ export class ProductUnitEdit extends React.Component<IProductUnitProps, IProduct
             return;
         }
         if (this.props.isEdit) {
-            let request = await ProductUnitAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ProductUnitAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật đơn vị sản phẩm thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ProductUnitAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ProductUnitAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo đơn vị sản phẩm thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

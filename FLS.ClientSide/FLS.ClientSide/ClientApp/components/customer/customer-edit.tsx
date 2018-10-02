@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { CustomerModel } from "../../models/customer";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { FormErrors } from "../shared/form-errors";
+import { IdNameModel, ErrorItem, ApiResponse } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { CustomerAPICaller } from "../../api-callers/customer";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState> {
     constructor(props: ICustomerProps){
@@ -19,6 +19,10 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
             model: props.model ? props.model : new CustomerModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -46,7 +50,7 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên khách hàng';
         }
         return errors;
@@ -61,23 +65,27 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
             return;
         }
         if (this.props.isEdit) {
-            let request = await CustomerAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await CustomerAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật khách hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await CustomerAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await CustomerAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo khách hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

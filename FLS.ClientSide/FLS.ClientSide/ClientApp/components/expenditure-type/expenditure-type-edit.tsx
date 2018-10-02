@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { ExpenditureTypeModel } from "../../models/expenditure-type";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ExpenditureTypeAPICaller } from "../../api-callers/expenditure-type";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, IExpenditureTypeState> {
     constructor(props: IExpenditureTypeProps){
@@ -19,6 +19,10 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
             model: props.model ? props.model : new ExpenditureTypeModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -46,7 +50,7 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên loại';
         }
         return errors;
@@ -61,23 +65,27 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
             return;
         }
         if (this.props.isEdit) {
-            let request = await ExpenditureTypeAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ExpenditureTypeAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật loại thu/chi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ExpenditureTypeAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ExpenditureTypeAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo loại thu/chi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

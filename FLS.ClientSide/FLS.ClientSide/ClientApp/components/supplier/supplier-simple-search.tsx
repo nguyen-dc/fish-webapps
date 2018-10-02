@@ -37,6 +37,10 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
     getTarget() {
         return ReactDOM.findDOMNode(this.target);
     }
+    async componentWillMount() {
+        await this.onPageChange(1, true);
+    }
+
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
         searchModel.page = page;
@@ -44,13 +48,7 @@ export class SupplierSimpleSearch extends React.Component<SupplierSimpleSearchPr
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await SupplierAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await SupplierAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {

@@ -3,14 +3,14 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { FishPondModel } from "../../models/fish-pond";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { FormErrors } from "../shared/form-errors";
+import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 interface IFishPondProps {
     isShow: boolean,
@@ -31,16 +31,21 @@ interface IFishPondState {
 }
 
 export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState> {
-    constructor(props: IFishPondProps){
+    constructor(props: IFishPondProps) {
         super(props)
         this.state = {
             isShow: props.isShow,
             model: props.model ? props.model : new FishPondModel(),
             errorList: {},
             farmRegions: [],
-            warehouses:[]
+            warehouses: []
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
+
     async componentWillMount() {
         //init comboboxes
         await this._loadDataCache();
@@ -48,7 +53,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
 
     private async _loadDataCache() {
         var warehouses = await CacheAPI.Warehouse();
-        this.setState({warehouses: warehouses.data });
+        this.setState({ warehouses: warehouses.data });
     }
 
     componentWillReceiveProps(nextProps) {
@@ -73,7 +78,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
 
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập ao nuôi';
         }
         if (!this.state.model.farmRegionId) {
@@ -93,29 +98,33 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
             });
             return;
         }
-      
+
         if (this.props.isEdit) {
-            let request = await FishPondAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await FishPondAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật ao nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
+
         } else {
-            let request = await FishPondAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await FishPondAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo ao nuôi thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
+
     render() {
         return (
             <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
@@ -128,14 +137,14 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                     <div className="form-horizontal">
                         {this.state.errorList && <FormErrors formErrors={this.state.errorList} />}
                         {
-                            this.props.isEdit ? 
+                            this.props.isEdit ?
                                 <LabeledInput
                                     name={'id'}
                                     value={this.state.model.id}
                                     readOnly={true}
                                     title={'Mã ao'}
-                                    placeHolder={'Mã ao nuôi'}/>
-                            : null
+                                    placeHolder={'Mã ao nuôi'} />
+                                : null
                         }
                         <LabeledInput
                             name={'name'}
@@ -215,7 +224,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                     <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
-            );
+        );
     }
 }
 

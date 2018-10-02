@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FLS.ServerSide.SharingObject;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using NDC.Connectivities.API;
 using System;
@@ -35,19 +36,19 @@ namespace FLS.ClientSide.Controllers
 
         #region Call API Methods
         //----------- Async -----------//
-        protected async Task<APIResponse<T>> GetAsync<T>(string _path)
+        protected async Task<ResponseConsult<T>> GetAsync<T>(string _path)
         {
             return await APIConnector.GetAsync<T>(_path);
         }
-        protected async Task<APIResponse<T>> PostAsJsonAsync<T>(string _path, object _requestData)
+        protected async Task<ResponseConsult<T>> PostAsJsonAsync<T>(string _path, object _requestData)
         {
             return await APIConnector.PostAsJsonAsync<T>(_path, _requestData);
         }
-        protected async Task<APIResponse<T>> PutAsJsonAsync<T>(string _path, object _requestData)
+        protected async Task<ResponseConsult<T>> PutAsJsonAsync<T>(string _path, object _requestData)
         {
             return await APIConnector.PutAsJsonAsync<T>(_path, _requestData);
         }
-        protected async Task<APIResponse<T>> DeleteAsync<T>(string _path)
+        protected async Task<ResponseConsult<T>> DeleteAsync<T>(string _path)
         {
             return await APIConnector.DeleteAsync<T>(_path);
         }

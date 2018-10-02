@@ -3,13 +3,13 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { SupplierModel } from "../../models/supplier";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { SupplierAPICaller } from "../../api-callers/supplier";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState> {
     constructor(props: ISupplierProps){
@@ -19,6 +19,10 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
             model: props.model ? props.model : new SupplierModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -46,7 +50,7 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên nhà cung cấp';
         }
         return errors;
@@ -61,23 +65,27 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
             return;
         }
         if (this.props.isEdit) {
-            let request = await SupplierAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await SupplierAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật nhà cung cấp thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await SupplierAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await SupplierAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo nhà cung cấp thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

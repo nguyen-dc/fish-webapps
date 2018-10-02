@@ -1,31 +1,9 @@
 import { PageFilterModel } from "../models/shared";
 import { FarmingSeasonModel } from "../models/farming-season";
-
-const headers = {
-    'Accept': 'application/json',
-    'Content-Type': 'application/json'
-}
+import { APICallerBase } from "./api-caller-base";
 
 export const FarmingSeasonAPICaller = {
-    GetList: async (model: PageFilterModel) => {
-        return await fetch(`api/farming-seasons`, {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(model)
-        });
-    },
-    Create: async (model: FarmingSeasonModel) => {
-        return await fetch("api/farming-seasons/add", {
-            method: 'post',
-            headers: headers,
-            body: JSON.stringify(model)
-        })
-    },
-    Update: async (model: FarmingSeasonModel) => {
-        return await fetch(`api/farming-seasons/${model.id}/modify`, {
-            method: 'put',
-            headers: headers,
-            body: JSON.stringify(model)
-        });
-    }
+    GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/farming-seasons`, model),
+    Create: async (model: FarmingSeasonModel) => await APICallerBase.Post(`api/farming-seasons/add`, model),
+    Update: async (model: FarmingSeasonModel) => await APICallerBase.Put(`api/farming-seasons/${model.id}/modify`, model),
 }

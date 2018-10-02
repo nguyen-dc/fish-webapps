@@ -3,22 +3,26 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { WarehouseModel } from "../../models/warehouse";
 import { Modal, Button, Alert } from "react-bootstrap";
-import { FormErrors } from "../shared/FormErrors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import { FormErrors } from "../shared/form-errors";
+import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
-    constructor(props: IWarehouseProps){
+    constructor(props: IWarehouseProps) {
         super(props)
         this.state = {
             isShow: props.isShow,
             model: props.model ? props.model : new WarehouseModel(),
             errorList: {}
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -46,7 +50,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
     }
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên kho';
         }
         return errors;
@@ -60,26 +64,32 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
             });
             return;
         }
+
         if (this.props.isEdit) {
-            let request = await WarehouseAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await WarehouseAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật kho thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await WarehouseAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await WarehouseAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo kho thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
+
     render() {
         return (
             <Modal show={this.state.isShow} onHide={this.onCloseModal.bind(this)}
@@ -92,14 +102,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <form className="form-horizontal">
                         {this.state.errorList ? <FormErrors formErrors={this.state.errorList} /> : null}
                         {
-                            this.props.isEdit ? 
+                            this.props.isEdit ?
                                 <LabeledInput
                                     name={'id'}
                                     value={this.state.model.id}
                                     readOnly={true}
                                     title={'Mã kho'}
-                                    placeHolder={'Mã kho'}/>
-                            : null
+                                    placeHolder={'Mã kho'} />
+                                : null
                         }
                         <LabeledInput
                             name={'name'}
@@ -115,7 +125,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     <Button onClick={this.onCloseModal.bind(this)}>Đóng</Button>
                 </Modal.Footer>
             </Modal>
-            );
+        );
     }
 }
 

@@ -495,9 +495,6 @@ tr.clickable {
     right:0 !important;
     max-width:100% !important;
 }
-.popover-content {
-    overflow: auto;
-}
 .popover-backdrop {
     position: fixed;
     top: 0;
@@ -513,6 +510,9 @@ tr.clickable {
     .popover-front button, .popover-front button:focus, .popover-front input, .popover-front input:focus {
         z-index: 8 !important;
     }
+.popover.bottom {
+    overflow: auto;
+}
 .popover.bottom > .arrow::after {
     top: 2px;
 }
@@ -526,3 +526,162 @@ tr.clickable {
 .max-w-100{
     max-width:100px;
 }
+.panne-color {
+    background: #fbfbfb;
+}
+.panel-secondary {
+    color: #fff;
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+.total-review span{
+    display:inline-block;
+    padding:10px 0;
+}   
+.column:first-child {
+    background: #eee;
+    flex: 325px;
+    padding: 20px 0;
+}
+.column:last-child {
+    background: #e5e5e5;
+    flex: calc(100% - 325px);
+    padding: 20px;
+}
+
+.navbar{
+    margin-bottom:0;
+}
+#nav_container nav {
+    border-left: 1px solid #eee;
+    position: relative;
+}
+    #nav_container nav a {
+        font-weight: bold;
+        text-decoration: none;
+        color: #555;
+        display: block;
+        line-height: 1.6;
+        padding: 5px 15px;
+        margin: 0;
+        border-left: 2px solid transparent;
+        -moz-border-bottom-right-radius: 3px;
+        -webkit-border-bottom-right-radius: 3px;
+        border-bottom-right-radius: 3px;
+        -moz-border-top-right-radius: 3px;
+        -webkit-border-top-right-radius: 3px;
+        border-top-right-radius: 3px;
+    }
+        #nav_container > nav > a.active {
+            background-color: #F5F7F8;
+            border-left-color: #6F92BA;
+            color: #000;
+        }
+    #nav_container nav ul {
+        padding-left: 25px;
+        list-style: circle;
+        margin-top:5px;
+    }
+    #nav_container nav ul li a {
+        padding: 5px 0;
+        font-weight:normal;
+    }
+        #nav_container nav ul li a:hover{
+            color:#000;
+        }
+        #nav_container nav ul li a.a-active{
+            font-weight:bold;
+        }
+        .contents h3 {
+            margin-top: 10px;
+        }
+.times-line{
+
+}
+.times-line ul {
+    margin: 0;
+    margin-top: 20px;
+    list-style: none;
+    position: relative;
+    padding: 1px 100px;
+    color: #fff;
+}
+
+    .times-line ul:before {
+        content: "";
+        width: 1px;
+        height: 100%;
+        position: absolute;
+        border-left: 2px solid #fff;
+    }
+
+    .times-line ul li {
+        position: relative;
+        margin-left: 30px;
+        background-color: #fbfbfb;
+        color: #555;
+        padding: 14px;
+        border-radius: 6px;
+        width: 100%;
+        box-shadow: 0 0 4px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.08);
+    }
+
+        .times-line ul li:not(:first-child) {
+            margin-top: 60px;
+        }
+
+        .times-line ul li > span {
+            width: 2px;
+            height: 100%;
+            background: #fff;
+            left: -30px;
+            top: 0;
+            position: absolute;
+        }
+
+            .times-line ul li > span:before, .container ul li > span:after {
+                content: "";
+                width: 15px;
+                height: 15px;
+                border-radius: 50%;
+                border: 2px solid #fff;
+                position: absolute;
+                background: #86b7e7;
+                left: -7px;
+                top: 0;
+            }
+
+        .times-line ul li span:after {
+            top: 100%;
+        }
+
+        .times-line ul li > div {
+            margin-left: 10px;
+        }
+
+    .times-line div .title, .times-line div .type {
+        font-weight: 600;
+    }
+
+    .times-line div .info {
+        font-weight: 300;
+    }
+
+    .times-line div > div {
+        padding: 5px 0;
+    }
+
+    .times-line span.number {
+        height: 100%;
+    }
+
+        .times-line span.number span {
+            position: absolute;
+            font-size: 14px;
+            left: -80px;
+            font-weight: bold;
+        }
+
+            .times-line span.number span:first-child {
+                top: -2px;
+            }

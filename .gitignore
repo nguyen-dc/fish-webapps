@@ -1,3 +1,12 @@
 .updatebot-repos
 bin
 obj
+/FLS.ClientSide/.vs/FLS.ClientSide/DesignTimeBuild/*.dtbcache
+/FLS.ClientSide/.vs/FLS.ClientSide/v15/Server/sqlite3/*.lock
+/FLS.ClientSide/.vs/FLS.ClientSide/v15/Server/sqlite3/*.ide
+/FLS.ClientSide/.vs/FLS.ClientSide/v15/Server/sqlite3/*.ide-shm
+/FLS.ClientSide/.vs/FLS.ClientSide/v15/Server/sqlite3/*.ide-wal
+/FLS.ClientSide/.vs/config/*.config
+/FLS.ClientSide/FLS.ClientSide/.vscode/*.json
+/.vscode/launch.json
+/.vscode/tasks.json

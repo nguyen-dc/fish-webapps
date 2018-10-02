@@ -2,9 +2,9 @@
 import { RouteComponentProps } from 'react-router';
 import { Modal, Button } from 'react-bootstrap';
 import { ProductSubGroupModel } from "../../models/product-subgroup";
-import { FormErrors } from "../shared/FormErrors";
+import { FormErrors } from "../shared/form-errors";
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 import { LabeledInput, LabeledSelect, LabeledTextArea } from "../shared/input/labeled-input";
 
@@ -35,6 +35,10 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
             productGroups:[]
         }
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async componentWillMount() {
         //init comboboxes
     }
@@ -61,7 +65,7 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
 
     private _validate() {
         var errors = {};
-        if (StringHandle.IsNullOrEmpty(this.state.model.name)) {
+        if (_HString.IsNullOrEmpty(this.state.model.name)) {
             errors['name'] = 'Chưa nhập tên nhóm hàng';
         }
         if (!this.state.model.productGroupId) {
@@ -79,27 +83,28 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
             });
             return;
         }
-
         if (this.props.isEdit) {
-            let request = await ProductSubGroupAPICaller.Update(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(true, this.state.model);
-                }
-            });
+            let response = await ProductSubGroupAPICaller.Update(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(true, this.state.model);
+                this.context.ShowGlobalMessage('success', 'Cập nhật nhóm hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         } else {
-            let request = await ProductSubGroupAPICaller.Create(this.state.model).then(response => {
-                if (response.ok) {
-                    this.setState({ errorList: {} });
-                    this.onCloseModal();
-                    // return succeed value to parent
-                    if (this.props.onFormAfterSubmit)
-                        this.props.onFormAfterSubmit(this.state.model);
-                }
-            });
+            let response = await ProductSubGroupAPICaller.Create(this.state.model);
+            if (!response.hasError) {
+                this.onCloseModal();
+                // return succeed value to parent
+                if (this.props.onFormAfterSubmit)
+                    this.props.onFormAfterSubmit(this.state.model);
+                this.context.ShowGlobalMessage('success', 'Tạo nhóm hàng thành công');
+            } else {
+                this.context.ShowGlobalMessages('error', response.errors);
+            }
         }
     }
     render() {

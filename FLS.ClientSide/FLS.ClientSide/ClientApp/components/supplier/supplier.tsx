@@ -1,14 +1,14 @@
 ﻿import * as React from "react";
 import { Link, NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { SupplierModel } from "../../models/supplier";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { SupplierEdit } from "./supplier-edit";
 import { SupplierAPICaller } from "../../api-callers/supplier";
 import { Last } from "react-bootstrap/lib/Pagination";
-import { StringHandle } from "../../handles/handles";
+import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 
 export class Suppliers extends React.Component<RouteComponentProps<{}>, SupplierState> {
@@ -28,35 +28,40 @@ export class Suppliers extends React.Component<RouteComponentProps<{}>, Supplier
     async componentWillMount() {
         await this.onPageChange(1, true);
     }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
         if (newSearch)
             keySearch = this.state.searchKey;
 
-        let request = await SupplierAPICaller.GetList({
+        return await SupplierAPICaller.GetList({
             page: page,
             pageSize: this.state.pagingModel.pageSize,
             key: keySearch,
             filters: []
         });
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) { return; }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listSupplier: result.data.items, pagingModel: paging });
-            if (newSearch)
-                this.setState({ lastedSearchKey: this.state.searchKey });
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listSupplier: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastedSearchKey: this.state.searchKey });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
@@ -90,7 +95,7 @@ export class Suppliers extends React.Component<RouteComponentProps<{}>, Supplier
     render() {
         let dataTable = this.renderTable(this.state.listSupplier);
         let renderPaging = this.state.listSupplier.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastedSearchKey) ? "Tất cả" : this.state.lastedSearchKey;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">

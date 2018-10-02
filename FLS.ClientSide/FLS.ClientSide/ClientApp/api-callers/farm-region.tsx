@@ -1,35 +1,9 @@
 import { PageFilterModel } from "../models/shared";
 import { FarmRegionModel } from "../models/farm-region";
+import { APICallerBase } from "./api-caller-base";
 
 export const FarmRegionAPICaller = {
-    GetList: async (model: PageFilterModel) => {
-        return fetch(`api/farm-regions`, {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-    },
-    Create: async (model: FarmRegionModel) => {
-        return fetch("api/farm-regions/add", {
-            method: 'post',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        })
-    },
-    Update: async (model: FarmRegionModel) => {
-        return fetch(`api/farm-regions/${model.id}/modify`, {
-            method: 'put',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-    }
+    GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/farm-regions`, model),
+    Create: async (model: FarmRegionModel) => await APICallerBase.Post("api/farm-regions/add", model),
+    Update: async (model: FarmRegionModel) => await APICallerBase.Put(`api/farm-regions/${model.id}/modify`, model),
 }

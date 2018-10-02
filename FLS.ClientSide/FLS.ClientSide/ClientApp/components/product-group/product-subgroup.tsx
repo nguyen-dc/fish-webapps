@@ -6,10 +6,10 @@ import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import { Content } from "react-bootstrap/lib/Tab";
 import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import { ProductSubGroupModel } from "../../models/product-subgroup";
 import Notifications, { notify } from 'react-notify-toast';
-import { StringHandle, ObjectHandle } from "../../handles/handles";
+import { _HString, _HObject } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
@@ -31,7 +31,7 @@ const filterTitle0 = 'Tất cả ngành hàng';
 export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, productSubGroupsState> {
     constructor(props: any) {
         super(props)
-        
+
         let selectedFilter = new IdNameModel();
         selectedFilter.id = 0;
         selectedFilter.name = filterTitle0;
@@ -61,27 +61,27 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        let request = await ProductSubGroupAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await ProductSubGroupAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) {
-                this.setState({ searchModel: ObjectHandle.Clone(this.state.lastSearchModel) });
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessages('error', result.errors);
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listProductSubGroup: result.data.items, pagingModel: paging, lastSearchModel: ObjectHandle.Clone(this.state.searchModel) });
-        } finally {
+            else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listProductSubGroup: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessages('warning', result.warnings);
+            }
+        }
+        finally {
             this.setState({ isTableLoading: false });
         }
     }
@@ -123,7 +123,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
         this.setState({ selectedFilter: filter, searchModel: searchModel });
         this.onPageChange(1, true);
     }
-    
+
     //private async _getData(page: number) {
     //    try {
     //        var apiFetch = apiUrl;
@@ -152,7 +152,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
     render() {
         let dataTable = this.renderTable(this.state.listProductSubGroup);
         let renderPaging = this.state.listProductSubGroup.length > 0 ? this.renderPaging() : null;
-        let lastedSearchKey = StringHandle.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -222,7 +222,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
             </div>
         );
     }
-    
+
     private renderTable(groups: ProductSubGroupModel[]) {
         return (
             <table className="table table-striped table-hover">
