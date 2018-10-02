@@ -73,11 +73,8 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
         if (isSuccess)
             this.onPageChange(this.state.pagingModel.currentPage, false)
     }
-    onOpenEdit(id: number, name: string) {
-        if (id > 0) {
-            let model = new StockIssueDocketTypeModel();
-            model.id = id;
-            model.name = name;
+    onOpenEdit(model: StockIssueDocketTypeModel) {
+        if (model.id > 0) {
             this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa loại phiếu xuất', selectedModel: model });
         }
         else
@@ -174,7 +171,7 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
                                     <td>{m.name}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
                                             <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
                                                 <Glyphicon glyph="remove" /></Button>

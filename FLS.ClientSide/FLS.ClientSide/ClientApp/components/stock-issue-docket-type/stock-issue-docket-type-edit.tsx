@@ -127,7 +127,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             options={this.state.receiptTypes}
-                            name={'payslipTypeId'}
+                            name={'receiptTypeId'}
                             value={this.state.model.receiptTypeId}
                             title={'Loại phiếu thu'}
                             placeHolder={'Loại phiếu thu'}
