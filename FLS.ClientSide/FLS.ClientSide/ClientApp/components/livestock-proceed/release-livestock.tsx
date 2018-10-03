@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
+import { UnderConstructor } from "../shared/under-constructor";
 
 export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, any> {
     constructor(props: any) {
@@ -10,6 +11,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
+            <UnderConstructor /> ||
             <div>
                 <ul className="nav nav-tabs mg-bt-15">
                     <li className="active"><a data-toggle="tab" href="#home">Thông tin phiếu nhập</a></li>

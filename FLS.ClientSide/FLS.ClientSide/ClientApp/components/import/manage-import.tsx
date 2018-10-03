@@ -10,6 +10,7 @@ import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { EmptyTableMessage } from "../shared/view-only";
+import { UnderConstructor } from "../shared/under-constructor";
 const urlLoadList = 'api/stock-receive-dockets';
 export class ManageImports extends React.Component<RouteComponentProps<{}>, any> {
 
@@ -92,6 +93,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
         let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
         let advanceSeach = this.renderSeach();
         return (
+            <UnderConstructor /> ||
             <div className="content-wapper">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
