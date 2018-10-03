@@ -5,6 +5,7 @@ import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
 import { IdNameModel } from "../../models/shared";
+import { UnderConstructor } from "../shared/under-constructor";
 
 interface IStockReceiveProps {
     isShow: boolean,
@@ -26,6 +27,7 @@ export class StockReceiveDocketEdit extends React.Component<RouteComponentProps<
     }
     render() {
         return (
+            <UnderConstructor /> ||
             <div>
                 <ul className="nav nav-tabs mg-bt-15">
                     <li className="active"><a data-toggle="tab" href="#home">Thông tin phiếu nhập</a></li>

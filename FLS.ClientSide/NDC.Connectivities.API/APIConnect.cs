@@ -63,7 +63,6 @@ namespace NDC.Connectivities.API
             try
             {
                 AddHeaders();
-                T data = default(T);
                 HttpResponseMessage response = await _client.GetAsync(_path);
                 if (response.IsSuccessStatusCode)
                 {
@@ -90,7 +89,6 @@ namespace NDC.Connectivities.API
                 AddHeaders();
                 _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpResponseMessage response = await _client.PostAsJsonAsync(_path, _requestData);
-                T data = default(T);
                 if (response.IsSuccessStatusCode)
                 {
                     ResponseConsult<T> svrRes = null;
@@ -116,7 +114,6 @@ namespace NDC.Connectivities.API
                 AddHeaders();
                 _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
                 HttpResponseMessage response = await _client.PutAsJsonAsync(_path, _requestData);
-                T data = default(T);
                 if (response.IsSuccessStatusCode)
                 {
                     ResponseConsult<T> svrRes = null;
@@ -141,7 +138,6 @@ namespace NDC.Connectivities.API
             {
                 AddHeaders();
                 HttpResponseMessage response = await _client.DeleteAsync(_path);
-                T data = default(T);
                 if (response.IsSuccessStatusCode)
                 {
                     ResponseConsult<T> svrRes = null;
@@ -207,18 +203,6 @@ namespace NDC.Connectivities.API
             public string error_description { get; set; }
         }
     }
-    //public class FromServerResponse<T>
-    //{
-    //    public bool hasError { get; set; }
-    //    public bool hasWarning { get; set; }
-    //    public List<KeyValuePair<string, string>> errors { get; set; }
-    //    public List<KeyValuePair<string, string>> warnings { get; set; }
-    //    public T data { get; set; }
-    //    public FromServerResponse(T _data)
-    //    {
-    //        data = _data;
-    //    }
-    //}
     public class StreamWithHeader
     {
         public Stream stream { get; set; }
