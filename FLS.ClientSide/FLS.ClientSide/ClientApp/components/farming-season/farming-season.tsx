@@ -58,16 +58,13 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
         ShowGlobalMessages: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
-        let modelSearch = this.state.lastSearchModel;
-        if (newSearch)
-            modelSearch = this.state.searchModel;
-
-        return await FarmingSeasonAPICaller.GetList({
-            page: page,
-            pageSize: this.state.pagingModel.pageSize,
-            key: modelSearch.key,
-            filters: []
-        });
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
+        }
+        return await FarmingSeasonAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {

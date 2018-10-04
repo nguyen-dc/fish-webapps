@@ -20,6 +20,7 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { ExportAPICaller } from "../../api-callers";
 import { ImportAPICaller } from "../../api-callers/import";
 import { FormatedInput } from "../shared/input/formated-input";
+import { UnderConstructor } from "../shared/under-constructor";
 
 interface ImportStockStates {
     receiveDocket: StockReceiveDocketModel;
@@ -53,6 +54,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessages: React.PropTypes.func,
     }
     onDocketFieldChange(model: any) {
         const nextState = {
@@ -227,14 +229,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         model.paySlipDetails = paySlipDetails;
         model.receiveDocket.isActuallyReceived = true;
         let response = await ImportAPICaller.Create(model);
-        if (response.ok) {
-            let result = await response.json() as ApiResponse;
-            if (result.isSuccess && result.data) {
-                this.props.history.push(this.props.location.pathname + '/' + result.data);
-            }
-            else
-                this.context.ShowGlobalMessage('error', result.message);
+        if (!response.hasError && response.data) {
+            this.props.history.push(this.props.location.pathname + '/' + response.data);
         }
+        else
+            this.context.ShowGlobalMessages('error', response.errors);
     }
     renderSuppliers() {
         let { suppliers } = this.state;
@@ -604,6 +603,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     render() {
         return (
+            <UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">

@@ -55,6 +55,9 @@ body{
 .float-left{
     float: left;
 }
+.text-center {
+    text-align: center;
+}
 .form-group-custom {
     display: flex;
     display: -webkit-flex;
@@ -427,7 +430,10 @@ tr.clickable {
 .navbar-ndc-icon-size {
     font-size: 87px;
 }
-
+.open .dropdown-menu{
+    max-height: 319px;
+    overflow: auto;
+}
 .navbar-right .open .dropdown-menu {
     background-color: #ffffff !important;
 }

@@ -1,0 +1,39 @@
+﻿.construct-container {
+    display: block;
+    background-color: #fff;
+    margin: 15px 0;
+    border: 1px solid #ddd;
+    padding: 25px;
+    text-align: center;
+    border-bottom: 8px #86b7e7 solid;
+    border-radius: 8px 8px 0 0;
+}
+.construct-icon {
+    font-size: 60pt;
+    color: #999;
+    display: block;
+    margin: 15px;
+}
+.construct-head {
+    color: #333;
+    font-size: 14pt;
+    display: block;
+    padding-top: 10px;
+}
+.construct-descript {
+    color: #888;
+    font-size: 11pt;
+    display: block;
+    padding-bottom: 10px;
+}
+
+.on-hide {
+    opacity: 0;
+    width: 0;
+    transition: width 0.5s 0.5s, height 0.5s 0.5s, opacity 0.5s;
+}
+
+.on-show {
+    opacity: 1;
+    transition: width 0.3s, height 0.3s, opacity 0.3s 0.3s;
+}

@@ -14,6 +14,7 @@ import { _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FishPondModel } from "../../models/fish-pond";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
+import { UnderConstructor } from "../shared/under-constructor";
 const urlLoadList = 'api/stock-receive-dockets';
 
 const filterTitle0 = 'Tất cả khu vực';
@@ -107,6 +108,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
         let renderPaging = this.state.manageExpenditures.length > 0 ? this.renderPaging() : null;
         let advanceSeach = this.renderSeach();
         return (
+            <UnderConstructor/> ||
             <div className="content-wapper">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>

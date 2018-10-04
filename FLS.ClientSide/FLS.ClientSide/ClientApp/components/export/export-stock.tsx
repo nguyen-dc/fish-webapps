@@ -18,6 +18,7 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { Glyphicon, Button } from "react-bootstrap";
 import { FormatedInput } from "../shared/input/formated-input";
 import { ExportAPICaller } from "../../api-callers/export";
+import { UnderConstructor } from "../shared/under-constructor";
 
 interface ExportStockStates {
     issueDocket: StockIssueDocketModel,
@@ -154,13 +155,11 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         model.docketDetails = docketDetails;
         model.issueDocket = issueDocket;
         let response = await ExportAPICaller.Create(model);
-        if (response.ok) {
-            let result = await response.json() as ApiResponse;
-            if (result.isSuccess && result.data) {
-                this.props.history.push(this.props.location.pathname + '/' + result.data);
-            }
-            /// else thông báo lỗi
+        if (!response.hasError && response.data) {
+            this.props.history.push(this.props.location.pathname + '/' + response.data);
         }
+        else
+            this.context.ShowGlobalMessages('error', response.errors);
     }
     sumTotalAmount(docketDetails: StockIssueDocketDetailModel[]) {
         let totalAmount = 0;
@@ -364,6 +363,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     }
     render() {
         return (
+            <UnderConstructor /> ||
             <div className="content-wapper">
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">

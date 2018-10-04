@@ -118,7 +118,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
     handleFilter(filter: IdNameModel) {
         if (filter == null || filter == undefined) return;
         let searchModel = this.state.searchModel;
-        searchModel.filters[0].key = FilterEnum.farmRegion;
+        searchModel.filters[0].key = FilterEnum.productGroup;
         searchModel.filters[0].value = filter.id;
         this.setState({ selectedFilter: filter, searchModel: searchModel });
         this.onPageChange(1, true);

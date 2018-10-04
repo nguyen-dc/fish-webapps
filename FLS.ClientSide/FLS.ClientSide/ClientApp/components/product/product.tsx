@@ -54,16 +54,13 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
         ShowGlobalMessages: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
-        let modelSearch = this.state.lastSearchModel;
-        if (newSearch)
-            modelSearch = this.state.searchModel;
-
-        return await ProductAPICaller.GetList({
-            page: page,
-            pageSize: this.state.pagingModel.pageSize,
-            key: modelSearch.key,
-            filters: []
-        });
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
+        }
+        return await ProductAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
@@ -120,7 +117,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
     handleFilter(filter: IdNameModel) {
         if (filter == null || filter == undefined) return;
         let searchModel = this.state.searchModel;
-        searchModel.filters[0].key = FilterEnum.farmRegion;
+        searchModel.filters[0].key = FilterEnum.productGroup;
         searchModel.filters[0].value = filter.id;
         this.setState({ selectedFilter: filter, searchModel: searchModel });
         this.onPageChange(1, true);
