@@ -556,7 +556,7 @@ tr.clickable {
     border-left: 1px solid #eee;
     position: relative;
 }
-    #nav_container nav a {
+    #nav_container nav div.menu {
         font-weight: bold;
         text-decoration: none;
         color: #555;
@@ -572,8 +572,7 @@ tr.clickable {
         -webkit-border-top-right-radius: 3px;
         border-top-right-radius: 3px;
     }
-        #nav_container > nav > a.active {
-            background-color: #F5F7F8;
+        #nav_container > nav > div.active {
             border-left-color: #6F92BA;
             color: #000;
         }
@@ -585,6 +584,7 @@ tr.clickable {
     #nav_container nav ul li a {
         padding: 5px 0;
         font-weight:normal;
+        cursor:pointer;
     }
         #nav_container nav ul li a:hover{
             color:#000;
@@ -684,4 +684,30 @@ tr.clickable {
 
             .times-line span.number span:first-child {
                 top: -2px;
+            }
+            @media screen and (max-width: 768px){
+                .column-flex{
+                    flex-direction:column;
+                }
+                .times-line ul {
+                    padding: 0;
+                    margin-top:50px;
+                }
+                .column:last-child{
+                    padding:0;
+                }
+                .times-line span.number span{
+                    left:30px;
+                }
+                .times-line ul li{
+                    margin-left:25px;
+                    width:calc(100% - 50px);
+                }
+                    .times-line ul li > span:before, .container ul li > span:after{
+                        left:-6px;
+                    }
+                    .times-line ul li > span {
+                        top: -30px;
+                        left:-25px;
+                    }
             }
