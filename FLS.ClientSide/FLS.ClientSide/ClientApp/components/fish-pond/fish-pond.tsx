@@ -168,7 +168,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -272,7 +272,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

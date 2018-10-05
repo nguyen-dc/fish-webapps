@@ -11,21 +11,20 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                 <div id="nav_container">
                     <nav>
                         <div className="menu active" href="/">Danh mục
-                             <ul>
-                                <li><a >Vùng nuôi</a></li>
-                                <li><a className="a-active">Ao nuôi</a></li>
-                                <li><a>Đợt nuôi</a></li>
-                                <li><a>Kho</a></li>
-                                <li><a>Ngành hàng</a></li>
-                                <li><a>Nhóm hàng</a></li>
-                                <li><a>Đơn vị tính</a></li>
-                                <li><a>Sản phẩm</a></li>
-                                <li><a>Khách hàng</a></li>
-                                <li><a>Nhà cung cấp</a></li>
-                                <li><a>Loại kho</a></li>
-                                <li><a>Loại phiếu nhập</a></li>
-                                <li><a>Loại phiếu xuất</a></li>
-                                <li><a>Loại phiếu thu/chi</a></li>
+                            <ul>
+                                <li><NavLink to="/vungnuoi" className="a-active">Vùng nuôi</NavLink></li>
+                                <li><NavLink to="/aonuoi" className="a-active">Ao nuôi</NavLink></li>
+                                <li><NavLink to="/kho" className="a-active">Kho</NavLink></li>
+                                <li><NavLink to="/nganhhang" className="a-active">Ngành hàng</NavLink></li>
+                                <li><NavLink to="/nhomhang" className="a-active">Nhóm hàng</NavLink></li>
+                                <li><NavLink to="/donvitinh" className="a-active">Đơn vị tính</NavLink></li>
+                                <li><NavLink to="/sanpham" className="a-active">Sản phẩm</NavLink></li>
+                                <li><NavLink to="/khachhang" className="a-active">Khách hàng</NavLink></li>
+                                <li><NavLink to="/nhacungcap" className="a-active">Nhà cung cấp</NavLink></li>
+                                <li><NavLink to="/loaikho" className="a-active">Loại kho</NavLink></li>
+                                <li><NavLink to="/loaiphieunhap" className="a-active">Loại phiếu nhập</NavLink></li>
+                                <li><NavLink to="/loaiphieuxuat" className="a-active">Loại phiếu xuất</NavLink></li>
+                                <li><NavLink to="/loaiphieuthuchi" className="a-active">Loại phiếu thu/chi</NavLink></li>
                             </ul>
                         </div>
                         <div className="menu" href="/browse">
@@ -85,9 +84,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                 <div className="contents">
                     <div className="times-line">
                         <ul>
-                            <li>
+                            <li><span></span>
                                 <div>
-                                    <div className="title expect">Màn hình danh sách phiếu xuất hàng</div>
+                                    <div className="title">Màn hình danh sách phiếu xuất hàng</div>
                                     <div className="info">
                                         <p>Hiển thị, tìm kiếm phiếu xuất hàng</p>
                                         <p>Danh sách phiếu xuất</p>

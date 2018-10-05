@@ -189,7 +189,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

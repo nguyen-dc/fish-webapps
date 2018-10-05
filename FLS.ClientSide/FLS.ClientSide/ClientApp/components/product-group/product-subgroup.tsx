@@ -124,35 +124,13 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
         this.onPageChange(1, true);
     }
 
-    //private async _getData(page: number) {
-    //    try {
-    //        var apiFetch = apiUrl;
-    //        if (this.state.filterValue) {
-    //            apiFetch = "api/product-groups/" + this.state.filterValue + "/subgroups";
-    //        }
-    //        let request = await fetch(apiFetch, {
-    //            method: 'post',
-    //            headers: {
-    //                'Accept': 'application/json',
-    //                'Content-Type': 'application/json'
-    //            },
-    //            body: JSON.stringify({
-    //                Page: page,
-    //                PageSize: this.state.pagingModel.pageSize,
-    //                Key: this.state.search,
-    //            })
-    //        });
-    //        return await request.json();
-    //    }
-    //    catch (err) {
-    //        console.log(`Error: ${err.stack}`);
-    //    }
-    //}
-
     render() {
         let dataTable = this.renderTable(this.state.listProductSubGroup);
         let renderPaging = this.state.listProductSubGroup.length > 0 ? this.renderPaging() : null;
         let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedFilterValue = filterTitle0;
+        if (this.state.lastSearchModel.filters[0].value > 0 && this.state.productGroups && this.state.productGroups.length > 0)
+            lastedFilterValue = this.state.productGroups.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -186,7 +164,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -197,7 +175,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                             this.state.lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
-                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{lastedFilterValue}</strong>
                                     </div>
                                 </div>
                         }
@@ -277,7 +255,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

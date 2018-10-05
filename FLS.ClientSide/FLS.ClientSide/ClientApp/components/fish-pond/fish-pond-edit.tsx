@@ -73,6 +73,8 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                 [model.name]: model.value,
             }
         };
+
+        nextState.model.waterSurfaceArea = (nextState.model.a + nextState.model.c) * (nextState.model.b + nextState.model.d) / 4;
         this.setState(nextState);
     }
 

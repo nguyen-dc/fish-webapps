@@ -201,7 +201,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

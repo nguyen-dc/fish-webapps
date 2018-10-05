@@ -225,7 +225,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>
