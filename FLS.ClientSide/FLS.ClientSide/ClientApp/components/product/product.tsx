@@ -10,6 +10,8 @@ import { CacheAPI } from "../../api-callers/cache";
 import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductModel } from "../../models/product";
+import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 interface ProductState {
     listProduct: ProductModel[],
@@ -51,7 +53,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
@@ -68,7 +70,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -78,14 +80,26 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                     this.setState({ lastSearchModel: this.state.searchModel });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await ProductAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa sản phẩm thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -127,6 +141,9 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
         let dataTable = this.renderTable(this.state.listProduct);
         let renderPaging = this.state.listProduct.length > 0 ? this.renderPaging() : null;
         let lastedSearchKey = _HString.IsNullOrEmpty(this.state.lastSearchModel.key) ? "Tất cả" : this.state.lastSearchModel.key;
+        let lastedFilterValue = filterTitle0;
+        if (this.state.lastSearchModel.filters[0].value > 0 && this.state.productGroups && this.state.productGroups.length > 0)
+            lastedFilterValue = this.state.productGroups.find(f => f.id == this.state.lastSearchModel.filters[0].value).name;
         return (
             <div className="content-wapper">
                 <ol className="breadcrumb">
@@ -160,7 +177,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -171,7 +188,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                             this.state.lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
-                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{this.state.lastSearchModel.filters[0].value}</strong>
+                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{lastedSearchKey}</strong> thuộc <strong>{lastedFilterValue}</strong>
                                     </div>
                                 </div>
                         }
@@ -215,22 +232,28 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                 <tbody>
                     {
                         products.length == 0 ?
-                            <tr><td colSpan={7}>Không có dữ liệu!</td></tr>
-                            :
-                            products.map(product =>
-                                <tr key={product.id}>
-                                    <td>{product.id}</td>
-                                    <td>{product.name}</td>
-                                    <td>{product.productGroupId}</td>
-                                    <td>{product.productSubgroupId}</td>
-                                    <td>{product.defaultUnitId}</td>
-                                    <td>{product.taxPercentId}</td>
+                        <EmptyTableMessage/> :
+                            products.map(m =>
+                                <tr key={m.id}>
+                                    <td>{m.id}</td>
+                                    <td>{m.name}</td>
+                                    <td>{m.productGroupId}</td>
+                                    <td>{m.productSubgroupId}</td>
+                                    <td>{m.defaultUnitId}</td>
+                                    <td>{m.taxPercentId}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(product)}>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(product.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                            <ConfirmButton
+                                                bsStyle="warning"
+                                                className="btn-sm"
+                                                glyph='remove'
+                                                modalTitle='Xác nhận xóa sản phẩm'
+                                                modalBodyContent={
+                                                    <span>Xác nhận xóa sản phẩm <strong>{m.name}</strong>?</span>
+                                                }
+                                                onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
                                     </td>
                                 </tr>
@@ -256,7 +279,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

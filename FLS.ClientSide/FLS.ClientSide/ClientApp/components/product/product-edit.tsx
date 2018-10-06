@@ -47,7 +47,7 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes
@@ -119,7 +119,7 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật sản phẩm thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await ProductAPICaller.Create(this.state.model);
@@ -130,7 +130,7 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo sản phẩm thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

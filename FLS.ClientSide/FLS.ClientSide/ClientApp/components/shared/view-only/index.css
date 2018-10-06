@@ -1,0 +1,19 @@
+﻿.is-system{
+    color: #666666;
+}
+.tooltip-inner{
+    color: #ffffff;
+    background-color: #666666;
+}
+.tooltip.top .tooltip-arrow, .tooltip.top-left .tooltip-arrow, .tooltip.top-right .tooltip-arrow {
+    border-top-color: #666666;
+}
+.tooltip.bottom .tooltip-arrow, .tooltip.bottom-left .tooltip-arrow, .tooltip.bottom-right .tooltip-arrow {
+    border-bottom-color: #666666;
+}
+.tooltip.right .tooltip-arrow {
+    border-right-color: #666666;
+}
+.tooltip.left .tooltip-arrow {
+    border-left-color: #666666;
+}

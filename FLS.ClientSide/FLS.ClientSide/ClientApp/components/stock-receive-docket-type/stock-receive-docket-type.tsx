@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
@@ -7,9 +7,9 @@ import { StockReceiveDocketTypeModel } from "../../models/stock-receive-docket-t
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { StockReceiveDocketTypeEdit } from "./stock-receive-docket-type-edit";
 import { StockReceiveDocketTypeAPICaller } from "../../api-callers/stock-receive-docket-type";
-import { Last } from "react-bootstrap/lib/Pagination";
 import { _HString } from "../../handles/handles";
-import { EmptyTableMessage } from "../shared/view-only";
+import { EmptyTableMessage, IsSystem } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 export class StockReceiveDocketTypes extends React.Component<RouteComponentProps<{}>, StockReceiveDocketTypeState> {
     constructor(props: any) {
@@ -30,7 +30,7 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -50,7 +50,7 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -60,14 +60,26 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await StockReceiveDocketTypeAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa loại phiếu nhập thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -114,7 +126,7 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -174,12 +186,21 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                                     <td>{m.approvalNeeded ? 'Có' : 'Không'}</td>
                                     <td>{m.payslipNeeded ? 'Có': 'Không'}</td>
                                     <td className="text-right">
+                                    { m.isSystem ? <IsSystem/> :
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                                <ConfirmButton
+                                                    bsStyle="warning"
+                                                    className="btn-sm"
+                                                    glyph='remove'
+                                                    modalTitle='Xác nhận xóa loại phiếu nhập'
+                                                    modalBodyContent={
+                                                        <span>Xác nhận xóa loại phiếu nhập <strong>{m.name}</strong>?</span>
+                                                    }
+                                                    onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
+                                    }
                                     </td>
                                 </tr>
                             )

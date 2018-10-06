@@ -1,15 +1,15 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { ProductGroupEdit } from "./product-group-edit";
 import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
-import { Content } from "react-bootstrap/lib/Tab";
-import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import { ProductGroupModel } from "../../models/product-group";
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
+import { IsSystem, EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 export class ProductGroups extends React.Component<RouteComponentProps<{}>, any> {
     constructor(props: any) {
@@ -30,7 +30,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -51,7 +51,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             }
             else {
                 var paging = new PaginateModel();
@@ -62,14 +62,26 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await ProductGroupAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa ngành hàng thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -119,7 +131,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -169,20 +181,29 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
                 <tbody>
                     {
                         groups.length == 0 ?
-                            <tr><td colSpan={4}>Không có dữ liệu!</td></tr>
-                            :
-                            groups.map(group =>
-                                <tr key={group.id}>
-                                    <td>{group.id}</td>
-                                    <td>{group.name}</td>
-                                    <td>{group.description}</td>
+                        <EmptyTableMessage/> :
+                            groups.map(m =>
+                                <tr key={m.id}>
+                                    <td>{m.id}</td>
+                                    <td>{m.name}</td>
+                                    <td>{m.description}</td>
                                     <td className="text-right">
-                                        <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(group.id)}>
-                                                <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(group.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
-                                        </ButtonGroup>
+                                        {m.isSystem ? <IsSystem /> :
+                                            <ButtonGroup>
+                                                <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id)}>
+                                                    <Glyphicon glyph="edit" />
+                                                </Button>
+                                                <ConfirmButton
+                                                    bsStyle="warning"
+                                                    className="btn-sm"
+                                                    glyph='remove'
+                                                    modalTitle='Xác nhận xóa ngành hàng'
+                                                    modalBodyContent={
+                                                        <span>Xác nhận xóa ngành hàng <strong>{m.name}</strong>?</span>
+                                                    }
+                                                    onClickYes={() => this.onDelete(m.id)} />
+                                            </ButtonGroup>
+                                        }
                                     </td>
                                 </tr>
                             )
@@ -207,7 +228,7 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

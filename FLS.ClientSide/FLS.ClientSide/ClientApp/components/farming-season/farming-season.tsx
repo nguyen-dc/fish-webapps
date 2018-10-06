@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
@@ -8,12 +8,12 @@ import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { FarmingSeasonEdit } from "./farming-season-edit";
 import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
 import { CacheAPI } from "../../api-callers/cache";
-import { FishPondModel } from "../../models/fish-pond";
-import { FishPonds } from "../fish-pond/fish-pond";
 import { _HString, _HObject } from "../../handles/handles";
 import { _HDateTime } from "../../handles/handles";
 import * as Moment from 'moment';
 import { FilterEnum } from "../../enums/filter-enum";
+import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 interface FarmingSeasonState {
     listFarmingSeason: FarmingSeasonModel[],
@@ -55,19 +55,16 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
-        let modelSearch = this.state.lastSearchModel;
-        if (newSearch)
-            modelSearch = this.state.searchModel;
-
-        return await FarmingSeasonAPICaller.GetList({
-            page: page,
-            pageSize: this.state.pagingModel.pageSize,
-            key: modelSearch.key,
-            filters: []
-        });
+        let searchModel = this.state.lastSearchModel;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = this.state.searchModel;
+            searchModel.page = 1;
+        }
+        return await FarmingSeasonAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
@@ -75,7 +72,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -85,14 +82,26 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                     this.setState({ lastSearchModel: this.state.searchModel });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await FarmingSeasonAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa đợt nuôi thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -174,7 +183,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -228,7 +237,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                 <tbody>
                     {
                         models.length == 0 ?
-                            <tr><td colSpan={11}>Không có dữ liệu!</td></tr> :
+                        <EmptyTableMessage/> :
                             models.map(
                                 m =>
                                     <tr key={m.id}>
@@ -242,8 +251,15 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                     <Glyphicon glyph="edit" /></Button>
-                                                <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                    <Glyphicon glyph="remove" /></Button>
+                                                <ConfirmButton
+                                                    bsStyle="warning"
+                                                    className="btn-sm"
+                                                    glyph='remove'
+                                                    modalTitle='Xác nhận xóa đợt nuôi'
+                                                    modalBodyContent={
+                                                        <span>Xác nhận xóa đợt nuôi <strong>{m.name}</strong>?</span>
+                                                    }
+                                                    onClickYes={() => this.onDelete(m.id)} />
                                             </ButtonGroup>
                                         </td>
                                     </tr>
@@ -269,7 +285,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

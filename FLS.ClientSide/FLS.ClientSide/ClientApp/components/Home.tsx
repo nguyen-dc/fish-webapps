@@ -10,8 +10,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                 <span className='header text-center'>Các trang đã hoàn thành</span>
                 <div id="nav_container">
                     <nav>
-                        <div href="/">
-                            <span>Danh mục</span>
+                        <div className="menu active" href="/">Danh mục
                             <ul>
                                 <li><NavLink to="/vungnuoi" className="a-active">Vùng nuôi</NavLink></li>
                                 <li><NavLink to="/aonuoi" className="a-active">Ao nuôi</NavLink></li>
@@ -28,8 +27,8 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                                 <li><NavLink to="/loaiphieuthuchi" className="a-active">Loại phiếu thu/chi</NavLink></li>
                             </ul>
                         </div>
-                        <div>
-                            <span>Nhập xuất hàng hóa</span>
+                        <div className="menu" href="/browse">
+                            Nhập xuất hàng hóa
                             <ul>
                                 <li><a >Quản lý nhập</a></li>
                                 <li><a>Nhập mua hàng hóa thông thường</a></li>
@@ -37,16 +36,14 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                                 <li><a>Xuất bán hàng hóa thông thường</a></li>
                             </ul>
                         </div>
-                        <div>
-                            <span>Thu chi</span>
+                        <div className="menu" href="/docs">Thu chi
                              <ul>
                                 <li><a>Quản thu chi</a></li>
                                 <li><a>Tạo phiếu thu</a></li>
                                 <li><a>Tạo phiếu chi</a></li>
                             </ul>
                         </div>
-                        <div>
-                            <span>Quản lý nuôi cá</span>
+                        <div className="menu" href="/stats">Quản lý nuôi cá
                              <ul>
                                 <li><NavLink to="/dotnuoi" className="a-active">Đợt nuôi</NavLink></li>
                                 <li><a>Nhập thả cá</a></li>
@@ -58,8 +55,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                                 <li><a>Xuất bán cá chết</a></li>
                             </ul>
                         </div>
-                        <div>
-                            <span>Báo cáo</span>
+                        <div className="menu" href="/about">Báo cáo
                              <ul>
                                 <li><a>Nhật ký ao nuôi</a></li>
                                 <li><a>Theo dõi tăng trọng</a></li>
@@ -71,8 +67,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                                 <li><a>Theo dõi doanh thu</a></li>
                             </ul>
                         </div>
-                        <div>
-                            <span>Hệ thống</span>
+                        <div className="menu" href="/say_thanks">Hệ thống
                              <ul>
                                 <li><a>Người dùng</a></li>
                                 <li><a>Quyền người dùng</a></li>
@@ -89,9 +84,9 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                 <div className="contents">
                     <div className="times-line">
                         <ul>
-                            <li>
+                            <li><span></span>
                                 <div>
-                                    <div className="title expect">Màn hình danh sách phiếu xuất hàng</div>
+                                    <div className="title">Màn hình danh sách phiếu xuất hàng</div>
                                     <div className="info">
                                         <p>Hiển thị, tìm kiếm phiếu xuất hàng</p>
                                         <p>Danh sách phiếu xuất</p>
@@ -143,7 +138,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Chức năng xóa cho danh mục</div>
+                                    <div className="title">Chức năng xóa cho danh mục</div>
                                     <div className="info">
                                         <p>Chức năng xóa cho toàn bộ các trang danh mục</p>
                                     </div>

@@ -41,7 +41,7 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes
@@ -105,7 +105,7 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật đợt nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await FarmingSeasonAPICaller.Create(this.state.model);
@@ -116,7 +116,7 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo đợt nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

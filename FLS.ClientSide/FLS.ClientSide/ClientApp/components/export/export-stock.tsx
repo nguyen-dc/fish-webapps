@@ -159,7 +159,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             this.props.history.push(this.props.location.pathname + '/' + response.data);
         }
         else
-            this.context.ShowGlobalMessages('error', response.errors);
+            this.context.ShowGlobalMessageList('error', response.errors);
     }
     sumTotalAmount(docketDetails: StockIssueDocketDetailModel[]) {
         let totalAmount = 0;
@@ -363,7 +363,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     }
     render() {
         return (
-            <UnderConstructor /> ||
+            // <UnderConstructor /> ||
             <div className="content-wapper">
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">

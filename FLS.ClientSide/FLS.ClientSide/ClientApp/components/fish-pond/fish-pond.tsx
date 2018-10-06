@@ -1,17 +1,17 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { PaginateModel, IdNameModel, PageFilterModel, FilterModel, ResponseConsult } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
 import { FishPondModel } from "../../models/fish-pond";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { FishPondEdit } from "./fish-pond-edit";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
-import { FarmRegionModel } from "../../models/farm-region";
-import { FarmRegions } from "../farm-region/farm-region";
 import { _HString, _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
+import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 interface FishPondState {
     listFishPond: FishPondModel[],
@@ -48,7 +48,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
 
     async componentWillMount() {
@@ -73,7 +73,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -83,14 +83,26 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                     this.setState({ lastSearchModel: this.state.searchModel });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await FishPondAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa ao nuôi thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -168,7 +180,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <button className="btn btn-default mg-r-15">Import</button>
+                                
                                 <Button
                                     bsStyle="primary"
                                     onClick={this.onOpenEdit.bind(this)}
@@ -227,7 +239,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                 <tbody>
                     {
                         models.length == 0 ?
-                            <tr><td colSpan={11}>Không có dữ liệu!</td></tr> :
+                        <EmptyTableMessage/> :
                             models.map(
                                 m =>
                                     <tr key={m.id}>
@@ -245,8 +257,15 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                             <ButtonGroup>
                                                 <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                     <Glyphicon glyph="edit" /></Button>
-                                                <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                    <Glyphicon glyph="remove" /></Button>
+                                                <ConfirmButton
+                                                    bsStyle="warning"
+                                                    className="btn-sm"
+                                                    glyph='remove'
+                                                    modalTitle='Xác nhận xóa ao nuôi'
+                                                    modalBodyContent={
+                                                        <span>Xác nhận xóa ao nuôi <strong>{m.name}</strong>?</span>
+                                                    }
+                                                    onClickYes={() => this.onDelete(m.id)} />
                                             </ButtonGroup>
                                         </td>
                                     </tr>
@@ -272,7 +291,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

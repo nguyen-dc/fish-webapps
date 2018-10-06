@@ -54,7 +54,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     onDocketFieldChange(model: any) {
         const nextState = {
@@ -233,7 +233,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.props.history.push(this.props.location.pathname + '/' + response.data);
         }
         else
-            this.context.ShowGlobalMessages('error', response.errors);
+            this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
         let { suppliers } = this.state;

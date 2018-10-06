@@ -43,7 +43,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
 
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -63,7 +63,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
             var result;// = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -73,7 +73,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
@@ -189,7 +189,7 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
                 </div>
                 <div className="col-xs-4">
                     <div className="text-right">
-                        <button className="btn btn-default">Export</button>
+                        
                     </div>
                 </div>
             </div>

@@ -5,5 +5,6 @@ import { APICallerBase } from "./api-caller-base";
 export const CustomerAPICaller = {
     GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/customers`, model),
     Create: async (model: CustomerModel) => await APICallerBase.Post("api/customers/add", model),
-    Update: async (model: CustomerModel) => await APICallerBase.Put(`api/customers/${model.id}/modify`, model)
+    Update: async (model: CustomerModel) => await APICallerBase.Put(`api/customers/${model.id}/modify`, model),
+    Delete: async (id: number) => await APICallerBase.Delete(`api/customers/${id}/remove`),
 }
