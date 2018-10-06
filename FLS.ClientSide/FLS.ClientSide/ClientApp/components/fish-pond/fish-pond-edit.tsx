@@ -43,7 +43,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
 
     async componentWillMount() {
@@ -110,7 +110,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật ao nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
 
         } else {
@@ -122,7 +122,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo ao nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

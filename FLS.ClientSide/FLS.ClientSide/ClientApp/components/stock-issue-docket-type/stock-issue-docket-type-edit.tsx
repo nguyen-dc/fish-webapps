@@ -30,7 +30,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async componentDidMount() {
         //init comboboxes
@@ -83,7 +83,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật loại phiếu xuất thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await StockIssueDocketTypeAPICaller.Create(this.state.model);
@@ -94,7 +94,7 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo loại phiếu xuất thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

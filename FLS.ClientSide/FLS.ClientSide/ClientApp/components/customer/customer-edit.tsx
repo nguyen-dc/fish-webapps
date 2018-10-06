@@ -22,7 +22,7 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -73,7 +73,7 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật khách hàng thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await CustomerAPICaller.Create(this.state.model);
@@ -84,7 +84,7 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo khách hàng thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

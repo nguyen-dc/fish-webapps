@@ -22,7 +22,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -73,7 +73,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật vùng nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await FarmRegionAPICaller.Create(this.state.model);
@@ -84,7 +84,7 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo vùng nuôi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

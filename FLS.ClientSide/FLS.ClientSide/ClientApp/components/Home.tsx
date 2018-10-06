@@ -138,7 +138,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Chức năng xóa cho danh mục</div>
+                                    <div className="title">Chức năng xóa cho danh mục</div>
                                     <div className="info">
                                         <p>Chức năng xóa cho toàn bộ các trang danh mục</p>
                                     </div>

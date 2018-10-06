@@ -10,6 +10,7 @@ import { CustomerAPICaller } from "../../api-callers/customer";
 import { Last } from "react-bootstrap/lib/Pagination";
 import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 export class Customers extends React.Component<RouteComponentProps<{}>, CustomerState> {
     constructor(props: any) {
@@ -30,7 +31,7 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -50,7 +51,7 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -60,14 +61,26 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await CustomerAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa thông tin khách hàng thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -177,8 +190,15 @@ export class Customers extends React.Component<RouteComponentProps<{}>, Customer
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                            <ConfirmButton
+                                                bsStyle="warning"
+                                                className="btn-sm"
+                                                glyph='remove'
+                                                modalTitle='Xác nhận xóa khách hàng'
+                                                modalBodyContent={
+                                                    <span>Xác nhận xóa khách hàng <strong>{m.name}</strong>?</span>
+                                                }
+                                                onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
                                     </td>
                                 </tr>

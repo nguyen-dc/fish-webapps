@@ -6,4 +6,5 @@ export const WarehouseAPICaller = {
     GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/warehouses`, model),
     Create: async (model: WarehouseModel) => await APICallerBase.Post(`api/warehouses/add`, model),
     Update: async (model: WarehouseModel) => await APICallerBase.Put(`api/warehouses/${model.id}/modify`, model),
+    Delete: async (id: number) => await APICallerBase.Delete(`api/warehouses/${id}/remove`),
 }

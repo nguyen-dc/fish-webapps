@@ -26,13 +26,13 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
     }
     static childContextTypes = {
         ShowGlobalMessage: PropTypes.func,
-        ShowGlobalMessages: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
 
     getChildContext() {
         return {
             ShowGlobalMessage: this.ShowGlobalMessage.bind(this),
-            ShowGlobalMessages: this.ShowGlobalMessages.bind(this),
+            ShowGlobalMessageList: this.ShowGlobalMessageList.bind(this),
         }
     }
     ShowGlobalMessage(type: 'success' | 'warning' | 'error', message: string) {
@@ -51,7 +51,7 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
             }, timeOut);
         });
     }
-    ShowGlobalMessages(type: 'success' | 'warning' | 'error', messages: StringStringPair[]) {
+    ShowGlobalMessageList(type: 'success' | 'warning' | 'error', messages: StringStringPair[]) {
         let prevThis = this;
         this.setState({
             isShowMessage: true,

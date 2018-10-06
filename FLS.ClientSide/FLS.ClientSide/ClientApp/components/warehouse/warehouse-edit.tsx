@@ -22,7 +22,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -74,7 +74,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật kho thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await WarehouseAPICaller.Create(this.state.model);
@@ -85,7 +85,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo kho thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

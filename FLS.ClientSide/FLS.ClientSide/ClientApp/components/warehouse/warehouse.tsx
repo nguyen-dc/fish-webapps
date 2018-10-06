@@ -9,6 +9,7 @@ import { WarehouseEdit } from "./warehouse-edit";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
     constructor(props: any) {
@@ -29,7 +30,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -49,7 +50,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -59,14 +60,26 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await WarehouseAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa kho thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -175,8 +188,15 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                               <Glyphicon glyph="remove" /></Button>
+                                            <ConfirmButton
+                                                bsStyle="warning"
+                                                className="btn-sm"
+                                                glyph='remove'
+                                                modalTitle='Xác nhận xóa kho'
+                                                modalBodyContent={
+                                                    <span>Xác nhận xóa kho <strong>{m.name}</strong>?</span>
+                                                }
+                                                onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
                                     </td>
                                 </tr>

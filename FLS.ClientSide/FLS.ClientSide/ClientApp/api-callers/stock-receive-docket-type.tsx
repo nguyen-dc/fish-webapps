@@ -6,4 +6,5 @@ export const StockReceiveDocketTypeAPICaller = {
     GetList: async (model: PageFilterModel) => await APICallerBase.Post(`api/stock-receive-docket-types`, model),
     Create: async (model: StockReceiveDocketTypeModel) => await APICallerBase.Post(`api/stock-receive-docket-types/add`, model),
     Update: async (model: StockReceiveDocketTypeModel) => await APICallerBase.Put(`api/stock-receive-docket-types/${model.id}/modify`, model),
+    Delete: async (id: number) => await APICallerBase.Delete(`api/stock-receive-docket-types/${id}/remove`),
 }

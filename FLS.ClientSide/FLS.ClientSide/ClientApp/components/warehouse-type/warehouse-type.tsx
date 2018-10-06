@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
@@ -7,9 +7,9 @@ import { WarehouseTypeModel } from "../../models/warehouse-type";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { WarehouseTypeEdit } from "./warehouse-type-edit";
 import { WarehouseTypeAPICaller } from "../../api-callers/warehouse-type";
-import { Last } from "react-bootstrap/lib/Pagination";
 import { _HString } from "../../handles/handles";
-import { EmptyTableMessage } from "../shared/view-only";
+import { EmptyTableMessage, IsSystem } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 
 export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, WarehouseTypeState> {
     constructor(props: any) {
@@ -30,7 +30,7 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -50,7 +50,7 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             } else {
                 var paging = new PaginateModel();
                 paging.currentPage = result.data.currentPage;
@@ -60,14 +60,26 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
                     this.setState({ lastedSearchKey: this.state.searchKey });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await WarehouseTypeAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa loại kho thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -173,12 +185,21 @@ export class WarehouseTypes extends React.Component<RouteComponentProps<{}>, War
                                     <td>{m.id}</td>
                                     <td>{m.name}</td>
                                     <td className="text-right">
+                                    { m.isSystem ? <IsSystem/> :
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m.id, m.name)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(m.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                                <ConfirmButton
+                                                    bsStyle="warning"
+                                                    className="btn-sm"
+                                                    glyph='remove'
+                                                    modalTitle='Xác nhận xóa loại kho'
+                                                    modalBodyContent={
+                                                        <span>Xác nhận xóa loại kho <strong>{m.name}</strong>?</span>
+                                                    }
+                                                    onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
+                                    }
                                     </td>
                                 </tr>
                             )

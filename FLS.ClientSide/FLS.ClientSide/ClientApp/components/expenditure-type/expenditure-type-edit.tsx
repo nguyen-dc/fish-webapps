@@ -22,7 +22,7 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
     }
     static contextTypes = {
         ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessages: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes
@@ -73,7 +73,7 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
                     this.props.onFormAfterSubmit(true, this.state.model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật loại thu/chi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
             let response = await ExpenditureTypeAPICaller.Create(this.state.model);
@@ -84,7 +84,7 @@ export class ExpenditureTypeEdit extends React.Component<IExpenditureTypeProps, 
                     this.props.onFormAfterSubmit(this.state.model);
                 this.context.ShowGlobalMessage('success', 'Tạo loại thu/chi thành công');
             } else {
-                this.context.ShowGlobalMessages('error', response.errors);
+                this.context.ShowGlobalMessageList('error', response.errors);
             }
         }
     }

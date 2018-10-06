@@ -13,6 +13,8 @@ import { _HString, _HObject } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
+import { EmptyTableMessage } from "../shared/view-only";
+import { ConfirmButton } from "../shared/button/ConfirmButton";
 let apiUrl = 'api/product-subgroups/';
 
 interface productSubGroupsState {
@@ -53,7 +55,10 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
         this.setState({ productGroups: productGroups.data });
         await this.onPageChange(1, true);
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
+    }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
         searchModel.page = page;
@@ -69,7 +74,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
             var result = await this.loadData(page, newSearch) as ResponseConsult;
             if (!result) { return; }
             if (result.hasError) {
-                this.context.ShowGlobalMessages('error', result.errors);
+                this.context.ShowGlobalMessageList('error', result.errors);
             }
             else {
                 var paging = new PaginateModel();
@@ -78,7 +83,7 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                 this.setState({ listProductSubGroup: result.data.items, pagingModel: paging, lastSearchModel: _HObject.Clone(this.state.searchModel) });
             }
             if (result.hasWarning) {
-                this.context.ShowGlobalMessages('warning', result.warnings);
+                this.context.ShowGlobalMessageList('warning', result.warnings);
             }
         }
         finally {
@@ -86,7 +91,19 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
         }
     }
     async onDelete(id: number) {
-        //// 
+        let result = await ProductSubGroupAPICaller.Delete(id);
+        if (!result) { return; }
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        } else if (result.data == true) {
+            this.context.ShowGlobalMessage('success', 'Xóa nhóm hàng thành công');
+            this.onPageChange(1, true);
+        } else {
+            this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình xóa dữ liệu');
+        }
+        if (result.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', result.warnings);
+        }
     }
     onFormAfterSubmit(isSuccess, model) {
         if (isSuccess)
@@ -216,20 +233,26 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
                 <tbody>
                     {
                         groups.length == 0 ?
-                            <tr><td colSpan={4}>Không có dữ liệu!</td></tr>
-                            :
-                            groups.map(group =>
-                                <tr key={group.id}>
-                                    <td>{group.id}</td>
-                                    <td>{group.name}</td>
-                                    <td>{group.productGroupId}</td>
-                                    <td>{group.description}</td>
+                        <EmptyTableMessage/> :
+                            groups.map(m =>
+                                <tr key={m.id}>
+                                    <td>{m.id}</td>
+                                    <td>{m.name}</td>
+                                    <td>{m.productGroupId}</td>
+                                    <td>{m.description}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(group)}>
+                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
                                                 <Glyphicon glyph="edit" /></Button>
-                                            <Button bsStyle="warning" className="btn-sm" onClick={() => this.onDelete(group.id)}>
-                                                <Glyphicon glyph="remove" /></Button>
+                                            <ConfirmButton
+                                                bsStyle="warning"
+                                                className="btn-sm"
+                                                glyph='remove'
+                                                modalTitle='Xác nhận xóa nhóm hàng'
+                                                modalBodyContent={
+                                                    <span>Xác nhận xóa nhóm hàng <strong>{m.name}</strong>?</span>
+                                                }
+                                                onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
                                     </td>
                                 </tr>
