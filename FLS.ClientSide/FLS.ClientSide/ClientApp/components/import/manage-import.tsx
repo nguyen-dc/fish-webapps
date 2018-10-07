@@ -93,7 +93,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
         let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
         let advanceSeach = this.renderSeach();
         return (
-            <UnderConstructor /> ||
+            //<UnderConstructor /> ||
             <div className="content-wapper">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
@@ -177,7 +177,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                         <td>{model.executorCode}</td>
                                         <td>{model.description}</td>
                                         <td>{model.stockReceiveDocketTypeId}</td>
-                                        <td><a className="cursor-pointer" onClick={() => this.handleOpenEdit(model.id)}>Sửa</a></td>
+                                        <td><NavLink to="/quanlynhap/{model.id}" activeClassName="active">Chi tiết</NavLink></td>
                                     </tr>
                             )
                     }
