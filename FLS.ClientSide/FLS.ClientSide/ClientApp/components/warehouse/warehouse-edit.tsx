@@ -10,6 +10,8 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
+import { CacheAPI } from "../../api-callers";
+import { WarehouseTypeModel } from "../../models/warehouse-type";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
     constructor(props: IWarehouseProps) {
@@ -17,6 +19,7 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
         this.state = {
             isShow: props.isShow,
             model: props.model ? props.model : new WarehouseModel(),
+            warehouseTypes: this.props.warehouseTypes,
             errorList: {}
         }
     }
@@ -24,14 +27,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
         ShowGlobalMessage: React.PropTypes.func,
         ShowGlobalMessageList: React.PropTypes.func,
     }
-    componentDidMount() {
-        //init comboboxes
-        ////
+    async componentWillMount() {
+        let warehouseTypes = await CacheAPI.WarehouseTypes();
+        this.setState({ warehouseTypes: warehouseTypes });
     }
     componentWillReceiveProps(props) {
         // call load data by this.props.model.id from server
         ////
-        this.setState({ model: props.model, isShow: props.isShow });
+        this.setState({ model: props.model, isShow: props.isShow, warehouseTypes: props.warehouseTypes });
     }
     onCloseModal() {
         this.setState({ errorList: {} });
@@ -118,6 +121,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                             placeHolder={'Tên kho'}
                             error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
+                            name={'warehouseTypeId'}
+                            value={this.state.model.warehouseTypeId}
+                            title={'Loại kho'}
+                            options={this.state.warehouseTypes}
+                            placeHolder={'Loại kho'}
+                            error={this.state.errorList['warehouseTypeId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
                     </form>
                 </Modal.Body>
                 <Modal.Footer>
@@ -136,10 +147,12 @@ interface IWarehouseProps {
     onFormAfterSubmit?: any,
     isEdit: boolean,
     model?: WarehouseModel,
+    warehouseTypes: any
 }
 
 interface IWarehouseState {
     isShow: boolean,
     model?: WarehouseModel,
     errorList: any,
+    warehouseTypes: any
 }

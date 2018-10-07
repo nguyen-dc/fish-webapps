@@ -43,6 +43,7 @@ import { RevenueReports } from './components/report/revenue-report';
 import { ManageUsers } from './components/system/manage-user';
 import { ManageUserRoles } from './components/system/manage-user-role';
 import { StockReceiveDocketEdit } from './components/import/stock-receive-edit';
+import { ImportDetail } from './components/import/import-detail';
 
 export const routes = <Layout>
     <Switch>
@@ -62,6 +63,7 @@ export const routes = <Layout>
         <Route exact path='/loaiphieuxuat' component={StockIssueDocketTypes} />
         <Route exact path='/loaiphieuthuchi' component={ExpenditureTypes} />
         <Route exact path='/quanlynhap' component={ManageImports} />
+        <Route exact path='/quanlynhap/:docketId' component={ImportDetail} />
         
         <Route exact path='/nhapmuahang' component={ImportStocks} />
         <Route exact path='/quanlyxuat' component={ManageExports} />
