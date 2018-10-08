@@ -124,8 +124,8 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
                                     name={'id'}
                                     value={this.state.model.id}
                                     readOnly={true}
-                                    title={'Mã ao'}
-                                    placeHolder={'Mã ao nuôi'} />
+                                    title={'Mã nhóm hàng'}
+                                    placeHolder={'Mã nhóm hàng'} />
                                 : null
                         }
                         <LabeledInput

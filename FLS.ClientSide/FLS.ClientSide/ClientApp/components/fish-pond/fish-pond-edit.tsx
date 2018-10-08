@@ -10,7 +10,7 @@ import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/la
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
-import { _HString } from "../../handles/handles";
+import { _HString, _HNumber } from "../../handles/handles";
 
 interface IFishPondProps {
     isShow: boolean,
@@ -73,8 +73,17 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                 [model.name]: model.value,
             }
         };
-
-        nextState.model.waterSurfaceArea = (nextState.model.a + nextState.model.c) * (nextState.model.b + nextState.model.d) / 4;
+        this.setState(nextState);
+    }
+    onEdgeValueChange(model) {
+        const nextState = {
+            ...this.state,
+            model: {
+                ...this.state.model,
+                [model.name]: model.value,
+            }
+        };
+        nextState.model.waterSurfaceArea = _HNumber.Sum(nextState.model.a, nextState.model.c) * _HNumber.Sum(nextState.model.b, nextState.model.d) / 4;
         this.setState(nextState);
     }
 
@@ -175,33 +184,41 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                             inputType={'number'}
                             name={'a'}
                             value={this.state.model.a}
-                            title={'A'}
+                            title={'A (m)'}
                             placeHolder={'A'}
                             error={this.state.errorList['a']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onEdgeValueChange.bind(this)} />
                         <LabeledInput
                             inputType={'number'}
                             name={'b'}
                             value={this.state.model.b}
-                            title={'B'}
+                            title={'B (m)'}
                             placeHolder={'B'}
                             error={this.state.errorList['b']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onEdgeValueChange.bind(this)} />
                         <LabeledInput
                             inputType={'number'}
                             name={'c'}
                             value={this.state.model.c}
-                            title={'C'}
+                            title={'C (m)'}
                             placeHolder={'C'}
                             error={this.state.errorList['c']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
+                            valueChange={this.onEdgeValueChange.bind(this)} />
                         <LabeledInput
                             inputType={'number'}
                             name={'d'}
                             value={this.state.model.d}
-                            title={'D'}
+                            title={'D (m)'}
                             placeHolder={'D'}
                             error={this.state.errorList['d']}
+                            valueChange={this.onEdgeValueChange.bind(this)} />
+                        <LabeledInput
+                            inputType={'number'}
+                            name={'waterSurfaceArea'}
+                            value={this.state.model.waterSurfaceArea}
+                            title={'Diện tích mặt nước (m2)'}
+                            placeHolder={'Diện tích mặt nước'}
+                            error={this.state.errorList['waterSurfaceArea']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledInput
                             inputType={'number'}
@@ -210,14 +227,6 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                             title={'Độ sâu'}
                             placeHolder={'Độ sâu'}
                             error={this.state.errorList['depth']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
-                        <LabeledInput
-                            inputType={'number'}
-                            name={'waterSurfaceArea'}
-                            value={this.state.model.waterSurfaceArea}
-                            title={'Diện tích mặt nước'}
-                            placeHolder={'Diện tích mặt nước'}
-                            error={this.state.errorList['waterSurfaceArea']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                     </div>
                 </Modal.Body>

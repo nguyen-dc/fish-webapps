@@ -1,7 +1,5 @@
 import * as React from 'react';
-import { Button, Glyphicon } from 'react-bootstrap';
 import { isEqual } from 'lodash';
-import { ChangeEvent } from 'react';
 import { _HNumber } from '../../../handles/handles';
 interface FormatedInputProps {
     className?: string,
@@ -106,12 +104,8 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
     }
     onValueChange(e) {
         let value = e.target.value;
-        //let formated = value;
-        //formated = this.formatValue(e.target.value);
-        //this.setState({ value: value, displayValue: value, formatedValue: formated }, () => {
-            if (this.props.onValueChange)
-                this.props.onValueChange({ name: this.state.name, value: value });
-        //});
+        if (this.props.onValueChange)
+            this.props.onValueChange({ name: this.state.name, value: value });
     }
 
     render() {
