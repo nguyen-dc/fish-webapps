@@ -114,13 +114,6 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                                     placeHolder={'Mã kho'} />
                                 : null
                         }
-                        <LabeledInput
-                            name={'name'}
-                            value={this.state.model.name}
-                            title={'Tên kho'}
-                            placeHolder={'Tên kho'}
-                            error={this.state.errorList['name']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             name={'warehouseTypeId'}
                             value={this.state.model.warehouseTypeId}
@@ -128,6 +121,13 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                             options={this.state.warehouseTypes}
                             placeHolder={'Loại kho'}
                             error={this.state.errorList['warehouseTypeId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledInput
+                            name={'name'}
+                            value={this.state.model.name}
+                            title={'Tên kho'}
+                            placeHolder={'Tên kho'}
+                            error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                     </form>
                 </Modal.Body>

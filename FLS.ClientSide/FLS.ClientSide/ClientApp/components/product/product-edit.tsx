@@ -174,7 +174,7 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                             options={this.state.productSubGroups}
                             name={'productSubgroupId'}
                             value={this.state.model.productSubgroupId}
-                            title={'Chọn nhóm hàng'}
+                            title={'Nhóm hàng'}
                             placeHolder={'Chọn nhóm hàng'}
                             error={this.state.errorList['productSubgroupId']}
                             valueChange={this.onFieldValueChange.bind(this)} />

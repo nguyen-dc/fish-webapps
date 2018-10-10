@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { Button, Glyphicon } from 'react-bootstrap';
-import { Props } from 'react';
+import { FormatedInput } from './formated-input';
 
 interface LabeledInputProps {
     name?: string,
@@ -67,20 +66,39 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
         this.setState({ value: e.target.value, model: model });
         if (this.props.valueChange) this.props.valueChange(model);
     }
+    formatedInputChange(m) {
+        let model = this.state.model;
+        model.value = m.value;
+        this.setState({ value: m.value, model: model });
+        if (this.props.valueChange) this.props.valueChange(model);
+    }
     render() {
+        let { name, inputType, value, required, placeHolder, readOnly } = this.state;
         return (
             <div className='form-group-custom mg-bt-15'>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
                 <div className={this.formatErrorClass()}>
-                    <input
-                        className="form-control"
-                        type={this.state.inputType}
-                        name={this.state.name}
-                        value={this.state.value || ''}
-                        required={this.state.required}
-                        onChange={this.inputChange.bind(this)}
-                        placeholder={this.state.placeHolder}
-                        readOnly={this.state.readOnly} />
+                    {
+                        inputType == 'number' || inputType == 'currency' ?
+                            <FormatedInput
+                                className="form-control"
+                                type={inputType}
+                                name={name}
+                                value={value || ''}
+                                required={required}
+                                placeholder={placeHolder}
+                                readOnly={readOnly}
+                                onValueChange={(m) => this.formatedInputChange(m)} /> :
+                            <input
+                                className="form-control"
+                                type={this.state.inputType}
+                                name={this.state.name}
+                                value={this.state.value || ''}
+                                required={this.state.required}
+                                onChange={this.inputChange.bind(this)}
+                                placeholder={this.state.placeHolder}
+                                readOnly={this.state.readOnly} />
+                    }
                 </div>
             </div>
         );
@@ -227,7 +245,7 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
                         onChange={this.valueChange.bind(this)}
                         placeholder={this.state.placeHolder}
                         readOnly={this.state.readOnly}>
-                        <option value={null}>{this.state.placeHolder}</option>
+                        <option value=''>{this.state.placeHolder}</option>
                         {this.state.options != null ?
                             this.state.options.map(opt => {
                                 let disabled = opt[this.state.valueKey] == this.state.value ? true : false;

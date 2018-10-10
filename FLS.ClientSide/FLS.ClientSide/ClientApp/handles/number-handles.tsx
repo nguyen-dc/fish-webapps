@@ -15,6 +15,6 @@ export const _HNumber = {
         return NumberFormat.format(number);
     },
     Sum(...values): number {
-        return Number(values.reduce((p, n) => p + n));
+        return Number(values.reduce((p, n) => Number(p) + Number(n)));
     }
 }

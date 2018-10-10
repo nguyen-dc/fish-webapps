@@ -223,16 +223,16 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
             <table className="table table-striped table-hover">
                 <thead>
                     <tr>
-                        <th>Mã ao</th>
-                        <th>Tên ao nuôi</th>
+                        <th>Mã</th>
+                        <th>Tên</th>
                         <th>Khu vực nuôi</th>
                         <th>Kho</th>
-                        <th>a</th>
-                        <th>b</th>
-                        <th>c</th>
-                        <th>d</th>
-                        <th>Diện tích mặt nước</th>
-                        <th>Độ sâu</th>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
+                        <th>Diện tích mặt nước (m2)</th>
+                        <th>Độ sâu (m)</th>
                         <th className="th-sm-2"></th>
                     </tr>
                 </thead>
