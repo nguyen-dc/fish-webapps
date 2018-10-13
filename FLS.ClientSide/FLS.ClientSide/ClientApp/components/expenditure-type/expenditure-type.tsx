@@ -1,13 +1,13 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { ExpenditureTypeModel } from "../../models/expenditure-type";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { ExpenditureTypeEdit } from "./expenditure-type-edit";
 import { ExpenditureTypeAPICaller } from "../../api-callers/expenditure-type";
-import { Last } from "react-bootstrap/lib/Pagination";
 import { _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
 import { ConfirmButton } from "../shared/button/ConfirmButton";
@@ -30,8 +30,8 @@ export class ExpenditureTypes extends React.Component<RouteComponentProps<{}>, E
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;

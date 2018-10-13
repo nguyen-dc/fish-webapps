@@ -49,8 +49,8 @@ body{
         margin-top: 0;
     }
     .min-w-140 {
-        min-width: 152px;
-        max-width:152px;
+        min-width: 140px;
+        max-width:140px;
     }
 .float-left{
     float: left;
@@ -71,7 +71,7 @@ body{
         padding-top: 0 !important;
     }
 .form-group-custom> div{
-    width: calc(100% - 152px);
+    width: calc(100% - 140px);
 }
 .border-0 {
     border: 0;

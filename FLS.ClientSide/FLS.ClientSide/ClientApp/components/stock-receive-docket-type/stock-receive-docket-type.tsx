@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { StockReceiveDocketTypeModel } from "../../models/stock-receive-docket-type";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { StockReceiveDocketTypeEdit } from "./stock-receive-docket-type-edit";
@@ -29,8 +30,8 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;
@@ -170,7 +171,7 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                     <tr>
                         <th>Mã loại</th>
                         <th>Tên loại</th>
-                        <th>Cần duyệt</th>
+                        <th>Duyệt</th>
                         <th>Cần phiếu chi</th>
                         <th className="th-sm-2"></th>
                     </tr>
@@ -183,7 +184,7 @@ export class StockReceiveDocketTypes extends React.Component<RouteComponentProps
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
                                     <td>{m.name}</td>
-                                    <td>{m.approvalNeeded ? 'Có' : 'Không'}</td>
+                                    <td>Duyệt tự động</td>
                                     <td>{m.payslipNeeded ? 'Có': 'Không'}</td>
                                     <td className="text-right">
                                     { m.isSystem ? <IsSystem/> :

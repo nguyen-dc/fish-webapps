@@ -4,6 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { ProductGroupEdit } from "./product-group-edit";
 import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import { ProductGroupModel } from "../../models/product-group";
 import { _HString } from "../../handles/handles";
@@ -29,8 +30,8 @@ export class ProductGroups extends React.Component<RouteComponentProps<{}>, any>
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;

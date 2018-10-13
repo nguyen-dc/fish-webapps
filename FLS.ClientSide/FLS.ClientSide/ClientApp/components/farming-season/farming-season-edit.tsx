@@ -1,15 +1,13 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { FarmingSeasonModel } from "../../models/farming-season";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
+import PropTypes from 'prop-types';
+import { IdNameModel } from "../../models/shared";
 import * as Moment from 'moment';
-import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
+import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { FarmingSeasonAPICaller } from "../../api-callers/farming-season";
-import { CacheAPI } from "../../api-callers/cache";
 import { _HString } from "../../handles/handles";
 
 interface IFarmingSeasonProps {
@@ -40,8 +38,8 @@ export class FarmingSeasonEdit extends React.Component<IFarmingSeasonProps, IFar
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes

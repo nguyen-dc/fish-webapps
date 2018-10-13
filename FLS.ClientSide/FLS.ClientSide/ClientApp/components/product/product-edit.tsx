@@ -4,6 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { ProductModel } from "../../models/product";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
+import PropTypes from 'prop-types';
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
@@ -46,8 +47,8 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes

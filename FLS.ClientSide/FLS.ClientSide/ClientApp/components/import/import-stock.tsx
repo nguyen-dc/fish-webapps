@@ -6,8 +6,9 @@ import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber, _HString } from "../../handles/handles";
 import { ProductModel } from "../../models/product";
+import PropTypes from 'prop-types';
 import { ImportStockModel, CostsModel } from "../../models/import-stock";
-import { IdNameModel, ApiResponse } from "../../models/shared";
+import { IdNameModel } from "../../models/shared";
 import { ProductSimpleSearch } from "../product/product-simple-search";
 import { SupplierSimpleSearch } from "../supplier/supplier-simple-search";
 import { SupplierModel } from "../../models/supplier";
@@ -17,10 +18,8 @@ import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-de
 import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
 import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
-import { ExportAPICaller } from "../../api-callers";
 import { ImportAPICaller } from "../../api-callers/import";
 import { FormatedInput } from "../shared/input/formated-input";
-import { UnderConstructor } from "../shared/under-constructor";
 
 interface ImportStockStates {
     receiveDocket: StockReceiveDocketModel;
@@ -53,8 +52,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data, paySlipTypes: paySlipTypes.data });
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     onDocketFieldChange(model: any) {
         const nextState = {
@@ -454,7 +453,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             <div className="panel panel-info">
                 <div className="panel-body">
                     <div className="mg-bt-15">
-                        <div className="col-md-3">
+                        <div className="col-md-4">
                             <LabeledSelect
                                 name={'paySlipTypeId'}
                                 value={this.state.costs.paySlipTypeId}
@@ -477,16 +476,17 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             />
                         </div>
                         <div className="col-md-4">
-                            <FormatedInput
-                                type="currency"
-                                className="form-control"
-                                min={0}
-                                name='amount'
+                            <LabeledInput
+                                inputType='currency'
+                                name={'amount'}
                                 value={this.state.costs.amount}
-                                onValueChange={this.onPaySlipFieldChange.bind(this)}
+                                title={'Số tiền'}
+                                placeHolder={'Số tiền'}
+                                error={this.state.errorList['amount']}
+                                valueChange={this.onPaySlipFieldChange.bind(this)}
                             />
                         </div>
-                        <div className="col-sm-1">
+                        <div className="col-sm-12">
                             <div className="text-right">
                                 <button className="btn btn-primary" onClick={this.addPaySlip.bind(this)}>Thêm</button>
                             </div>

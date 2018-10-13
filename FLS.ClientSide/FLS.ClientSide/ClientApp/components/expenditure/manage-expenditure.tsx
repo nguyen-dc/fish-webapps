@@ -1,11 +1,10 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
-import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
-import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
-import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
+import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import PropTypes from 'prop-types';
+import { LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
@@ -13,9 +12,7 @@ import { EmptyTableMessage } from "../shared/view-only";
 import { _HObject } from "../../handles/handles";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FishPondModel } from "../../models/fish-pond";
-import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { UnderConstructor } from "../shared/under-constructor";
-const urlLoadList = 'api/stock-receive-dockets';
 
 const filterTitle0 = 'Tất cả khu vực';
 
@@ -42,8 +39,8 @@ export class ManageExpenditures extends React.Component<RouteComponentProps<{}>,
     }
 
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;

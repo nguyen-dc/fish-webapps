@@ -1,16 +1,17 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { PaginateModel } from "../../models/shared";
-import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
-import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
+import { Glyphicon } from "react-bootstrap";
+import { LabeledSelect } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
+import { _HNumber } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 import { EmptyTableMessage } from "../shared/view-only";
-import { UnderConstructor } from "../shared/under-constructor";
 const urlLoadList = 'api/stock-receive-dockets';
 export class ManageImports extends React.Component<RouteComponentProps<{}>, any> {
 
@@ -30,6 +31,10 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
             suppliers: [],
             stockReceiveDocketTypes: []
         };
+    }
+    static contextTypes = {
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
         var warehouses = await CacheAPI.Warehouse();
@@ -153,7 +158,6 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         <th>Số phiếu</th>
                         <th>Loại phiếu</th>
                         <th>Kho</th>
-                        <th>Khách hàng</th>
                         <th>Tổng tiền</th>
                         <th>Người nhập</th>
                         <th>Ghi chú</th>
@@ -169,15 +173,14 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                 model =>
                                     <tr key={model.id}>
                                         <td>{model.id}</td>
+                                        <td>{model.docketNumber}</td>
                                         <td>{model.stockReceiveDocketTypeId}</td>
                                         <td>{model.warehouseId}</td>
-                                        <td>chưa có customer</td>
-                                        <td>{model.docketNumber}</td>
-                                        <td>{model.totalAmount}</td>
+                                        <td>{_HNumber.FormatCurrency(model.totalAmount)}</td>
                                         <td>{model.executorCode}</td>
                                         <td>{model.description}</td>
-                                        <td>{model.stockReceiveDocketTypeId}</td>
-                                        <td><NavLink to="/quanlynhap/{model.id}" activeClassName="active">Chi tiết</NavLink></td>
+                                        <td>{model.stockReceiveDocketTypeId ? model.stockReceiveDocketTypeId : null}</td>
+                                        <td><NavLink to={'/quanlynhap/' + model.id} activeClassName="active"><Glyphicon glyph='option-horizontal'/></NavLink></td>
                                     </tr>
                             )
                     }
@@ -211,7 +214,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
     private renderSeach() {
         return (
             <div className="col-sm-12">
-                <div className="col-sm-4">
+                <div className="col-md-4">
                     <LabeledSingleDatePicker
                         name={'fromDate'}
                         title={'Từ ngày'}
@@ -221,7 +224,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         title={'Đến ngày'}
                         date={Moment()} />
                 </div>
-                <div className="col-sm-4">
+                <div className="col-md-4">
                     <LabeledSelect
                         name={'warehouses'}
                         value={0}
@@ -239,7 +242,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         nameKey={'name'}
                         options={[{ id: 1, name: 'Nhà CC 1' }, { id: 2, name: 'Nhà CC 2' }]} />
                 </div>
-                <div className="col-sm-4">
+                <div className="col-md-4">
                     <LabeledSelect
                         name={'input'}
                         value={0}

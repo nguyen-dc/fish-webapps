@@ -5,6 +5,7 @@ import { LabeledSelect, LabeledInput, LabeledTextArea } from "../shared/input/la
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber, _HObject } from "../../handles/handles";
+import PropTypes from 'prop-types';
 import { ProductModel } from "../../models/product";
 import { ExportStockModel } from "../../models/export-stock";
 import { StockIssueDocketModel } from "../../models/stock-issue-docket";
@@ -18,7 +19,6 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { Glyphicon, Button } from "react-bootstrap";
 import { FormatedInput } from "../shared/input/formated-input";
 import { ExportAPICaller } from "../../api-callers/export";
-import { UnderConstructor } from "../shared/under-constructor";
 
 interface ExportStockStates {
     issueDocket: StockIssueDocketModel,
@@ -50,7 +50,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data });
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     onDocketFieldChange(model: any) {
         const nextState = {

@@ -1,13 +1,9 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { CustomerModel } from "../../models/customer";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem, ApiResponse } from "../../models/shared";
-import * as Moment from 'moment';
-import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import PropTypes from 'prop-types';
+import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
 import { CustomerAPICaller } from "../../api-callers/customer";
 import { _HString } from "../../handles/handles";
 
@@ -21,8 +17,8 @@ export class CustomerEdit extends React.Component<ICustomerProps, ICustomerState
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes

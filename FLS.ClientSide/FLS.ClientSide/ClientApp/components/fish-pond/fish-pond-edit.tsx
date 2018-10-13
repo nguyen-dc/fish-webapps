@@ -1,13 +1,9 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { FishPondModel } from "../../models/fish-pond";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
-import * as Moment from 'moment';
-import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import PropTypes from 'prop-types';
+import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { FishPondAPICaller } from "../../api-callers/fish-pond";
 import { CacheAPI } from "../../api-callers/cache";
 import { _HString, _HNumber } from "../../handles/handles";
@@ -42,8 +38,8 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
 
     async componentWillMount() {
