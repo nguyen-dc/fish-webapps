@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { NavMenu } from './NavMenu';
-import Notifications, { notify } from 'react-notify-toast';
-import { PropTypes } from 'react';
+import { PropTypes } from 'prop-types';
 import './index.css';
 import { StringStringPair } from '../models/shared';
 

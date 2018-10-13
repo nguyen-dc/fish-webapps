@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { FishPondModel } from "../../models/fish-pond";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { FishPondEdit } from "./fish-pond-edit";
@@ -47,8 +48,8 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
         };
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
 
     async componentWillMount() {

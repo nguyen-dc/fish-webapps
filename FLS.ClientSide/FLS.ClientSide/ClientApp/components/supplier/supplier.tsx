@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { SupplierModel } from "../../models/supplier";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { SupplierEdit } from "./supplier-edit";
@@ -29,8 +30,8 @@ export class Suppliers extends React.Component<RouteComponentProps<{}>, Supplier
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let keySearch = this.state.lastedSearchKey;

@@ -4,6 +4,7 @@ import { RouteComponentProps } from 'react-router';
 import { SupplierModel } from "../../models/supplier";
 import { Modal, Button, Alert } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
+import PropTypes from 'prop-types';
 import { IdNameModel, ErrorItem } from "../../models/shared";
 import * as Moment from 'moment';
 import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
@@ -21,8 +22,8 @@ export class SupplierEdit extends React.Component<ISupplierProps, ISupplierState
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes

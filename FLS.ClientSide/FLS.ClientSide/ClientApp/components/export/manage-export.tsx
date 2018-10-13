@@ -1,20 +1,17 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
-import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel, IdNameModel, PageFilterModel, ApiResponse } from "../../models/shared";
-import { ButtonGroup, Glyphicon, Button, Well } from "react-bootstrap";
-import { LabeledInput, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
+import PropTypes from 'prop-types';
+import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { ExportAPICaller } from "../../api-callers/export";
 import { ManagerExportStockModel, ManagerExportSearchModel } from "../../models/manager-export-stock";
 import { CustomerAPICaller } from "../../api-callers";
-import { Customers } from "../customer/customer";
 import { UnderConstructor } from "../shared/under-constructor";
-const urlLoadList = 'api/stock-receive-dockets';
 const filterTitle0 = 'Tất cả';
 
 interface IManageImportState {
@@ -52,7 +49,10 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
             filterSearch: new ManagerExportSearchModel()
         };
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
+    }
     async componentWillMount() {
         await this.onPageChange(1, true);
         var warehouses = await CacheAPI.Warehouse();

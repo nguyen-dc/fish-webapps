@@ -1,13 +1,9 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { StockReceiveDocketTypeModel } from "../../models/stock-receive-docket-type";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button, } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
-import * as Moment from 'moment';
+import PropTypes from 'prop-types';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockReceiveDocketTypeAPICaller } from "../../api-callers/stock-receive-docket-type";
 import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
@@ -15,16 +11,18 @@ import { CacheAPI } from "../../api-callers/cache";
 export class StockReceiveDocketTypeEdit extends React.Component<IStockReceiveDocketTypeProps, IStockReceiveDocketTypeState> {
     constructor(props: IStockReceiveDocketTypeProps){
         super(props)
+        let model = props.model ? props.model : new StockReceiveDocketTypeModel();
+        model.approvalNeeded = false;
         this.state = {
             isShow: props.isShow,
-            model: props.model ? props.model : new StockReceiveDocketTypeModel(),
+            model: model,
             payslipTypes: [],
             errorList: {},
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentDidMount() {
         //init comboboxes
@@ -67,24 +65,28 @@ export class StockReceiveDocketTypeEdit extends React.Component<IStockReceiveDoc
             });
             return;
         }
+        let model = this.state.model;
+        if (!model.payslipNeeded) {
+            model.payslipTypeId = 0;
+        }
         if (this.props.isEdit) {
-            let response = await StockReceiveDocketTypeAPICaller.Update(this.state.model);
+            let response = await StockReceiveDocketTypeAPICaller.Update(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
                 if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(true, this.state.model);
+                    this.props.onFormAfterSubmit(true, model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật loại phiếu nhập thành công');
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
-            let response = await StockReceiveDocketTypeAPICaller.Create(this.state.model);
+            let response = await StockReceiveDocketTypeAPICaller.Create(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
                 if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(this.state.model);
+                    this.props.onFormAfterSubmit(model);
                 this.context.ShowGlobalMessage('success', 'Tạo loại phiếu nhập thành công');
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
@@ -119,26 +121,30 @@ export class StockReceiveDocketTypeEdit extends React.Component<IStockReceiveDoc
                             placeHolder={'Tên loại'}
                             error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />
-                        <LabeledSelect
-                            options={this.state.payslipTypes}
-                            name={'payslipTypeId'}
-                            value={this.state.model.payslipTypeId}
-                            title={'Loại phiếu chi'}
-                            placeHolder={'Loại phiếu chi'}
-                            error={this.state.errorList['payslipTypeId']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
-                        <LabeledCheckBox
-                            name={'approvalNeeded'}
-                            value={this.state.model.approvalNeeded}
-                            text={'Cần duyệt'}
-                            error={this.state.errorList['approvalNeeded']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledCheckBox
                             name={'payslipNeeded'}
                             value={this.state.model.payslipNeeded}
                             text={'Cần phiếu chi'}
                             error={this.state.errorList['payslipNeeded']}
                             valueChange={this.onFieldValueChange.bind(this)} />
+                        {this.state.model.payslipNeeded ?
+                            <LabeledSelect
+                                options={this.state.payslipTypes}
+                                name={'payslipTypeId'}
+                                value={this.state.model.payslipTypeId}
+                                title={'Loại phiếu chi'}
+                                placeHolder={'Loại phiếu chi'}
+                                error={this.state.errorList['payslipTypeId']}
+                                valueChange={this.onFieldValueChange.bind(this)} /> : null
+                        }
+                        {/*
+                         * <LabeledCheckBox
+                            name={'approvalNeeded'}
+                            value={this.state.model.approvalNeeded}
+                            text={'Cần duyệt'}
+                            error={this.state.errorList['approvalNeeded']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                            */}
                         <LabeledTextArea
                             rows={5}
                             name={'description'}

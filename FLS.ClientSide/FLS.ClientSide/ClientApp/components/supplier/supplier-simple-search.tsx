@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import { Button, Glyphicon, Overlay, Popover } from "react-bootstrap";
+import { Overlay, Popover } from "react-bootstrap";
 import * as ReactDOM from "react-dom";
 import { PageFilterModel, PaginateModel } from "../../models/shared";
 import { SupplierAPICaller } from "../../api-callers/supplier";

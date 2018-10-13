@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { FarmingSeasonModel } from "../../models/farming-season";
 import { ButtonGroup, Glyphicon, Button } from "react-bootstrap";
 import { FarmingSeasonEdit } from "./farming-season-edit";
@@ -54,8 +55,8 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;

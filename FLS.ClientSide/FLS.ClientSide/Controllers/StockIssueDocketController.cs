@@ -23,7 +23,7 @@ namespace FLS.ClientSide.Controllers
         public async Task<ActionResult> Details(int _stockIssueDocketId)
         {
             string link = URI_API.STOCK_ISSUE_DOCKET_DETAIL.Replace("{id}", $"{_stockIssueDocketId}");
-            ResponseConsult<ExportStockModel> response = await GetAsync<ExportStockModel>(link);
+            ResponseConsult<ExportStockDetailModel> response = await GetAsync<ExportStockDetailModel>(link);
             return Ok(response);
         }
         [HttpPost("add")]

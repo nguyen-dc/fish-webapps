@@ -1,13 +1,9 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { FarmRegionModel } from "../../models/farm-region";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
-import * as Moment from 'moment';
-import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import PropTypes from 'prop-types';
+import { LabeledInput} from "../shared/input/labeled-input";
 import { FarmRegionAPICaller } from "../../api-callers/farm-region";
 import { _HString } from "../../handles/handles";
 
@@ -21,8 +17,8 @@ export class FarmRegionEdit extends React.Component<IFarmRegionProps, IFarmRegio
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes

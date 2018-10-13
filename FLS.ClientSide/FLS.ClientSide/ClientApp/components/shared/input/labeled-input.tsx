@@ -1,6 +1,28 @@
 import * as React from 'react';
 import { FormatedInput } from './formated-input';
 
+interface LabeledTextProps {
+    title?: string,
+    value?: any,
+    className?: string,
+    valueClassName?: string,
+}
+export class LabeledText extends React.PureComponent<LabeledTextProps> {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        let { title, value, className, valueClassName } = this.props;
+        className = className ? 'mg-bt-15 ' + className : 'mg-bt-15';
+        return (
+            <div className={className}>
+                <label className="control-label min-w-140 float-left">{title}</label>
+                <div className={valueClassName}>{value}</div>
+            </div>
+        );
+    }
+}
+
 interface LabeledInputProps {
     name?: string,
     value?: Date | string | number,
@@ -10,6 +32,7 @@ interface LabeledInputProps {
     required?: boolean,
     error?: string,
     readOnly?: boolean,
+    disabled?: boolean,
     valueChange?: Function
 }
 interface LabeledInputState {
@@ -21,6 +44,7 @@ interface LabeledInputState {
     required: boolean,
     error: string,
     readOnly: boolean,
+    disabled?: boolean,
     model: ILabeledInputModel
 }
 interface ILabeledInputModel {
@@ -200,6 +224,7 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
             required: props.required ? props.required : false,
             error: props.error ? props.error : '',
             readOnly: props.readOnly ? props.readOnly : false,
+            disabled: props.disabled ? props.disabled : false,
             valueKey: props.valueKey ? props.valueKey : 'id',
             nameKey: props.nameKey ? props.nameKey : 'name',
             options: props.options ? props.options : [],
@@ -234,6 +259,7 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
         if (this.props.valueChange) this.props.valueChange(model);
     }
     render() {
+        let disable = this.state.disabled ? {disabled: this.state.disabled} : null;
         return (
             <div className='form-group-custom mg-bt-15'>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
@@ -244,7 +270,8 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
                         value={this.state.value}
                         onChange={this.valueChange.bind(this)}
                         placeholder={this.state.placeHolder}
-                        readOnly={this.state.readOnly}>
+                        readOnly={this.state.readOnly}
+                        {...disable}>
                         <option value=''>{this.state.placeHolder}</option>
                         {this.state.options != null ?
                             this.state.options.map(opt => {

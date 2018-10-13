@@ -1,21 +1,18 @@
 ﻿import * as React from "react";
-import { Link, NavLink } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import { ProductSubGroupEdit } from "./product-subgroup-edit";
 import { Button, ButtonGroup, Glyphicon } from "react-bootstrap";
-import { Content } from "react-bootstrap/lib/Tab";
-import * as ReactDOM from "react-dom";
 import Pagination from "react-js-pagination";
+import PropTypes from 'prop-types';
 import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import { ProductSubGroupModel } from "../../models/product-subgroup";
-import Notifications, { notify } from 'react-notify-toast';
 import { _HString, _HObject } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
 import { FilterEnum } from "../../enums/filter-enum";
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
 import { EmptyTableMessage } from "../shared/view-only";
 import { ConfirmButton } from "../shared/button/ConfirmButton";
-let apiUrl = 'api/product-subgroups/';
 
 interface productSubGroupsState {
     listProductSubGroup: ProductSubGroupModel[],
@@ -56,8 +53,8 @@ export class ProductSubGroups extends React.Component<RouteComponentProps<{}>, p
         await this.onPageChange(1, true);
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;

@@ -2,6 +2,7 @@
 import { Modal, Button } from 'react-bootstrap';
 import { ProductGroupModel } from "../../models/product-group";
 import { FormErrors } from "../shared/form-errors";
+import PropTypes from 'prop-types';
 import { _HString } from "../../handles/handles";
 import { ProductGroupAPICaller } from "../../api-callers/product-group";
 import { LabeledInput, LabeledTextArea } from "../shared/input/labeled-input";
@@ -32,8 +33,8 @@ export class ProductGroupEdit extends React.Component<IProductGroupProps, IProdu
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     componentDidMount() {
         //init comboboxes

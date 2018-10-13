@@ -19,3 +19,28 @@ export const IsSystem = () =>
         <Glyphicon glyph='lock' />
     </OverlayTrigger>
 </div>;
+
+
+interface SummaryTextProps {
+    title?: string,
+    value?: any,
+    className?: string,
+    valueClassName?: string,
+}
+export class SummaryText extends React.PureComponent<SummaryTextProps> {
+    constructor(props) {
+        super(props);
+    }
+    render() {
+        let { title, value, className, valueClassName } = this.props;
+
+        valueClassName = valueClassName ? 'info-value' + valueClassName : 'info-value';
+        className = className ? 'mg-bt-15 ' + className : 'mg-bt-15';
+        return (
+            <div className={className}>
+                <label className="control-label">{title}</label>
+                <div className={valueClassName}>{value}</div>
+            </div>
+        );
+    }
+}

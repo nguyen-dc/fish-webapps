@@ -1,17 +1,12 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { WarehouseModel } from "../../models/warehouse";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem, ResponseConsult } from "../../models/shared";
-import * as Moment from 'moment';
-import { LabeledInput, LabeledTextArea, LabeledSelect } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
+import PropTypes from 'prop-types';
+import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers";
-import { WarehouseTypeModel } from "../../models/warehouse-type";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
     constructor(props: IWarehouseProps) {
@@ -24,8 +19,8 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
         let warehouseTypes = await CacheAPI.WarehouseTypes();

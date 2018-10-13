@@ -1,5 +1,5 @@
 ﻿import * as React from "react";
-import * as ReactDOM from "react-dom";
+import PropTypes from 'prop-types';
 import { RouteComponentProps } from "react-router";
 
 export class ProductDetail extends React.Component<RouteComponentProps<any>, any>{

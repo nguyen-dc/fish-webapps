@@ -25,19 +25,19 @@ interface IStockReceiveDocket {
 export class StockReceiveDocketModel implements IStockReceiveDocket {
     id: number = 0;
     actuallyReceivedCode: string;
-    executedDate: Date | string = new Date();
+    executedDate: Date = new Date();
     executorCode: string;
-    approvedDate: Date | string | null;
+    approvedDate: Date | null;
     approverCode: string;
     isActuallyReceived: boolean | null;
     description: string;
     totalAmount: number;
     amount: number;
     vat: number;
-    receiveDate: Date | string | null;
+    receiveDate: Date | null;
     docketNumber: string;
     warehouseId: number;
     stockReceiveDocketTypeId: number;
-    actuallyReceivedDate: Date | string;
+    actuallyReceivedDate: Date | null;
     stockIssueDocketId: number | null;
 }

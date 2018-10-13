@@ -3,6 +3,7 @@ import { RouteComponentProps } from 'react-router';
 import { Modal, Button } from 'react-bootstrap';
 import { ProductSubGroupModel } from "../../models/product-subgroup";
 import { FormErrors } from "../shared/form-errors";
+import PropTypes from 'prop-types';
 import { ProductSubGroupAPICaller } from "../../api-callers/product-subgroup";
 import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
@@ -36,8 +37,8 @@ export class ProductSubGroupEdit extends React.Component<IProductSubGroupProps, 
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
         //init comboboxes

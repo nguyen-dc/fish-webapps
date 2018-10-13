@@ -1,13 +1,9 @@
 ﻿import * as React from "react";
-import { Link } from "react-router-dom";
-import { RouteComponentProps } from 'react-router';
 import { StockIssueDocketTypeModel } from "../../models/stock-issue-docket-type";
-import { Modal, Button, Alert } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import { FormErrors } from "../shared/form-errors";
-import { IdNameModel, ErrorItem } from "../../models/shared";
-import * as Moment from 'moment';
+import PropTypes from 'prop-types';
 import { LabeledInput, LabeledTextArea, LabeledSelect, LabeledCheckBox, RadioGroups } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { StockIssueDocketTypeAPICaller } from "../../api-callers/stock-issue-docket-type";
 import { _HString } from "../../handles/handles";
 import { CacheAPI } from "../../api-callers/cache";
@@ -29,8 +25,8 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
         }
     }
     static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
     }
     async componentDidMount() {
         //init comboboxes
@@ -74,24 +70,28 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
             });
             return;
         }
+        let model = this.state.model;
+        if (!model.receiptNeeded) {
+            model.receiptTypeId = 0;
+        }
         if (this.props.isEdit) {
-            let response = await StockIssueDocketTypeAPICaller.Update(this.state.model);
+            let response = await StockIssueDocketTypeAPICaller.Update(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
                 if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(true, this.state.model);
+                    this.props.onFormAfterSubmit(true, model);
                 this.context.ShowGlobalMessage('success', 'Cập nhật loại phiếu xuất thành công');
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
             }
         } else {
-            let response = await StockIssueDocketTypeAPICaller.Create(this.state.model);
+            let response = await StockIssueDocketTypeAPICaller.Create(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
                 if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(this.state.model);
+                    this.props.onFormAfterSubmit(model);
                 this.context.ShowGlobalMessage('success', 'Tạo loại phiếu xuất thành công');
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
@@ -125,26 +125,29 @@ export class StockIssueDocketTypeEdit extends React.Component<IStockIssueDocketT
                             placeHolder={'Tên loại'}
                             error={this.state.errorList['name']}
                             valueChange={this.onFieldValueChange.bind(this)} />
-                        <LabeledSelect
-                            options={this.state.receiptTypes}
-                            name={'receiptTypeId'}
-                            value={this.state.model.receiptTypeId}
-                            title={'Loại phiếu thu'}
-                            placeHolder={'Loại phiếu thu'}
-                            error={this.state.errorList['receiptTypeId']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
-                        <LabeledCheckBox
-                            name={'approvalNeeded'}
-                            value={this.state.model.approvalNeeded}
-                            text={'Cần duyệt'}
-                            error={this.state.errorList['approvalNeeded']}
-                            valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledCheckBox
                             name={'receiptNeeded'}
                             value={this.state.model.receiptNeeded}
                             text={'Cần phiếu thu'}
                             error={this.state.errorList['receiptNeeded']}
                             valueChange={this.onFieldValueChange.bind(this)} />
+                        {this.state.model.receiptNeeded ?
+                            <LabeledSelect
+                            options={this.state.receiptTypes}
+                            name={'receiptTypeId'}
+                            value={this.state.model.receiptTypeId}
+                            title={'Loại phiếu thu'}
+                            placeHolder={'Loại phiếu thu'}
+                            error={this.state.errorList['receiptTypeId']}
+                                valueChange={this.onFieldValueChange.bind(this)} /> : null
+                        }
+                        {/*<LabeledCheckBox
+                            name={'approvalNeeded'}
+                            value={this.state.model.approvalNeeded}
+                            text={'Cần duyệt'}
+                            error={this.state.errorList['approvalNeeded']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                            */}
                         <RadioGroups
                             name={'pickingPrice'}
                             type={'radio'}
