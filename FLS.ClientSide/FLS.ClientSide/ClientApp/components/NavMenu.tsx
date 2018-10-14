@@ -41,10 +41,10 @@ export class NavMenu extends React.Component<{}, {}> {
                                 <a className="dropdown-toggle" data-toggle="dropdown" href="#">Nhập xuất hàng hóa<span className="caret"></span></a>
                                 <ul className="dropdown-menu">
                                     <li><NavLink to="/quanlynhap" >Quản lý nhập</NavLink></li>
-                                    <li><NavLink to="/nhapmuahang" >Nhập mua hàng hóa thông thường</NavLink></li>
+                                    <li><NavLink to="/quanlynhap/nhaphang" >Nhập mua hàng</NavLink></li>
                                     <li className="divider-vertical"></li>
                                     <li><NavLink to="/quanlyxuat" >Quản lý xuất</NavLink></li>
-                                    <li><NavLink to="/xuatbanhang" >Xuất bán hàng hóa thông thường</NavLink></li>
+                                    <li><NavLink to="/quanlyxuat/xuathang" >Xuất bán hàng</NavLink></li>
                                 </ul>
                             </li>
                             <li className="dropdown">

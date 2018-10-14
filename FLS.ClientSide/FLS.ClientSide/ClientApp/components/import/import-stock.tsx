@@ -154,7 +154,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             detail[event.name] = event.value;
             
             if (event.name == "totalAmount") {
-                detail.unitPrice = (event.value / detail.quantity);
+                detail.unitPrice = (event.value / _HNumber.Sum(100, detail.vatPercent) * 100  / detail.quantity);
                 detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
             }
             else
@@ -208,6 +208,10 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     validateImport() {
         let { receiveDocket, suppliers, paySlipDetails } = this.state;
+        if (!receiveDocket.stockReceiveDocketTypeId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn phiếu nhập');
+            return false;
+        }
         if (!receiveDocket.warehouseId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn kho nhập');
             return false;
@@ -229,7 +233,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         model.receiveDocket.isActuallyReceived = true;
         let response = await ImportAPICaller.Create(model);
         if (!response.hasError && response.data) {
-            this.props.history.push(this.props.location.pathname + '/' + response.data);
+            this.props.history.push('/quanlynhap/' + response.data);
         }
         else
             this.context.ShowGlobalMessageList('error', response.errors);
@@ -242,7 +246,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     <div className="panel-heading">
                         <div className="display-flex justify-content-between align-items-center">
                             <span><strong>{supplier.supplierBranchName}</strong></span>
-                            <span onClick={() => this.onRemoveSupplier(supplier.supplierBranchId)} className="glyphicon glyphicon-trash cursor-pointer" aria-hidden="true"></span>
+                            <span onClick={() => this.onRemoveSupplier(supplier.supplierBranchId)} className="glyphicon glyphicon-remove cursor-pointer" aria-hidden="true"></span>
                         </div>
                     </div>
                     <div className="panel-body">
@@ -322,7 +326,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                             <th>Tên sản phẩm</th>
                             <th>Số lượng</th>
                             <th>Đơn giá</th>
-                            <th>% VAT</th>
+                            <th>%VAT</th>
                             <th>VAT</th>
                             <th>Thành tiền</th>
                             <th className='th-sm-1'></th>
