@@ -125,7 +125,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                         <div className="col-sm-4 mg-bt-15">
                             <div className="text-right">
-                                <NavLink className="btn btn-primary" to="/nhapmuahang" >Thêm</NavLink>
+                                <NavLink className="btn btn-primary" to="/quanlynhap/nhaphang" >Thêm</NavLink>
                             </div>
                         </div>
                         {

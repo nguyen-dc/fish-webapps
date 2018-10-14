@@ -63,11 +63,11 @@ export const routes = <Layout>
         <Route exact path='/loaiphieuxuat' component={StockIssueDocketTypes} />
         <Route exact path='/loaiphieuthuchi' component={ExpenditureTypes} />
         <Route exact path='/quanlynhap' component={ManageImports} />
+        <Route exact path='/quanlynhap/nhaphang' component={ImportStocks} />
         <Route exact path='/quanlynhap/:docketId' component={ImportDetail} />
         
-        <Route exact path='/nhapmuahang' component={ImportStocks} />
         <Route exact path='/quanlyxuat' component={ManageExports} />
-        <Route exact path='/xuatbanhang' component={ExportStocks} />
+        <Route exact path='/quanlyxuat/xuathang' component={ExportStocks} />
         {/*  <Route exact path='/xuathuy' component={DisposeStocks} /> */}
         <Route exact path='/quanlythuchi' component={ManageExpenditures} />
         <Route exact path='/taophieuthu' component={NewStockIssueReceipt} />

@@ -153,7 +153,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
         let productQuantity = 0;
         let productTotalAmount = 0;
 
-        let { suppliers } = this.state;
+        let { receiveDocket,suppliers } = this.state;
         suppliers.forEach((item) => {
             productQuantity += item.details.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
@@ -169,7 +169,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
                     <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
                 </div>
                 <div className="col-sm-4">
-                    <SummaryText value={_HNumber.FormatCurrency(totalAmount)} title='Tổng tiền trên phiếu:' />
+                    <SummaryText value={_HNumber.FormatCurrency(receiveDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
                 </div>
             </div>
         </div>
