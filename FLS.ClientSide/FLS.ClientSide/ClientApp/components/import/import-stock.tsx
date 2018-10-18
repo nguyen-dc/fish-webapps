@@ -110,7 +110,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             detail.productName = product.name;
             detail.productUnitId = product.defaultUnitId;
             detail.quantity = 1;
-            detail.vatPercent = product.taxPercentId;
+            detail.vatPercent = product.taxPercent;
             supplier.receiveDocketDetails.push(detail);
         }
         suppliers[supplierIndex] = supplier;

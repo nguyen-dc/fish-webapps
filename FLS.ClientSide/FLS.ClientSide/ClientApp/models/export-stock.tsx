@@ -12,3 +12,7 @@ export class ExportStockModel implements IExportStock {
     docketDetails: StockIssueDocketDetailModel[];
     receipt: ExpenditureDocketModel;
 }
+export class ExportStockDetailModel {
+    issueDocket: StockIssueDocketModel;
+    details: StockIssueDocketDetailModel[];
+}

@@ -44,6 +44,7 @@ import { ManageUsers } from './components/system/manage-user';
 import { ManageUserRoles } from './components/system/manage-user-role';
 import { StockReceiveDocketEdit } from './components/import/stock-receive-edit';
 import { ImportDetail } from './components/import/import-detail';
+import { ExportDetail } from './components/export/export-detail';
 
 export const routes = <Layout>
     <Switch>
@@ -68,6 +69,7 @@ export const routes = <Layout>
         
         <Route exact path='/quanlyxuat' component={ManageExports} />
         <Route exact path='/quanlyxuat/xuathang' component={ExportStocks} />
+        <Route exact path='/quanlyxuat/:docketId' component={ExportDetail} />
         {/*  <Route exact path='/xuathuy' component={DisposeStocks} /> */}
         <Route exact path='/quanlythuchi' component={ManageExpenditures} />
         <Route exact path='/taophieuthu' component={NewStockIssueReceipt} />

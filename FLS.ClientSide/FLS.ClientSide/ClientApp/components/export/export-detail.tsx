@@ -3,26 +3,19 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import PropTypes from 'prop-types';
 import { _HDateTime, _HArray, _HNumber, _HString } from "../../handles/handles";
-import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { ImportAPICaller } from "../../api-callers/import";
+import { ExportAPICaller } from "../../api-callers/export";
 import { LabeledText } from "../shared/input/labeled-input";
 import { EmptyTableMessage, SummaryText } from "../shared/view-only";
+import { ExportStockDetailModel } from "../../models/export-stock";
 
-interface ImportStockStates {
-    receiveDocket: StockReceiveDocketModel;
-    suppliers: Supplier[];
+interface ExportStockStates {
+    model: ExportStockDetailModel;
 }
-class Supplier {
-    supplierBranchId: number;
-    supplierBranchName: string;
-    details: any;
-}
-export class ImportDetail extends React.Component<RouteComponentProps<any>, ImportStockStates> {
+export class ExportDetail extends React.Component<RouteComponentProps<any>, ExportStockStates> {
     constructor(props: any) {
         super(props)
         this.state = {
-            receiveDocket: new StockReceiveDocketModel(),
-            suppliers: [] as Supplier[],
+            model: null,
         }
     }
     static contextTypes = {
@@ -32,7 +25,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
     async componentDidMount() {
         var params = this.props.match.params;
         if (!_HString.IsNullOrEmpty(params.docketId)) {
-            let detail = await ImportAPICaller.Detail(Number(params.docketId));
+            let detail = await ExportAPICaller.Detail(Number(params.docketId));
             if (detail.hasError) {
                 this.context.ShowGlobalMessageList('error', detail.errors);
             }
@@ -46,45 +39,10 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
     }
 
     private repareData(data) {
-        let { receiveDocket, details } = data;
-        let supplierIds = new Set();
-        details.map((d) => {
-            supplierIds.add(d.supplierBranchId);
-        });
-        let suppliers: Supplier[] = [];
-        for (let id of supplierIds) {
-            let ds = details.filter(d => d.supplierBranchId == id);
-            if (ds) {
-                let supplier: Supplier = {
-                    supplierBranchId: id,
-                    supplierBranchName: ds[0].supplierBranchName,
-                    details: ds,
-                }
-                suppliers.push(supplier);
-            }
-        }
-        this.setState({ receiveDocket, suppliers });
+        this.setState({ model: data });
     }
-    renderSuppliers() {
-        let { suppliers } = this.state;
-        return suppliers.map((supplier) => {
-            return <div key={'splr-' + supplier.supplierBranchId}>
-                <div className="panel panel-info panne-color">
-                    <div className="panel-heading">
-                        <div className="display-flex justify-content-between align-items-center">
-                            <span> Nhà cung cấp: <strong>{supplier.supplierBranchName}</strong></span>
-                        </div>
-                    </div>
-                    <div className="panel-body">
-                        {
-                            supplier.details ? this.renderProductsTable(supplier.details) : null
-                        }
-                    </div>
-                </div>
-            </div>
-        })
-    }
-    renderProductsTable(details) {
+    renderProductsTable() {
+        let details = this.state.model.details;
         let totalPrice = 0;
         if (details)
             totalPrice = details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
@@ -126,26 +84,26 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
         );
     }
     renderInfo() {
-        let model = this.state.receiveDocket;
+        let docket = this.state.model.issueDocket;
         return (
-            <div id="info" className="tab-pane fade in active">
+            <div key='info' id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-md-6">
-                            <LabeledText title='Loại phiếu nhập' value={model.stockReceiveDocketTypeId} />
+                            <LabeledText title='Loại phiếu xuất' value={docket.stockIssueDocketTypeId} />
                         </div>
                         <div className="col-md-6">
-                            <LabeledText title='Kho nhập' value={model.warehouseId} />
+                            <LabeledText title='Kho xuất' value={docket.warehouseId} />
                         </div>
                         <div className="col-md-6">
-                            <LabeledText title='Ngày tạo phiếu' value={_HDateTime.DateFormat(model.executedDate)} />
+                            <LabeledText title='Ngày tạo phiếu' value={_HDateTime.DateFormat(docket.executedDate)} />
                         </div>
                         <div className="col-md-6">
-                            <LabeledText title='Ghi chú' value={model.description}/>
+                            <LabeledText title='Ghi chú' value={docket.description}/>
                         </div>
                     </div>
                 </div>
-                {this.renderSuppliers()}
+                {this.renderProductsTable()}
             </div>
         );
     }
@@ -153,14 +111,12 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
         let productQuantity = 0;
         let productTotalAmount = 0;
 
-        let { receiveDocket,suppliers } = this.state;
-        suppliers.forEach((item) => {
-            productQuantity += item.details.reduce((d, l) => d + (Number(l.quantity)), 0);
-            productTotalAmount += item.details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
-        });
+        let { details, issueDocket } = this.state.model;
+        productQuantity += details.reduce((d, l) => d + (Number(l.quantity)), 0);
+        productTotalAmount += details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
 
-        let totalExpend = receiveDocket.totalAmount - productTotalAmount;
-        return <div className="mg-bt-15">
+        let totalExpend = issueDocket.totalAmount - productTotalAmount;
+        return <div key='review' className="mg-bt-15">
             <div className="row total-review">
                 <div className="col-sm-3">
                     <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
@@ -172,14 +128,13 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
                     <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
                 </div>
                 <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(receiveDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
+                    <SummaryText value={_HNumber.FormatCurrency(issueDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
                 </div>
             </div>
         </div>
     }
     render() {
         return (
-            //<UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">
@@ -192,8 +147,13 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
                         </nav>
                     </div>
                 </div>
-                {this.renderInfo()}
-                {this.renderReview()}
+                {this.state.model ?
+                    [
+                        this.renderInfo(),
+                        this.renderReview()
+                    ]
+                    : <div className="icon-loading"></div>
+                }
             </div>
         );
     }
