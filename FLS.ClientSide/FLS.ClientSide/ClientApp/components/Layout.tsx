@@ -3,6 +3,7 @@ import { NavMenu } from './NavMenu';
 import { PropTypes } from 'prop-types';
 import './index.css';
 import { StringStringPair } from '../models/shared';
+import { LayoutFooter } from './LayoutFooter';
 
 export interface LayoutProps {
     children?: React.ReactNode;
@@ -84,7 +85,9 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
                 <div className='col-sm-12'>
                     { this.props.children }
                 </div>
-                {/*<Notifications options={{ zIndex: 9999, top: '10px' }}  />*/}
+                <div className='col-sm-12'>
+                    <LayoutFooter />
+                </div>
             </div>
         </div>;
     }

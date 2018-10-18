@@ -20,6 +20,7 @@ import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ImportAPICaller } from "../../api-callers/import";
 import { FormatedInput } from "../shared/input/formated-input";
+import { SummaryText } from "../shared/view-only";
 
 interface ImportStockStates {
     receiveDocket: StockReceiveDocketModel;
@@ -209,7 +210,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     validateImport() {
         let { receiveDocket, suppliers, paySlipDetails } = this.state;
         if (!receiveDocket.stockReceiveDocketTypeId) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn phiếu nhập');
+            this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu nhập');
             return false;
         }
         if (!receiveDocket.warehouseId) {
@@ -217,7 +218,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             return false;
         }
         if (!suppliers || suppliers.length == 0) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp hoặc sản phẩm cần nhập');
+            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và sản phẩm cần nhập');
             return false;
         }
         return true;
@@ -546,63 +547,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         });
        
         let totalAmount = productTotalAmount + expendTotalAmount;
-        return <div className="mg-bt-15">
-            <div className="row total-review">
-                <div className="col-sm-3">
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <span>Số lượng sản phẩm: </span>
-                        </div>
-                        <div className="col-xs-6 text-right">
-                            <span><strong>{_HNumber.FormatNumber(productQuantity)}</strong></span>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <span>Tổng tiền sản phẩm:</span>
-                        </div>
-                        <div className="col-xs-6 text-right">
-                            <span><strong>{_HNumber.FormatCurrency(productTotalAmount)}</strong></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-sm-3">
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <span>Chi phí đi kèm:</span>
-                        </div>
-                        <div className="col-xs-6 text-right">
-                            <span><strong>{_HNumber.FormatNumber(expendQuantity)}</strong></span>
-                        </div>
-                    </div>
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <span>Tổng chi phí đi kèm:</span>
-                        </div>
-                        <div className="col-xs-6 text-right">
-                            <span><strong>{_HNumber.FormatCurrency(expendTotalAmount)}</strong></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-sm-3">
-                    <div className="row">
-                        <div className="col-xs-6">
-                            <span>Tổng tiền trên phiếu:</span>
-                        </div>
-                        <div className="col-xs-6 text-right">
-                            <span><strong>{_HNumber.FormatCurrency(totalAmount)}</strong></span>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-sm-3">
-                    <div className="row">
-                        <div className="col-xs-12 text-right">
-                            <button className="btn btn-default mg-r-15">Hủy</button>
-                            <button className="btn btn-primary" onClick={() => this.onCreateImportStock()}>Tạo phiếu</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+        return <div className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+            <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
+            <SummaryText title='Tổng tiền sản phẩm:' value={_HNumber.FormatCurrency(productTotalAmount)} />
+            <SummaryText title='Chi phí đi kèm:' value={_HNumber.FormatNumber(expendQuantity)} />
+            <SummaryText title='Tổng chi phí đi kèm:' value={_HNumber.FormatCurrency(expendTotalAmount)} />
+            <SummaryText title='Tổng tiền trên phiếu:' value={_HNumber.FormatCurrency(totalAmount)} />
+                <button className="btn btn-primary pull-right" onClick={() => this.onCreateImportStock()}>Tạo phiếu</button>
         </div>
     }
     render() {
@@ -620,11 +571,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </nav>
                     </div>
                 </div>
-                <ul className="nav nav-tabs">
+                <ul className="nav nav-tabs col-lg-9">
                     <li className="active"><a data-toggle="tab" href="#info">Thông tin phiếu nhập</a></li>
                     <li><a data-toggle="tab" href="#expend">Chi phí nhập</a></li>
                 </ul>
-                <div className="tab-content">
+                <div className="tab-content col-lg-9">
                     {this.renderTabInfo()}
                     {this.renderTabExpend()}
                 </div>

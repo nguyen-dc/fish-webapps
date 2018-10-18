@@ -86,24 +86,31 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
     renderInfo() {
         let docket = this.state.model.issueDocket;
         return (
-            <div key='info' id="info" className="tab-pane fade in active">
+            <div key='info' className='col-lg-9'>
                 <div className="panel panel-info">
                     <div className="panel-body">
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Loại phiếu xuất' value={docket.stockIssueDocketTypeId} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Kho xuất' value={docket.warehouseId} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Ngày tạo phiếu' value={_HDateTime.DateFormat(docket.executedDate)} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Ghi chú' value={docket.description}/>
                         </div>
                     </div>
                 </div>
-                {this.renderProductsTable()}
+                <div className="panel panel-info">
+                    <div className="panel-heading">
+                        <span> Khách hàng: <strong>{docket.customerName}</strong></span>
+                    </div>
+                    <div className="panel-body">
+                        {this.renderProductsTable()}
+                    </div>
+                </div>
             </div>
         );
     }
@@ -116,21 +123,11 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
         productTotalAmount += details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
 
         let totalExpend = issueDocket.totalAmount - productTotalAmount;
-        return <div key='review' className="mg-bt-15">
-            <div className="row total-review">
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(issueDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
-                </div>
-            </div>
+        return <div key='review' className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+            <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
+            <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
+            <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
+            <SummaryText value={_HNumber.FormatCurrency(issueDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
         </div>
     }
     render() {
@@ -141,7 +138,7 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
                         <nav aria-label="breadcrumb">
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
-                                <li className="breadcrumb-item"><NavLink to="/quanlynhap">Quản lý nhập</NavLink></li>
+                                <li className="breadcrumb-item"><NavLink to="/quanlyxuat">Quản lý xuất</NavLink></li>
                                 <li className="breadcrumb-item active" aria-current="page">Chi tiết</li>
                             </ol>
                         </nav>

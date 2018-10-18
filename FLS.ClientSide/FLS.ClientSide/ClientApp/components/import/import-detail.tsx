@@ -71,14 +71,10 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
             return <div key={'splr-' + supplier.supplierBranchId}>
                 <div className="panel panel-info panne-color">
                     <div className="panel-heading">
-                        <div className="display-flex justify-content-between align-items-center">
-                            <span> Nhà cung cấp: <strong>{supplier.supplierBranchName}</strong></span>
-                        </div>
+                        <span> Nhà cung cấp: <strong>{supplier.supplierBranchName}</strong></span>
                     </div>
                     <div className="panel-body">
-                        {
-                            supplier.details ? this.renderProductsTable(supplier.details) : null
-                        }
+                        {supplier.details ? this.renderProductsTable(supplier.details) : null}
                     </div>
                 </div>
             </div>
@@ -128,19 +124,19 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
     renderInfo() {
         let model = this.state.receiveDocket;
         return (
-            <div id="info" className="tab-pane fade in active">
+            <div id="info" className="col-lg-9">
                 <div className="panel panel-info">
                     <div className="panel-body">
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Loại phiếu nhập' value={model.stockReceiveDocketTypeId} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Kho nhập' value={model.warehouseId} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Ngày tạo phiếu' value={_HDateTime.DateFormat(model.executedDate)} />
                         </div>
-                        <div className="col-md-6">
+                        <div className="col-sm-6">
                             <LabeledText title='Ghi chú' value={model.description}/>
                         </div>
                     </div>
@@ -160,21 +156,11 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
         });
 
         let totalExpend = receiveDocket.totalAmount - productTotalAmount;
-        return <div className="mg-bt-15">
-            <div className="row total-review">
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
-                </div>
-                <div className="col-sm-3">
-                    <SummaryText value={_HNumber.FormatCurrency(receiveDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
-                </div>
-            </div>
+        return <div className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+            <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
+            <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
+            <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
+            <SummaryText value={_HNumber.FormatCurrency(receiveDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
         </div>
     }
     render() {
