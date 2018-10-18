@@ -3,50 +3,38 @@ import { NavLink } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
 import PropTypes from 'prop-types';
-import { PaginateModel, IdNameModel, PageFilterModel } from "../../models/shared";
+import { PaginateModel, IdNameModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import { LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
 import { CacheAPI } from "../../api-callers/cache";
 import { ExportAPICaller } from "../../api-callers/export";
-import { ManagerExportStockModel, ManagerExportSearchModel } from "../../models/manager-export-stock";
-import { CustomerAPICaller } from "../../api-callers";
-import { UnderConstructor } from "../shared/under-constructor";
-const filterTitle0 = 'Tất cả';
+import { _HString, _HNumber } from "../../handles/handles";
+import { Glyphicon } from "react-bootstrap";
+import { EmptyTableMessage } from "../shared/view-only";
+import { StockIssueDocketModel } from "../../models/stock-issue-docket";
 
-interface IManageImportState {
-    listCustomer: ManagerExportStockModel[],
+interface ManageExportState {
+    listStockIssue: any,
     warehouses: IdNameModel[],
-    customers: IdNameModel[],
     stockIssueDocketTypes: IdNameModel[],
     pagingModel: PaginateModel,
-    searchKey: string,
-    lastedSearchKey: string,
     isTableLoading: boolean,
     searchModel: PageFilterModel,
     lastSearchModel: PageFilterModel,
-    filterSearch: ManagerExportSearchModel
 }
 
-export class ManageExports extends React.Component<RouteComponentProps<{}>, IManageImportState> {
+export class ManageExports extends React.Component<RouteComponentProps<{}>, ManageExportState> {
     constructor(props: any) {
         super(props)
-        let selectedFilter = new IdNameModel();
-        selectedFilter.id = 0;
-        selectedFilter.name = filterTitle0;
-
         this.state = {
-            listCustomer: [],
             pagingModel: new PaginateModel(),
-            searchKey:'',
-            lastedSearchKey: '',
             isTableLoading: true,
+            listStockIssue: [],
             warehouses: [],
-            customers: [],
             stockIssueDocketTypes:[],
             lastSearchModel: new PageFilterModel(),
             searchModel: new PageFilterModel(),
-            filterSearch: new ManagerExportSearchModel()
         };
     }
     static contextTypes = {
@@ -54,71 +42,49 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
         ShowGlobalMessageList: PropTypes.func,
     }
     async componentWillMount() {
-        await this.onPageChange(1, true);
         var warehouses = await CacheAPI.Warehouse();
-
-        var search = new PageFilterModel();
-        search.page = 1;
-        search.pageSize = this.state.pagingModel.pageSize;
-        let result = await CustomerAPICaller.GetList(search);
-        if(!result.hasError && result.data)
-            this.setState({ customers: result.data });
         var stockIssueDocketTypes = await CacheAPI.StockIssueDocketType();
-        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes: stockIssueDocketTypes.data});
+        this.setState({ warehouses: warehouses.data, stockIssueDocketTypes : stockIssueDocketTypes.data });
+        await this.onPageChange(1, true);
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
         searchModel.page = page;
         if (newSearch) {
-            searchModel = this.state.searchModel;
+            searchModel = searchModel;
             searchModel.page = 1;
         }
-        searchModel.filters.push();
-
-        let request = await ExportAPICaller.GetList(searchModel);
-        if (request.ok)
-            return (await request.json());
-        else {
-            //// raise error
-            return null;
-        }
+        return await ExportAPICaller.GetList(searchModel);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page, newSearch);
-            if (!result || !result.data) { return; }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listCustomer: result.data.items, pagingModel: paging });
-            if (newSearch)
-                this.setState({ lastedSearchKey: this.state.searchKey });
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessageList('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listStockIssue: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
+            }
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessageList('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
-   
-    onFormAfterSubmit(isSuccess, model) {
-        if (isSuccess)
-            this.onPageChange(this.state.pagingModel.currentPage, false)
-    }
-   
-    onSearchKeyChange(e) {
-        this.setState({ searchKey: e.target.value });
-    }
-    onSearchKeyPress(e) {
-        if (e.charCode == 13) {
-            this.onPageChange(1, true);
-        }
-    }
-
     render() {
-        let dataTable = this.renderTable(this.state.listCustomer);
-        let renderPaging = this.state.listCustomer.length > 0 ? this.renderPaging() : null;
-        let renderAdvanceSearch = this.renderAdvanceSearch(this.state.filterSearch);
+        let { listStockIssue, searchModel, lastSearchModel, pagingModel, isTableLoading } = this.state;
+        let lastedSearchKey = _HString.IsNullOrEmpty(lastSearchModel.key) ? "Tất cả" : lastSearchModel.key;
+        let dataTable = this.renderTable(listStockIssue);
+        let renderPaging = listStockIssue.length > 0 ? this.renderPaging() : null;
+        let renderAdvanceSearch = this.renderAdvanceSearch();
         return (
-            <UnderConstructor /> ||
             <div className="content-wapper">
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
@@ -129,41 +95,23 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
                 <div className="panel panel-default">
                     <div className="panel-body">
                         {renderAdvanceSearch}
-                        <div className="col-xs-8 mg-bt-15">
-                            <div className="input-group">
-                                <div className="input-group-btn search-panel">
-                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                        <span id="search_concept">Tất cả</span> <span className="caret"></span>
-                                    </button>
-                                    <ul className="dropdown-menu" role="menu">
-                                        <li><a>Tất cả</a></li>
-                                    </ul>
-                                </div>
-                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} />
-                                <span className="input-group-btn">
-                                    <button className="btn btn-primary" type="button" onClick={() => this.onPageChange(1, true)}><span className="glyphicon glyphicon-search"> </span> Tìm kiếm</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="col-xs-4">
+                        <div className="mg-bt-15">
                             <div className="text-right">
-                                <NavLink className="btn btn-primary" to="/xuatbanhang" >Thêm</NavLink>
+                                <NavLink className="btn btn-link" to="/quanlyxuat/xuathang" ><Glyphicon glyph='plus' /> Xuất hàng khác</NavLink>
                             </div>
                         </div>
                         {
-                            this.state.lastedSearchKey ?
-                                <div className="row">
-                                    <div className="col-sm-12">
-                                        <div className="alert alert-info text-center">
-                                            Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
-                                        </div>
+                            lastSearchModel == undefined ? null :
+                                <div className="col-sm-12">
+                                    <div className="alert alert-info text-center">
+                                        Có <strong>{pagingModel.totalItems}</strong> kết quả
                                     </div>
-                                </div> : null
+                                </div>
                         }
                         <div className="col-sm-12">
                             <div className="table-responsive p-relative">
                                 {dataTable}
-                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                                {isTableLoading && <div className="icon-loading"></div>}
                             </div>
                         </div>
                         {renderPaging}
@@ -173,7 +121,7 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
         );
     }
 
-    private renderTable(models: ManagerExportStockModel[]) {
+    private renderTable(models: StockIssueDocketModel[]) {
         return (
             <table className="table table-striped table-hover">
                 <thead>
@@ -182,44 +130,47 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
                         <th>Số phiếu</th>
                         <th>Loại phiếu</th>
                         <th>Kho</th>
-                        <th>Khách hàng</th>
                         <th>Tổng tiền</th>
-                        <th>Người nhập</th>
+                        <th>Người xuất</th>
                         <th>Ghi chú</th>
-                        <th>Từ phiếu xuất</th>
+                        <th>Từ phiếu nhập</th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
-                    {models != null && models.length > 0 ?
-                        models.map(item =>
-                            <tr key={item.id}>
-                                <td>{item.id}</td>
-                                <td>{item.approverCode}</td>
-                                <td>{item.stockIssueDocketTypeId}</td>
-                                <td>{item.warehouseId}</td>
-                                <td>{item.customerName}</td>
-                                <td>{item.totalAmount}</td>
-                                <td></td>
-                                <td></td>
-                                <td>{item.description}</td>
-                                <td></td>
-                        </tr>): null}
+                    {
+                        models.length == 0 ?
+                            <EmptyTableMessage /> :
+                            models.map(
+                                model =>
+                                    <tr key={model.id}>
+                                        <td>{model.id}</td>
+                                        <td>{model.docketNumber}</td>
+                                        <td>{model.stockIssueDocketTypeId}</td>
+                                        <td>{model.warehouseId}</td>
+                                        <td>{_HNumber.FormatCurrency(model.totalAmount)}</td>
+                                        <td>{model.executorCode}</td>
+                                        <td>{model.description}</td>
+                                        <td>{model.stockReceiveDocketId ? model.stockReceiveDocketId: null}</td>
+                                        <td><NavLink to={'/quanlyxuat/' + model.id} activeClassName="active"><Glyphicon glyph='option-horizontal' /></NavLink></td>
+                                    </tr>
+                            )
+                    }
                 </tbody>
             </table>
         );
     }
-
     private renderPaging() {
+        let { pagingModel } = this.state;
         return (
             <div>
                 <div className="col-xs-8">
                     <Pagination
                         innerClass={'pagination mg-0'}
-                        activePage={this.state.pagingModel.currentPage}
-                        itemsCountPerPage={this.state.pagingModel.pageSize}
-                        totalItemsCount={this.state.pagingModel.totalItems}
-                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
+                        activePage={pagingModel.currentPage}
+                        itemsCountPerPage={pagingModel.pageSize}
+                        totalItemsCount={pagingModel.totalItems}
+                        pageRangeDisplayed={pagingModel.pageRangeDisplayed}
                         onChange={this.onPageChange.bind(this)}
                     />
                 </div>
@@ -231,7 +182,8 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
             </div>
         );
     }
-    private renderAdvanceSearch(filters: ManagerExportSearchModel) {
+    private renderAdvanceSearch() {
+        let { stockIssueDocketTypes, warehouses } = this.state;
         return (
             <div className="col-sm-12">
                 <div className="row">
@@ -247,37 +199,33 @@ export class ManageExports extends React.Component<RouteComponentProps<{}>, IMan
                     </div>
                     <div className="col-md-4">
                         <LabeledSelect
-                            name={'warehouseId'}
-                            value={filters.warehouseId}
-                            title={'Kho xuất'}
-                            placeHolder={'Kho xuất'}
-                            valueKey={'id'}
-                            nameKey={'name'}
-                            options={this.state.warehouses} />
-                        <LabeledSelect
-                            name={'customerId'}
-                            value={filters.customerId}
-                            title={'Khách hàng'}
-                            placeHolder={'Khách hàng'}
-                            valueKey={'id'}
-                            nameKey={'name'}
-                            options={this.state.customers} />
-                    </div>
-                    <div className="col-md-4">
-                        <LabeledSelect
                             name={'stockIssueDocketTypeId'}
-                            value={filters.stockIssueDocketTypeId}
+                            value={0}
                             title={'Loại phiếu xuất'}
                             placeHolder={'Loại phiếu xuất'}
                             valueKey={'id'}
                             nameKey={'name'}
-                            options={this.state.stockIssueDocketTypes} />
+                            options={stockIssueDocketTypes} />
+                        <LabeledSelect
+                            name={'warehouseId'}
+                            value={0}
+                            title={'Kho xuất'}
+                            placeHolder={'Kho xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={warehouses} />
+                    </div>
+                    <div className="col-md-4">
                         <LabeledCheckBox
                             name={'status'}
-                            value={filters.status}
-                            title={'Loại phiếu xuất'}
+                            value={true}
                             text='Đã hủy'
                         />
+                        <button className="btn btn-primary"
+                            type="button"
+                            onClick={() => this.loadData(1, true)}>
+                            <span className="glyphicon glyphicon-search"> </span> Tìm kiếm
+                    </button>
                     </div>
                 </div>
             </div>

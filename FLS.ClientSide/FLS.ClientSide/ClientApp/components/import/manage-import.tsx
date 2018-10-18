@@ -4,32 +4,31 @@ import { RouteComponentProps } from 'react-router';
 import Pagination from "react-js-pagination";
 import PropTypes from 'prop-types';
 import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
-import { PaginateModel } from "../../models/shared";
+import { PaginateModel, PageFilterModel, ResponseConsult } from "../../models/shared";
 import { Glyphicon } from "react-bootstrap";
-import { LabeledSelect } from "../shared/input/labeled-input";
+import { LabeledSelect, LabeledCheckBox } from "../shared/input/labeled-input";
 import { LabeledSingleDatePicker } from "../shared/date-time/labeled-single-date-picker";
 import * as Moment from 'moment';
-import { _HNumber } from "../../handles/handles";
-import { CacheAPI } from "../../api-callers/cache";
+import { _HNumber, _HString } from "../../handles/handles";
 import { EmptyTableMessage } from "../shared/view-only";
-const urlLoadList = 'api/stock-receive-dockets';
+import { ImportAPICaller } from "../../api-callers/import";
+import { CacheAPI } from "../../api-callers";
 export class ManageImports extends React.Component<RouteComponentProps<{}>, any> {
 
     constructor(props: any) {
         super(props)
         this.state = {
             listStockReceive: [],
+            warehouses: [],
+            stockReceiveDocketTypes: [],
             pagingModel: new PaginateModel(),
-            searchKey: '',
-            lastedSearchKey: null,
+            searchModel: new PageFilterModel(),
+            lastSearchModel: new PageFilterModel(),
             editStockReceiveId: 0,
             isTableLoading: true,
             editModalShow: false,
             editModalTitle: '',
             isHidden: true,
-            warehouses: [],
-            suppliers: [],
-            stockReceiveDocketTypes: []
         };
     }
     static contextTypes = {
@@ -40,65 +39,45 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
         var warehouses = await CacheAPI.Warehouse();
         var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
         this.setState({ warehouses: warehouses.data, stockReceiveDocketTypes: stockReceiveDocketTypes.data });
-        await this.handlePageChange(1);
+        await this.onPageChange(1, true);
     }
-    async loadData(page: number) {
-        try {
-            let request = await fetch(urlLoadList, {
-                method: 'post',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    Page: page,
-                    PageSize: this.state.pagingModel.pageSize,
-                    Key: this.state.searchKey
-                })
-            });
-            return await request.json();
+    async loadData(page: number, newSearch: boolean) {
+        let { searchModel } = this.state;
+        searchModel.page = page;
+        if (newSearch) {
+            searchModel = searchModel;
+            searchModel.page = 1;
         }
-        catch (err) {
-            console.log(`Error: ${err.stack}`);
-        }
+        return await ImportAPICaller.GetList(searchModel);
     }
-    async handleOpenEdit(id: number) {
-        if (id > 0)
-            this.setState({ editModalShow: true, editModalTitle: 'Chỉnh sửa phiếu ' + id, editStockReceiveId: id });
-        else
-            this.setState({ editModalShow: true, editModalTitle: 'Tạo phiếu nhập', editStockReceiveId: id });
-    }
-    handleCloseEdit() {
-        this.setState({ editModalShow: false });
-    }
-    toggleHidden() {
-        this.setState({
-            isHidden: !this.state.isHidden
-        })
-    }
-    async handlePageChange(page: any) {
+    async onPageChange(page: any, newSearch: boolean) {
         try {
             this.setState({ isTableLoading: true });
-            var result = await this.loadData(page);
-            if (!result) {
-                ////
-                return;
+            var result = await this.loadData(page, newSearch) as ResponseConsult;
+            if (!result) { return; }
+            if (result.hasError) {
+                this.context.ShowGlobalMessageList('error', result.errors);
+            } else {
+                var paging = new PaginateModel();
+                paging.currentPage = result.data.currentPage;
+                paging.totalItems = result.data.totalItems;
+                this.setState({ listStockReceive: result.data.items, pagingModel: paging });
+                if (newSearch)
+                    this.setState({ lastSearchModel: this.state.searchModel });
             }
-            var paging = new PaginateModel();
-            paging.currentPage = result.data.currentPage;
-            paging.totalItems = result.data.totalItems;
-            this.setState({ listStockReceive: result.data.items, pagingModel: paging });
+            if (result.hasWarning) {
+                this.context.ShowGlobalMessageList('warning', result.warnings);
+            }
         } finally {
             this.setState({ isTableLoading: false });
         }
     }
-
     render() {
-        let dataTable = this.renderTable(this.state.listStockReceive);
-        let renderPaging = this.state.listStockReceive.length > 0 ? this.renderPaging() : null;
+        let { listStockReceive, lastSearchModel, pagingModel, isTableLoading } = this.state;
+        let dataTable = this.renderTable(listStockReceive);
+        let renderPaging = listStockReceive.length > 0 ? this.renderPaging() : null;
         let advanceSeach = this.renderSeach();
         return (
-            //<UnderConstructor /> ||
             <div className="content-wapper">
                 <ol className="breadcrumb">
                     <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
@@ -107,39 +86,23 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                 <div className="panel panel-default">
                     <div className="panel-body">
                         {advanceSeach}
-                        <div className="col-sm-8 mg-bt-15">
-                            <div className="input-group">
-                                <div className="input-group-btn search-panel">
-                                    <button type="button" className="btn btn-default dropdown-toggle" data-toggle="dropdown">
-                                        <span id="search_concept">Tất cả</span> <span className="caret"></span>
-                                    </button>
-                                    <ul className="dropdown-menu" role="menu">
-                                        <li><a>Tất cả</a></li>
-                                    </ul>
-                                </div>
-                                <input type="text" className="form-control" name="search" placeholder="Tìm kiếm..." value={this.state.searchKey} onChange={() => this.handlePageChange(1)} />
-                                <span className="input-group-btn">
-                                    <button className="btn btn-primary" type="button" onClick={() => this.loadData(1)}><span className="glyphicon glyphicon-search"> </span> Tìm kiếm</button>
-                                </span>
-                            </div>
-                        </div>
-                        <div className="col-sm-4 mg-bt-15">
+                        <div className="mg-bt-15">
                             <div className="text-right">
-                                <NavLink className="btn btn-primary" to="/quanlynhap/nhaphang" >Thêm</NavLink>
+                                <NavLink className="btn btn-link" to="/quanlynhap/nhaphang" ><Glyphicon glyph='plus'/> Nhập thêm hàng</NavLink>
                             </div>
                         </div>
                         {
-                            this.state.lastedSearchKey ?
+                            lastSearchModel == undefined ? null :
                                 <div className="col-sm-12">
                                     <div className="alert alert-info text-center">
-                                        Có {this.state.pagingModel.totalItems} kết quả cho <strong>{this.state.lastedSearchKey}</strong>
+                                        Có <strong>{pagingModel.totalItems}</strong> kết quả
                                     </div>
-                                </div> : null
+                                </div>
                         }
                         <div className="col-sm-12">
                             <div className="table-responsive p-relative">
                                 {dataTable}
-                                {this.state.isTableLoading ? <div className="icon-loading"></div> : null}
+                                {isTableLoading && <div className="icon-loading"></div>}
                             </div>
                         </div>
                         {renderPaging}
@@ -179,7 +142,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                                         <td>{_HNumber.FormatCurrency(model.totalAmount)}</td>
                                         <td>{model.executorCode}</td>
                                         <td>{model.description}</td>
-                                        <td>{model.stockReceiveDocketTypeId ? model.stockReceiveDocketTypeId : null}</td>
+                                        <td>{model.stockIssueDocketId ? model.stockIssueDocketId : null}</td>
                                         <td><NavLink to={'/quanlynhap/' + model.id} activeClassName="active"><Glyphicon glyph='option-horizontal'/></NavLink></td>
                                     </tr>
                             )
@@ -190,16 +153,17 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
     }
 
     private renderPaging() {
+        let { pagingModel } = this.state;
         return (
             <div>
                 <div className="col-sm-8">
                     <Pagination
                         innerClass={'pagination mg-0'}
-                        activePage={this.state.pagingModel.currentPage}
-                        itemsCountPerPage={this.state.pagingModel.pageSize}
-                        totalItemsCount={this.state.pagingModel.totalItems}
-                        pageRangeDisplayed={this.state.pagingModel.pageRangeDisplayed}
-                        onChange={this.handlePageChange.bind(this)}
+                        activePage={pagingModel.currentPage}
+                        itemsCountPerPage={pagingModel.pageSize}
+                        totalItemsCount={pagingModel.totalItems}
+                        pageRangeDisplayed={pagingModel.pageRangeDisplayed}
+                        onChange={this.onPageChange.bind(this)}
                     />
                 </div>
                 <div className="col-xs-4">
@@ -212,6 +176,7 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
     }
 
     private renderSeach() {
+        let { warehouses, stockReceiveDocketTypes, searchModel } = this.state;
         return (
             <div className="col-sm-12">
                 <div className="col-md-4">
@@ -226,50 +191,34 @@ export class ManageImports extends React.Component<RouteComponentProps<{}>, any>
                 </div>
                 <div className="col-md-4">
                     <LabeledSelect
-                        name={'warehouses'}
-                        value={0}
-                        title={'Kho nhập'}
-                        placeHolder={'Kho nhập'}
-                        valueKey={'id'}
-                        nameKey={'name'}
-                        options={this.state.warehouses} />
-                    <LabeledSelect
-                        name={'suppliers'}
-                        value={0}
-                        title={'Nhà cung cấp'}
-                        placeHolder={'Nhà cung cấp'}
-                        valueKey={'id'}
-                        nameKey={'name'}
-                        options={[{ id: 1, name: 'Nhà CC 1' }, { id: 2, name: 'Nhà CC 2' }]} />
-                </div>
-                <div className="col-md-4">
-                    <LabeledSelect
                         name={'input'}
                         value={0}
-                        title={'Loại phiếu nhập'}
+                        title={'Loại phiếu'}
                         placeHolder={'Loại phiếu nhập'}
                         valueKey={'id'}
                         nameKey={'name'}
-                        options={this.state.stockReceiveDocketTypes} />
-                    <div className='form-group-custom mg-bt-15'>
-                        <label className="control-label min-w-140 float-left"></label>
-                        <div>
-                            <label className="font-normal"><input type="checkbox" /> Đã hủy</label>
-                        </div>
-                    </div>
+                        options={stockReceiveDocketTypes} />
+                    <LabeledSelect
+                        name='warehouses'
+                        value={0}
+                        title='Kho nhập'
+                        placeHolder='Kho nhập'
+                        valueKey='id'
+                        nameKey='name'
+                        options={warehouses} />
+                </div>
+                <div className="col-md-4">
+                    <LabeledCheckBox
+                        name='warehouses'
+                        value={false}
+                        text='Đã hủy' />
+                    <button className="btn btn-primary"
+                        type="button"
+                        onClick={() => this.loadData(1, true)}>
+                        <span className="glyphicon glyphicon-search"> </span> Tìm kiếm
+                    </button>
                 </div>
             </div>
         )
     }
-}
-
-interface ManageImportState {
-    listStockReceive: StockReceiveDocketModel[],
-    pagingModel: PaginateModel,
-    searchKey: string,
-    lastedSearchKey: string,
-    editStockReceiveId: number,
-    isTableLoading: boolean,
-    editModalShow: boolean,
-    editModalTitle: string,
 }

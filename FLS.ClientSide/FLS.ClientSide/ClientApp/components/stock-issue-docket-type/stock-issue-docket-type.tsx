@@ -12,6 +12,11 @@ import { _HString } from "../../handles/handles";
 import { EmptyTableMessage, IsSystem } from "../shared/view-only";
 import { ConfirmButton } from "../shared/button/ConfirmButton";
 
+const options = [
+    { value: '0', label: 'Giá bằng 0' },
+    { value: '1', label: 'Giá bán' },
+    { value: '2', label: 'Giá vốn' }
+];
 export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{}>, StockIssueDocketTypeState> {
     constructor(props: any) {
         super(props)
@@ -171,22 +176,27 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
                     <tr>
                         <th>Mã loại</th>
                         <th>Tên loại</th>
+                        <th>Cần phiếu thu</th>
+                        <th>Loại giá</th>
                         <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {
                         models.length == 0 ?
-                            <EmptyTableMessage/> :
-                            models.map(m =>
-                                <tr key={m.id}>
+                            <EmptyTableMessage /> :
+                            models.map(m => {
+                                let pickingPrice = options.find(o => o.value == m.pickingPrice + '').label;
+                                return <tr key={m.id}>
                                     <td>{m.id}</td>
                                     <td>{m.name}</td>
+                                    <td>{m.receiptNeeded ? 'Có' : 'Không'}</td>
+                                    <td>{pickingPrice}</td>
                                     <td className="text-right">
-                                    { m.isSystem ? <IsSystem/> :
-                                        <ButtonGroup>
-                                            <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
-                                                <Glyphicon glyph="edit" /></Button>
+                                        {m.isSystem ? <IsSystem /> :
+                                            <ButtonGroup>
+                                                <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
+                                                    <Glyphicon glyph="edit" /></Button>
                                                 <ConfirmButton
                                                     bsStyle="warning"
                                                     className="btn-sm"
@@ -196,11 +206,11 @@ export class StockIssueDocketTypes extends React.Component<RouteComponentProps<{
                                                         <span>Xác nhận xóa loại phiếu xuất <strong>{m.name}</strong>?</span>
                                                     }
                                                     onClickYes={() => this.onDelete(m.id)} />
-                                        </ButtonGroup>
-                                    }
+                                            </ButtonGroup>
+                                        }
                                     </td>
                                 </tr>
-                            )
+                            })
                     }
                 </tbody>
             </table>

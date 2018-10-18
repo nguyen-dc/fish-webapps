@@ -35,6 +35,6 @@ export class StockIssueDocketModel implements IStockIssueDocket {
     approverCode: string;
     approvedDate: Date | string | null;
     executorCode: string;
-    executedDate: Date | string;
+    executedDate: Date;
     stockReceiveDocketId: number | null;
 }

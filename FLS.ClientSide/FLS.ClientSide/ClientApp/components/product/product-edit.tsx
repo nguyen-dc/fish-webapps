@@ -96,8 +96,8 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
         if (!this.state.model.defaultUnitId) {
             errors['defaultUnitId'] = 'Chưa chọn đơn vị tính';
         }
-        if (!this.state.model.taxPercentId) {
-            errors['taxPercentId'] = 'Chưa chọn thuế';
+        if (!this.state.model.taxPercent) {
+            errors['taxPercent'] = 'Chưa chọn thuế';
         }
         return errors;
     }
@@ -189,11 +189,13 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             options={this.state.taxPercents}
-                            name={'taxPercentId'}
-                            value={this.state.model.taxPercentId}
+                            name={'taxPercent'}
+                            value={this.state.model.taxPercent}
+                            nameKey='name'
+                            valueKey='value'
                             title={'Thuế'}
                             placeHolder={'Chọn loại thuế'}
-                            error={this.state.errorList['taxPercentId']}
+                            error={this.state.errorList['taxPercent']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledTextArea
                             rows={5}

@@ -44,7 +44,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
             editModalTitle: '',
             productGroups: [],
             searchModel: new PageFilterModel(),
-            lastSearchModel: new PageFilterModel()
+            lastSearchModel: new PageFilterModel(),
         };
     }
     async componentWillMount() {
@@ -102,7 +102,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
             this.context.ShowGlobalMessageList('warning', result.warnings);
         }
     }
-    onFormAfterSubmit(isSuccess, model) {
+    onFormAfterSubmit(isSuccess) {
         if (isSuccess)
             this.onPageChange(this.state.pagingModel.currentPage, false)
     }
@@ -241,7 +241,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                                     <td>{m.productGroupId}</td>
                                     <td>{m.productSubgroupId}</td>
                                     <td>{m.defaultUnitId}</td>
-                                    <td>{m.taxPercentId}</td>
+                                    <td>{m.taxPercent}%</td>
                                     <td className="text-right">
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>

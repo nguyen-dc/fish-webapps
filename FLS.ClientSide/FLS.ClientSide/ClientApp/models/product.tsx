@@ -6,7 +6,7 @@ interface IProduct {
     productGroupId: number;
     productSubgroupId: number;
     defaultUnitId: number;
-    taxPercentId: number;
+    taxPercent: number;
     description: string;
 }
 
@@ -16,7 +16,7 @@ export class ProductModel implements IProduct {
     productGroupId = 0;
     productSubgroupId = 0;
     defaultUnitId = 0;
-    taxPercentId = 0;
+    taxPercent;
     description: string = '';
     checked: boolean;
 }
