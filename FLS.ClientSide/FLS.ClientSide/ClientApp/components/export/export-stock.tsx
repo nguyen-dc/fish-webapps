@@ -19,6 +19,7 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { Glyphicon, Button } from "react-bootstrap";
 import { FormatedInput } from "../shared/input/formated-input";
 import { ExportAPICaller } from "../../api-callers/export";
+import { SummaryText } from "../shared/view-only";
 
 interface ExportStockStates {
     issueDocket: StockIssueDocketModel,
@@ -108,8 +109,10 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         
         if (index >= 0) {
             detail = docketDetails[index];
-            detail.quantity = _HNumber.Sum(detail.quantity, 1);
-            detail.totalAmount = detail.quantity * detail.amount;
+            detail.quantity = Number(detail.quantity) + 1;
+            detail.amount = detail.quantity * detail.unitPrice;
+            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+            detail.totalAmount = (detail.quantity * detail.unitPrice) + detail.vat;
             docketDetails[index] = detail;
 
         } else {
@@ -117,18 +120,17 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             detail.productName = product.name;
             detail.productUnitId = product.defaultUnitId;
             detail.quantity = 1;
-            detail.amount = 0;
-            detail.totalAmount = 0;
+            detail.unitPrice = 0;
+            detail.vat = 0;
+            detail.vatPercent = product.taxPercent;
             docketDetails.push(detail);
         }
         this.setState({ docketDetails: docketDetails });
-        this.sumTotalAmount(docketDetails);
     }
     onRemoveProduct(productId: number) {
         let { docketDetails } = this.state;
         let choseProducts = docketDetails.filter(i => i.productId !== productId);
         this.setState({ docketDetails: choseProducts });
-        this.sumTotalAmount(choseProducts);
     }
     onChangeDetail(model, index) {
         let { docketDetails } = this.state;
@@ -139,7 +141,22 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             docketDetails[index] = detail;
         } 
         this.setState({ docketDetails: docketDetails });
-        this.sumTotalAmount(docketDetails);
+    }
+    onChangeRowInput(event, index) {
+        let products = this.state.docketDetails;
+            let detail = products[index];
+            detail[event.name] = event.value;
+
+            if (event.name == "totalAmount") {
+                detail.unitPrice = (event.value / _HNumber.Sum(100, detail.vatPercent) * 100 / detail.quantity);
+                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+            }
+            else {
+                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+                detail.totalAmount = (detail.unitPrice * detail.quantity) + detail.vat;
+        }
+        products[index] = detail;
+        this.setState({ docketDetails: products });
     }
     onRemoveCustomer() {
         let { receipt } = this.state;
@@ -169,8 +186,16 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     }
     validateExport() {
         let { receipt, docketDetails, issueDocket } = this.state;
+        if (!issueDocket.stockIssueDocketTypeId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu xuất');
+            return false;
+        }
         if (!issueDocket.warehouseId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn kho xuất');
+            return false;
+        }
+        if (!docketDetails || docketDetails.length == 0) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn sản phẩm cần xuất');
             return false;
         }
         return true;
@@ -178,47 +203,45 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     renderTabInfo() {
         let { issueDocket, warehouses, stockIssueDocketTypes } = this.state;
         return (
-            <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-info">
-                    <div className="panel-body">
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'stockIssueDocketTypeId'}
-                                value={issueDocket.stockIssueDocketTypeId}
-                                title={'Loại phiếu xuất'}
-                                placeHolder={'Loại phiếu xuất'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                options={stockIssueDocketTypes}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'warehouseId'}
-                                value={issueDocket.warehouseId}
-                                title={'Kho xuất'}
-                                placeHolder={'Kho xuất'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                options={warehouses}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledSingleDatePicker
-                                name={'expendDate'}
-                                title={'Ngày tạo phiếu'}
-                                date={Moment()}
-                                dateChange={this.onReceiptFieldChange.bind(this)} />
-                        </div>
-                        <div className="col-sm-12">
-                            <LabeledTextArea
-                                rows={1}
-                                name={'description'}
-                                value={issueDocket.description}
-                                title={'Ghi chú'}
-                                placeHolder={'Ghi chú'}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
-                        </div>
+            <div id="info" className="panel panel-info">
+                <div className="panel-body">
+                    <div className="col-md-4">
+                        <LabeledSelect
+                            name={'stockIssueDocketTypeId'}
+                            value={issueDocket.stockIssueDocketTypeId}
+                            title={'Loại phiếu xuất'}
+                            placeHolder={'Loại phiếu xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={stockIssueDocketTypes}
+                            valueChange={this.onDocketFieldChange.bind(this)} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledSelect
+                            name={'warehouseId'}
+                            value={issueDocket.warehouseId}
+                            title={'Kho xuất'}
+                            placeHolder={'Kho xuất'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            options={warehouses}
+                            valueChange={this.onDocketFieldChange.bind(this)} />
+                    </div>
+                    <div className="col-md-4">
+                        <LabeledSingleDatePicker
+                            name={'expendDate'}
+                            title={'Ngày tạo phiếu'}
+                            date={Moment()}
+                            dateChange={this.onReceiptFieldChange.bind(this)} />
+                    </div>
+                    <div className="col-sm-12">
+                        <LabeledTextArea
+                            rows={1}
+                            name={'description'}
+                            value={issueDocket.description}
+                            title={'Ghi chú'}
+                            placeHolder={'Ghi chú'}
+                            valueChange={this.onDocketFieldChange.bind(this)} />
                     </div>
                 </div>
             </div>
@@ -288,7 +311,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                             <div className="col-sm-12">
                                 <ProductSimpleSearch
                                     onChooseProduct={(product) => this.onChooseProduct(product)}
-                                    stayPop={true} />
+                                    stayPop={false} />
                                 {
                                     docketDetails && docketDetails.length > 0 ?
                                         <div>
@@ -310,29 +333,19 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     <thead>
                         <tr>
                             <th>Tên sản phẩm</th>
-                            <th>Đơn vị tính</th>
-                            <th>Đơn giá</th>
                             <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>%VAT</th>
+                            <th>VAT</th>
                             <th>Thành tiền</th>
-                            <th></th>
+                            <th className='th-sm-1'></th>
                         </tr>
                     </thead>
                     <tbody>
                         {
                             docketDetails.map((detail, idx) => {
-                                return <tr key={idx}>
+                                return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
-                                    <td>{detail.productUnitId}</td>
-                                    <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='unitPrice'
-                                            value={detail.unitPrice}
-                                            onValueChange={(m) => this.onChangeDetail(m, idx)}
-                                        />
-                                    </td>
                                     <td>
                                         <FormatedInput
                                             type="number"
@@ -340,13 +353,39 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                             min={1}
                                             name='quantity'
                                             value={detail.quantity}
-                                            onValueChange={(m) => this.onChangeDetail(m, idx)}
+                                            onValueChange={(e) => this.onChangeRowInput(e, idx)}
                                         />
                                     </td>
-                                    <td>{_HNumber.FormatCurrency(detail.totalAmount)}</td>
-                                    <td className="text-right">
-                                        <Button bsStyle="default" className="btn-sm" onClick={() => this.onRemoveProduct(detail.productId)}>
-                                            <Glyphicon glyph="glyphicon glyphicon-trash cursor-pointer" /></Button>
+                                    <td>
+                                        <FormatedInput
+                                            type="currency"
+                                            className="form-control"
+                                            min={0}
+                                            name='unitPrice'
+                                            value={detail.unitPrice}
+                                            onValueChange={(e) => this.onChangeRowInput(e, idx)}
+                                        />
+                                    </td>
+                                    <td>
+                                        {detail.vatPercent ? detail.vatPercent : 0} %
+                                    </td>
+                                    <td>
+                                        {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
+                                    </td>
+                                    <td>
+                                        <FormatedInput
+                                            type="currency"
+                                            className="form-control"
+                                            min={0}
+                                            name='totalAmount'
+                                            value={detail.totalAmount}
+                                            onValueChange={(e) => this.onChangeRowInput(e, idx)}
+                                        /></td>
+                                    <td>
+                                        <Button bsStyle='default' className='btn-sm'
+                                            onClick={this.onRemoveProduct.bind(this, detail.productId)}>
+                                            <Glyphicon glyph='minus' />
+                                        </Button>
                                     </td>
                                 </tr>
                             })
@@ -362,6 +401,22 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             </div>
         );
     }
+    renderReview() {
+        let productQuantity = 0;
+        let productTotalAmount = 0;
+
+        let { docketDetails } = this.state;
+        productQuantity += docketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
+        productTotalAmount += docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
+
+        let totalAmount = productTotalAmount;
+        return <div className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+            <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
+            <SummaryText title='Tổng tiền sản phẩm:' value={_HNumber.FormatCurrency(productTotalAmount)} />
+            <SummaryText title='Tổng tiền trên phiếu:' value={_HNumber.FormatCurrency(totalAmount)} />
+            <button className="btn btn-primary pull-right" onClick={() => this.onCreateExportStock()}>Tạo phiếu</button>
+        </div>
+    }
     render() {
         return (
             // <UnderConstructor /> ||
@@ -373,16 +428,11 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                         <li className="breadcrumb-item active" aria-current="page">Xuất bán hàng hóa thông thường</li>
                     </ol>
                 </nav>
-                {this.renderTabInfo()}
-                {this.renderCustomer()}
-                <div className="footer_total">
-                    <div className="text-right">
-                        <div className="text-right">
-                            <button className="btn btn-danger mg-r-15">Hủy</button>
-                            <button className="btn btn-primary" onClick={() => this.onCreateExportStock()}>Tạo phiếu</button>
-                        </div>
-                    </div>
+                <div className='col-lg-9'>
+                    {this.renderTabInfo()}
+                    {this.renderCustomer()}
                 </div>
+                {this.renderReview()}
             </div>
         );
     }
