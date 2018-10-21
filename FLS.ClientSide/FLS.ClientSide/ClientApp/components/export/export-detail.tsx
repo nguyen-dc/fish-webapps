@@ -52,11 +52,10 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
                     <thead>
                         <tr>
                             <th>Tên sản phẩm</th>
-                            <th>Số lượng</th>
-                            <th>Đơn giá</th>
-                            <th>% VAT</th>
-                            <th>VAT</th>
-                            <th>Thành tiền</th>
+                            <th className='text-right'>Số lượng</th>
+                            <th className='text-right'>Đơn giá</th>
+                            <th className='text-right'>VAT</th>
+                            <th className='text-right'>Thành tiền</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,19 +63,24 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
                             details.length > 0 ? details.map((detail) => {
                                 return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
-                                    <td>{detail.quantity}</td>
-                                    <td>{_HNumber.FormatCurrency(detail.unitPrice)}</td>
-                                    <td>{detail.vatPercent ? detail.vatPercent : 0} %</td>
-                                    <td>{_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}</td>
-                                    <td>{_HNumber.FormatCurrency(detail.totalAmount)}</td>
+                                    <td className='text-right'>
+                                        {detail.quantity}&nbsp;
+                                        {detail.productUnitName}
+                                    </td>
+                                    <td className='text-right'>{_HNumber.FormatCurrency(detail.unitPrice)}</td>
+                                    <td className='text-right'>
+                                        {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}&nbsp;
+                                        <span className='label label-info'>{detail.vatPercent ? detail.vatPercent : 0}%</span>
+                                    </td>
+                                    <td className='text-right'>{_HNumber.FormatCurrency(detail.totalAmount)}</td>
                                 </tr>
                             }) : <EmptyTableMessage message='Không có sản phẩm' />
                         }
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={5} className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
+                            <td colSpan={4} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td className='text-right'><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
                     </tfoot>
                 </table>

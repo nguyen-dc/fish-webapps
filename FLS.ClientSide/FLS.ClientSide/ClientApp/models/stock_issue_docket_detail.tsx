@@ -28,4 +28,5 @@ export class StockIssueDocketDetailModel implements IStockIssueDocketDetail {
     capitalCost: number | null;
     //----
     productName: string;
+    productUnitName: string;
 }
