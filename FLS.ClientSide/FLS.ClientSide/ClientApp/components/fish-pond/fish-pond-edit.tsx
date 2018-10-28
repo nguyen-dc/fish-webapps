@@ -91,8 +91,8 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
         if (!this.state.model.farmRegionId) {
             errors['farmRegionId'] = 'Chưa chọn khu vực nuôi';
         }
-        if (!this.state.model.warehouseId) {
-            errors['warehouseId'] = 'Chưa chọn kho';
+        if (!this.state.model.defaultWarehouseId) {
+            errors['defaultWarehouseId'] = 'Chưa chọn kho';
         }
         return errors;
     }
@@ -111,9 +111,13 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
-                if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(true, this.state.model);
-                this.context.ShowGlobalMessage('success', 'Cập nhật ao nuôi thành công');
+                if (response.data > 0) {
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(true, this.state.model);
+                    this.context.ShowGlobalMessage('success', 'Cập nhật ao nuôi thành công');
+                } else {
+                    this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình cập nhật');
+                }
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
             }
@@ -123,9 +127,13 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
-                if (this.props.onFormAfterSubmit)
-                    this.props.onFormAfterSubmit(this.state.model);
-                this.context.ShowGlobalMessage('success', 'Tạo ao nuôi thành công');
+                if (response.data > 0) {
+                    if (this.props.onFormAfterSubmit)
+                        this.props.onFormAfterSubmit(this.state.model);
+                    this.context.ShowGlobalMessage('success', 'Tạo ao nuôi thành công');
+                } else {
+                    this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình cập nhật');
+                }
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
             }
@@ -170,11 +178,11 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
                             options={this.state.warehouses}
-                            name={'warehouseId'}
-                            value={this.state.model.warehouseId}
+                            name={'defaultWarehouseId'}
+                            value={this.state.model.defaultWarehouseId}
                             title={'Kho'}
                             placeHolder={'Chọn kho'}
-                            error={this.state.errorList['warehouseId']}
+                            error={this.state.errorList['defaultWarehouseId']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledInput
                             inputType={'number'}

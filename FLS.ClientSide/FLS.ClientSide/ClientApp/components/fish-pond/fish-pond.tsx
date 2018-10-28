@@ -247,7 +247,7 @@ export class FishPonds extends React.Component<RouteComponentProps<{}>, FishPond
                                         <td>{m.id}</td>
                                         <td>{m.name}</td>
                                         <td>{m.farmRegionId}</td>
-                                        <td>{m.warehouseId}</td>
+                                        <td>{m.defaultWarehouseName}</td>
                                         <td>{m.a}</td>
                                         <td>{m.b}</td>
                                         <td>{m.c}</td>

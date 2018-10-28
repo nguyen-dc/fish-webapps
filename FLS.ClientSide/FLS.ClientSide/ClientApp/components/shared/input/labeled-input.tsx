@@ -272,7 +272,7 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
                         placeholder={this.state.placeHolder}
                         readOnly={this.state.readOnly}
                         {...disable}>
-                        <option value=''>{this.state.placeHolder}</option>
+                        <option value=''>- {this.state.placeHolder} -</option>
                         {this.state.options != null ?
                             this.state.options.map(opt => {
                                 let disabled = opt[this.state.valueKey] == this.state.value ? true : false;

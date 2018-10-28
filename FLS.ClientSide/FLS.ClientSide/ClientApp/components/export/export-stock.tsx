@@ -410,7 +410,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         productTotalAmount += docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
 
         let totalAmount = productTotalAmount;
-        return <div className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+        return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
             <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
             <SummaryText title='Tổng tiền sản phẩm:' value={_HNumber.FormatCurrency(productTotalAmount)} />
             <SummaryText title='Tổng tiền trên phiếu:' value={_HNumber.FormatCurrency(totalAmount)} />
