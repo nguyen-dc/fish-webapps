@@ -547,7 +547,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         });
        
         let totalAmount = productTotalAmount + expendTotalAmount;
-        return <div className="col-lg-3 col-md-6 col-sm-8 col-xs-12 pull-right">
+        return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
             <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
             <SummaryText title='Tổng tiền sản phẩm:' value={_HNumber.FormatCurrency(productTotalAmount)} />
             <SummaryText title='Chi phí đi kèm:' value={_HNumber.FormatNumber(expendQuantity)} />
@@ -571,11 +571,11 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </nav>
                     </div>
                 </div>
-                <ul className="nav nav-tabs col-lg-9">
+                <ul className="nav nav-tabs">
                     <li className="active"><a data-toggle="tab" href="#info">Thông tin phiếu nhập</a></li>
                     <li><a data-toggle="tab" href="#expend">Chi phí nhập</a></li>
                 </ul>
-                <div className="tab-content col-lg-9">
+                <div className="tab-content">
                     {this.renderTabInfo()}
                     {this.renderTabExpend()}
                 </div>

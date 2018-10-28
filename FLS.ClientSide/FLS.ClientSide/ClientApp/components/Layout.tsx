@@ -79,7 +79,7 @@ export class Layout extends React.Component<LayoutProps, LayoutState> {
                 }
             </div>
             <div className='row'>
-                <div className='col-sm-12'>
+                <div className='col-sm-12 mg-bt-15'>
                     <NavMenu />
                 </div>
                 <div className='col-sm-12'>
