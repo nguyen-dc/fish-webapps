@@ -35,9 +35,9 @@ interface ImportStockStates {
 }
 
 class paySlipLineModel {
-    paySlipTypeId: number;
-    description: string;
-    amount: number;
+    paySlipTypeId: number = 0;
+    description: string = '';
+    amount: number = 0;
 }
 
 export class ImportStocks extends React.Component<RouteComponentProps<{}>, ImportStockStates> {
@@ -176,6 +176,19 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.setState({ suppliers: suppliers });
         }
     }
+
+    onPaySlipRowChange(model, index) {
+        var { paySlipLines } = this.state;
+        var payslip = paySlipLines[index];
+        if (payslip) {
+            if (model.name !== "description")
+                payslip[model.name] = parseInt(model.value);
+            else 
+                payslip[model.name] = model.value;
+
+            this.setState({ paySlipLines: paySlipLines });
+        }
+    }
     onPaySlipFieldChange(model: any) {
         const nextState = {
             ...this.state,
@@ -192,8 +205,9 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         paySlipLines.unshift(new paySlipLineModel());
         this.setState({ paySlipLines: paySlipLines });
     }
-    removeLinePaySlip(item) {
-        var { paySlipLines } = this.state;
+    removeLinePaySlip(index: number) {
+        let { paySlipLines } = this.state;
+        this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
 
     addPaySlip() {
@@ -227,7 +241,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         this.setState({ paySlipDetails: paySlipDetails.filter(m => m != paySlipDetails[index])});
     }
     validateImport() {
-        let { receiveDocket, suppliers, paySlipDetails } = this.state;
+        let { receiveDocket, suppliers, paySlipDetails, paySlipLines} = this.state;
         if (!receiveDocket.stockReceiveDocketTypeId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu nhập');
             return false;
@@ -240,12 +254,43 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và sản phẩm cần nhập');
             return false;
         }
+        debugger
+        if (paySlipLines.length > 0) {
+            let filter = paySlipLines.find(n => n.amount < 0);
+            if (filter != null) {
+                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+                return;
+            }
+            let filter1 = paySlipLines.find(n => n.paySlipTypeId == 0 && _HString.IsNullOrEmpty(n.description));
+            if (filter1 != null) {
+                this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+                return;
+            }
+        }
         return true;
     }
     async onCreateImportStock() {
         if (!this.validateImport())
             return;
-        let { receiveDocket, paySlipDetails, suppliers } = this.state;
+        let { receiveDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
+
+        let paySlipDetails = [] as ExpenditureDocketDetailModel[];
+        // payslip
+        if (paySlipLines.length > 0) {
+            paySlipLines.forEach(function (item) {
+                var model = new ExpenditureDocketDetailModel();
+                model.amount = item.amount;
+                model.totalAmount = item.amount;
+                model.expenditureTypeId = item.paySlipTypeId;
+                model.title = item.description;
+                var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
+                if (paySlipType) {
+                    model.expenditureTypeName = paySlipType.name;
+                }
+                paySlipDetails.unshift(model);
+            });
+        }
+
         var model = new ImportStockModel();
         model.receiveDocket = receiveDocket;
         model.suppliers = suppliers;
@@ -338,7 +383,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
         let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
-        debugger
         return (
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover mg-0">
@@ -486,7 +530,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                 <div className="panel-body">
                     <div className="col-sm-12">
                         <div className="table-responsive p-relative">
-                            <table className="table table-striped table-hover">
+                            <table className="table table-striped table-hover paysliptable">
                                 <thead>
                                     <tr>
                                         <th>Chi phí</th>
@@ -501,32 +545,31 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                             return <tr key={index}>
                                                 <td> <LabeledSelect
                                                     name={'paySlipTypeId'}
-                                                    value={this.state.costs.paySlipTypeId}
-                                                    title={'Loại chi phí'}
+                                                    value={m.paySlipTypeId}
+                                                    inputType={'number'}
                                                     placeHolder={'Loại chi phí'}
                                                     valueKey={'id'}
                                                     nameKey={'name'}
-                                                    valueChange={this.onPaySlipFieldChange.bind(this)}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e, index)}
                                                     options={paySlipTypes}
                                                 /></td>
                                                 <td> <LabeledInput
                                                     name={'description'}
-                                                    value={this.state.costs.description}
-                                                    title={'Nội dung'}
+                                                    value={m.description}
+                                                    inputType={'text'}
                                                     placeHolder={'Nội dung'}
                                                     error={this.state.errorList['description']}
-                                                    valueChange={this.onPaySlipFieldChange.bind(this)}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e,index)}
                                                 /></td>
                                                 <td> <LabeledInput
                                                     inputType='currency'
                                                     name={'amount'}
-                                                    value={this.state.costs.amount}
-                                                    title={'Số tiền'}
+                                                    value={m.amount}
                                                     placeHolder={'Số tiền'}
                                                     error={this.state.errorList['amount']}
-                                                    valueChange={this.onPaySlipFieldChange.bind(this)}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e, index)}
                                                 /></td>
-                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.onRemovePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
+                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.removeLinePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
                                             </tr>
                                         }) : <tr>
                                             <td className="text-center" colSpan={4}>Chưa có chi phí nào</td>
