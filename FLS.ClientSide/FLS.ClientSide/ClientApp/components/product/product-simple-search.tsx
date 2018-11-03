@@ -8,11 +8,13 @@ import { EmptyTableMessage } from "../shared/view-only";
 import Pagination from "react-js-pagination";
 
 interface ProductSimpleSearchProps {
+    type?: 'stock' | 'livestock',
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
     stayPop?: boolean,
     onChooseProduct?: Function,
 }
 interface ProductSimpleSearchState {
+    type: 'stock' | 'livestock',
     isPopUp: boolean,
     stayPop: boolean,
     lastSearchModel: PageFilterModel,
@@ -25,6 +27,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
     constructor(props) {
         super(props)
         this.state = {
+            type: props.type ? props.type : 'stock',
             isPopUp: false,
             stayPop: props.stayPop ? props.stayPop : false,
             searchModel: new PageFilterModel(),
@@ -49,7 +52,7 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
             searchModel = this.state.searchModel;
             searchModel.page = 1;
         }
-        return await ProductAPICaller.GetList(searchModel);
+        return await ProductAPICaller.GetList(searchModel, this.state.type);
     }
     async onPageChange(page: any, newSearch: boolean) {
         try {

@@ -48,7 +48,6 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     async componentDidMount() {
         var fishPonds = await CacheAPI.FishPond();
-        var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
         var paySlipTypes = await CacheAPI.PayslipType();
         this.setState({ fishPonds: fishPonds.data, paySlipTypes: paySlipTypes.data });
     }
@@ -145,7 +144,6 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         receiveDocket[evt.name] = date;
         this.setState({ receiveDocket: receiveDocket });
     }
-
     onChangeRowInput(event, supplierId, index) {
         let suppliers = this.state.suppliers;
         var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
@@ -295,7 +293,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                 <div className="panel-heading">Sản phẩm</div>
                                 <div className="panel-body">
                                     <div className='col-sm-12 mg-bt-15'>
-                                        <ProductSimpleSearch onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)} />
+                                        <ProductSimpleSearch type='livestock' onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)} />
                                     </div>
                                     {
                                         supplier.receiveDocketDetails && supplier.receiveDocketDetails.length > 0 ?
@@ -543,7 +541,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
-            <UnderConstructor /> ||
+            //<UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">
