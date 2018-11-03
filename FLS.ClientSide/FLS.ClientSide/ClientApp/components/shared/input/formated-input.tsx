@@ -36,7 +36,7 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
         formatedValue = this.formatValue(formatedValue, props.type);
         let value = '';
         if (props.type == 'number' || props.type == 'currency') {
-            value = props.value ? props.value + '' : '0';
+            value = props.value ? props.value + '' : '';
         } else {
             value = props.value ? props.value + '' : '';
         }
@@ -63,7 +63,7 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
             formatedValue = this.formatValue(formatedValue, type);
             let value = '';
             if (type == 'number' || type == 'currency') {
-                value = nextProps.value ? nextProps.value + '' : '0';
+                value = nextProps.value ? nextProps.value + '' : '';
             } else {
                 value = nextProps.value ? nextProps.value + '' : '';
             }
