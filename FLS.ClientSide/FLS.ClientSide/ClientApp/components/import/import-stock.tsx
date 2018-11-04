@@ -30,8 +30,16 @@ interface ImportStockStates {
     stockReceiveDocketTypes: IdNameModel[],
     paySlipTypes: IdNameModel[],
     errorList: {},
-    costs: CostsModel
+    costs: CostsModel,
+    paySlipLines: paySlipLineModel[]
 }
+
+class paySlipLineModel {
+    paySlipTypeId: number = 0;
+    description: string = '';
+    amount: number = 0;
+}
+
 export class ImportStocks extends React.Component<RouteComponentProps<{}>, ImportStockStates> {
     constructor(props: any) {
         super(props)
@@ -43,7 +51,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             stockReceiveDocketTypes: [],
             paySlipTypes: [],
             errorList: {},
-            costs: new CostsModel()
+            costs: new CostsModel(),
+            paySlipLines: []
         }
     }
     async componentDidMount() {
@@ -167,6 +176,19 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.setState({ suppliers: suppliers });
         }
     }
+
+    onPaySlipRowChange(model, index) {
+        var { paySlipLines } = this.state;
+        var payslip = paySlipLines[index];
+        if (payslip) {
+            if (model.name !== "description")
+                payslip[model.name] = parseInt(model.value);
+            else 
+                payslip[model.name] = model.value;
+
+            this.setState({ paySlipLines: paySlipLines });
+        }
+    }
     onPaySlipFieldChange(model: any) {
         const nextState = {
             ...this.state,
@@ -177,6 +199,17 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         };
         this.setState(nextState);
     }
+   
+    addLinePaySlip() {
+        var { paySlipLines } = this.state;
+        paySlipLines.unshift(new paySlipLineModel());
+        this.setState({ paySlipLines: paySlipLines });
+    }
+    removeLinePaySlip(index: number) {
+        let { paySlipLines } = this.state;
+        this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
+    }
+
     addPaySlip() {
         let { costs } = this.state;
         if (costs.paySlipTypeId > 0 || !_HString.IsNullOrEmpty(costs.description)) {
@@ -208,7 +241,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         this.setState({ paySlipDetails: paySlipDetails.filter(m => m != paySlipDetails[index])});
     }
     validateImport() {
-        let { receiveDocket, suppliers, paySlipDetails } = this.state;
+        let { receiveDocket, suppliers, paySlipDetails, paySlipLines} = this.state;
         if (!receiveDocket.stockReceiveDocketTypeId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu nhập');
             return false;
@@ -221,12 +254,43 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và sản phẩm cần nhập');
             return false;
         }
+        debugger
+        if (paySlipLines.length > 0) {
+            let filter = paySlipLines.find(n => n.amount < 0);
+            if (filter != null) {
+                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+                return;
+            }
+            let filter1 = paySlipLines.find(n => n.paySlipTypeId == 0 && _HString.IsNullOrEmpty(n.description));
+            if (filter1 != null) {
+                this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+                return;
+            }
+        }
         return true;
     }
     async onCreateImportStock() {
         if (!this.validateImport())
             return;
-        let { receiveDocket, paySlipDetails, suppliers } = this.state;
+        let { receiveDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
+
+        let paySlipDetails = [] as ExpenditureDocketDetailModel[];
+        // payslip
+        if (paySlipLines.length > 0) {
+            paySlipLines.forEach(function (item) {
+                var model = new ExpenditureDocketDetailModel();
+                model.amount = item.amount;
+                model.totalAmount = item.amount;
+                model.expenditureTypeId = item.paySlipTypeId;
+                model.title = item.description;
+                var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
+                if (paySlipType) {
+                    model.expenditureTypeName = paySlipType.name;
+                }
+                paySlipDetails.unshift(model);
+            });
+        }
+
         var model = new ImportStockModel();
         model.receiveDocket = receiveDocket;
         model.suppliers = suppliers;
@@ -318,7 +382,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         })
     }
     renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
-        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat) , 0);
+        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         return (
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover mg-0">
@@ -326,6 +390,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         <tr>
                             <th>Tên sản phẩm</th>
                             <th>Số lượng</th>
+                            <th>ĐVT</th>
                             <th>Đơn giá</th>
                             <th>%VAT</th>
                             <th>VAT</th>
@@ -348,6 +413,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                             onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
                                         />
                                     </td>
+                                    <td>{detail.productUnitId}</td>
                                     <td>
                                         <FormatedInput
                                             type="currency"
@@ -358,6 +424,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                             onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
                                         />
                                     </td>
+
                                     <td>
                                         {detail.vatPercent ? detail.vatPercent : 0} %
                                     </td>
@@ -453,53 +520,17 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         );
     }
     renderTabExpend() {
-        let { paySlipTypes, paySlipDetails } = this.state;
-        return <div id="expend" className="tab-pane fade">
+        let { paySlipTypes, paySlipDetails, paySlipLines } = this.state;
+        return <div id="expend" className="fade" >
+            <div className="text-right mg-bt-15">
+                <button className="btn btn-primary" onClick={this.addLinePaySlip.bind(this)}>Thêm</button>
+            </div>
+            <div className="tab-pane">
             <div className="panel panel-info">
                 <div className="panel-body">
-                    <div className="mg-bt-15">
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'paySlipTypeId'}
-                                value={this.state.costs.paySlipTypeId}
-                                title={'Loại chi phí'}
-                                placeHolder={'Loại chi phí'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                                options={paySlipTypes}
-                            />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledInput
-                                name={'description'}
-                                value={this.state.costs.description}
-                                title={'Nội dung'}
-                                placeHolder={'Nội dung'}
-                                error={this.state.errorList['description']}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                            />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledInput
-                                inputType='currency'
-                                name={'amount'}
-                                value={this.state.costs.amount}
-                                title={'Số tiền'}
-                                placeHolder={'Số tiền'}
-                                error={this.state.errorList['amount']}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                            />
-                        </div>
-                        <div className="col-sm-12">
-                            <div className="text-right">
-                                <button className="btn btn-primary" onClick={this.addPaySlip.bind(this)}>Thêm</button>
-                            </div>
-                        </div>
-                    </div>
                     <div className="col-sm-12">
                         <div className="table-responsive p-relative">
-                            <table className="table table-striped table-hover">
+                            <table className="table table-striped table-hover paysliptable">
                                 <thead>
                                     <tr>
                                         <th>Chi phí</th>
@@ -509,13 +540,36 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {paySlipDetails.length > 0 ?
-                                        paySlipDetails.map((m, index) => {
+                                        {paySlipLines.length > 0 ?
+                                            paySlipLines.map((m, index) => {
                                             return <tr key={index}>
-                                                <td>{m.expenditureTypeName}</td>
-                                                <td>{m.title}</td>
-                                                <td>{_HNumber.FormatCurrency(m.totalAmount)}</td>
-                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.onRemovePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
+                                                <td> <LabeledSelect
+                                                    name={'paySlipTypeId'}
+                                                    value={m.paySlipTypeId}
+                                                    inputType={'number'}
+                                                    placeHolder={'Loại chi phí'}
+                                                    valueKey={'id'}
+                                                    nameKey={'name'}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                    options={paySlipTypes}
+                                                /></td>
+                                                <td> <LabeledInput
+                                                    name={'description'}
+                                                    value={m.description}
+                                                    inputType={'text'}
+                                                    placeHolder={'Nội dung'}
+                                                    error={this.state.errorList['description']}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e,index)}
+                                                /></td>
+                                                <td> <LabeledInput
+                                                    inputType='currency'
+                                                    name={'amount'}
+                                                    value={m.amount}
+                                                    placeHolder={'Số tiền'}
+                                                    error={this.state.errorList['amount']}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                /></td>
+                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.removeLinePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
                                             </tr>
                                         }) : <tr>
                                             <td className="text-center" colSpan={4}>Chưa có chi phí nào</td>
@@ -526,6 +580,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
         </div>
     }

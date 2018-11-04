@@ -715,3 +715,6 @@ tr.clickable {
                         left:-25px;
                     }
             }
+.paysliptable .min-w-140 {
+    display: none;
+}

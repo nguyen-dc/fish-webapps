@@ -2,7 +2,6 @@
 using FLS.ServerSide.SharingObject;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using NDC.Connectivities.API;
 
 namespace FLS.ClientSide.Controllers
 {
@@ -11,9 +10,13 @@ namespace FLS.ClientSide.Controllers
     {
         public ProductController(IConfiguration _config) : base(_config) { }
         [HttpPost("")]
-        public async Task<ActionResult> List([FromBody]PageFilterModel _model)
+        public async Task<ActionResult> List([FromBody]PageFilterModel _model, string type = "stock")
         {
-            ResponseConsult<PagedList<ProductModel>> response = await PostAsJsonAsync<PagedList<ProductModel>>(URI_API.PRODUCT_SEARCH, _model);
+            ResponseConsult<PagedList<ProductModel>> response = null;
+            if (type == "livestock")
+                response = await PostAsJsonAsync<PagedList<ProductModel>>(URI_API.PRODUCT_SEARCH_LIVESTOCK, _model);
+            else
+                response = await PostAsJsonAsync<PagedList<ProductModel>>(URI_API.PRODUCT_SEARCH, _model);
             return Ok(response);
         }
         [HttpGet("{_productId:int}")]
