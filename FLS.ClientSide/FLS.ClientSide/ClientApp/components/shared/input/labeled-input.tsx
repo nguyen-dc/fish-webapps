@@ -86,7 +86,12 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
     };
     inputChange(e) {
         let model = this.state.model;
-        model.value = e.target.value;
+        if (this.state.inputType == 'number' || this.state.inputType == 'currency') {
+            if (Number.isNaN(e.target.value))
+                return;
+            else model.value = Number.parseFloat(e.target.value);
+        } else
+            model.value = e.target.value;
         this.setState({ value: e.target.value, model: model });
         if (this.props.valueChange) this.props.valueChange(model);
     }
@@ -98,8 +103,11 @@ export class LabeledInput extends React.PureComponent<LabeledInputProps, Labeled
     }
     render() {
         let { name, inputType, value, required, placeHolder, readOnly } = this.state;
+        let wrapClass = {
+            className: this.state.title ? 'form-group-custom mg-bt-15' : ''
+        };
         return (
-            <div className='form-group-custom mg-bt-15'>
+            <div {...wrapClass}>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
                 <div className={this.formatErrorClass()}>
                     {
@@ -176,8 +184,11 @@ export class LabeledTextArea extends React.PureComponent<LabeledTextAreaProps & 
         if (this.props.valueChange) this.props.valueChange(model);
     }
     render() {
+        let wrapClass = {
+            className: this.state.title ? 'form-group-custom mg-bt-15' : ''
+        };
         return (
-            <div className='form-group-custom mg-bt-15'>
+            <div {...wrapClass}>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
                 <div className={this.formatErrorClass()}>
                     <textarea
@@ -259,9 +270,12 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
         if (this.props.valueChange) this.props.valueChange(model);
     }
     render() {
-        let disable = this.state.disabled ? {disabled: this.state.disabled} : null;
+        let disable = this.state.disabled ? { disabled: this.state.disabled } : null;
+        let wrapClass = {
+            className: this.state.title ? 'form-group-custom mg-bt-15' : ''
+        };
         return (
-            <div className='form-group-custom mg-bt-15'>
+            <div {...wrapClass}>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
                 <div className={this.formatErrorClass()}>
                     <select
@@ -353,8 +367,11 @@ export class LabeledCheckBox extends React.PureComponent<LabeledCheckBoxProps, L
         if (this.props.valueChange) this.props.valueChange(model);
     }
     render() {
+        let wrapClass = {
+            className: this.state.title ? 'form-group-custom mg-bt-15' : ''
+        };
         return (
-            <div className='form-group-custom mg-bt-15'>
+            <div {...wrapClass}>
                 <label className="control-label min-w-140 float-left">{this.state.title}</label>
                 <div className={this.formatErrorClass()}>
                     <label>

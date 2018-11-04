@@ -90,7 +90,7 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
     renderInfo() {
         let docket = this.state.model.issueDocket;
         return (
-            <div key='info' className='col-lg-9'>
+            <div key='info'>
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-sm-6">
@@ -143,7 +143,7 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
                                 <li className="breadcrumb-item"><NavLink to="/quanlyxuat">Quản lý xuất</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Chi tiết</li>
+                                <li className="breadcrumb-item active" aria-current="page">Chi tiết phiếu xuất</li>
                             </ol>
                         </nav>
                     </div>

@@ -128,7 +128,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
     renderInfo() {
         let model = this.state.receiveDocket;
         return (
-            <div id="info" className="col-lg-9">
+            <div id="info">
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-sm-6">
@@ -177,7 +177,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
                                 <li className="breadcrumb-item"><NavLink to="/quanlynhap">Quản lý nhập</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Chi tiết</li>
+                                <li className="breadcrumb-item active" aria-current="page">Chi tiết phiếu nhập</li>
                             </ol>
                         </nav>
                     </div>
