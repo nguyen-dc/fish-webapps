@@ -103,7 +103,13 @@ export class FormatedInput extends React.PureComponent<FormatedInputProps, Forma
         this.setState({ displayValue: formatedValue, value: value, isFocus: false });
     }
     onValueChange(e) {
-        let value = e.target.value;
+        let value = null;
+        if (this.state.type == 'number' || this.state.type == 'currency') {
+            if (Number.isNaN(e.target.value))
+                return;
+            else value = Number.parseFloat(e.target.value);
+        } else
+            value = e.target.value;
         if (this.props.onValueChange)
             this.props.onValueChange({ name: this.state.name, value: value });
     }

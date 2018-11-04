@@ -55,6 +55,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             paySlipLines: []
         }
     }
+    itemRefs = {};
     async componentDidMount() {
         var warehouses = await CacheAPI.Warehouse();
         var stockReceiveDocketTypes = await CacheAPI.StockReceiveDocketType();
@@ -83,12 +84,12 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         let model = new ImportStockSupplierModel();
         let index = suppliers.findIndex(d => d.supplierBranchId == supplier.id);
         if (index >= 0) {
-            model = suppliers[index];
-            suppliers[index] = model;
+            this.itemRefs[supplier.id].scrollIntoView();
+            return;
         } else {
             model.supplierBranchId = supplier.id;
             model.supplierBranchName = supplier.name;
-            suppliers.unshift(model);
+            suppliers.push(model);
         }
         this.setState({ suppliers: suppliers });
     }
@@ -154,7 +155,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         receiveDocket[evt.name] = date;
         this.setState({ receiveDocket: receiveDocket });
     }
-
     onChangeRowInput(event, supplierId, index) {
         let suppliers = this.state.suppliers;
         var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
@@ -176,7 +176,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.setState({ suppliers: suppliers });
         }
     }
-
     onPaySlipRowChange(model, index) {
         var { paySlipLines } = this.state;
         var payslip = paySlipLines[index];
@@ -199,48 +198,16 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         };
         this.setState(nextState);
     }
-   
     addLinePaySlip() {
         var { paySlipLines } = this.state;
-        paySlipLines.unshift(new paySlipLineModel());
+        paySlipLines.push(new paySlipLineModel());
         this.setState({ paySlipLines: paySlipLines });
     }
     removeLinePaySlip(index: number) {
         let { paySlipLines } = this.state;
         this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
-
-    addPaySlip() {
-        let { costs } = this.state;
-        if (costs.paySlipTypeId > 0 || !_HString.IsNullOrEmpty(costs.description)) {
-            if (costs.amount < 0) {
-                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
-                return;
-            }
-            var model = new ExpenditureDocketDetailModel();
-            model.amount = costs.amount;
-            model.totalAmount = costs.amount;
-            model.expenditureTypeId = costs.paySlipTypeId;
-            model.title = costs.description;
-            var paySlipType = this.state.paySlipTypes.find(n => n.id == costs.paySlipTypeId);
-            if (paySlipType) {
-                model.expenditureTypeName = paySlipType.name;
-            }
-            //---------------------------------
-            let { paySlipDetails } = this.state;
-            paySlipDetails.unshift(model);
-
-            this.setState({ paySlipDetails: paySlipDetails, costs: new CostsModel() });
-        }
-        else {
-            this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
-        }
-    }
-    onRemovePaySlip(index: number) {
-        let { paySlipDetails } = this.state;
-        this.setState({ paySlipDetails: paySlipDetails.filter(m => m != paySlipDetails[index])});
-    }
-    validateImport() {
+    validateImport(): boolean {
         let { receiveDocket, suppliers, paySlipDetails, paySlipLines} = this.state;
         if (!receiveDocket.stockReceiveDocketTypeId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu nhập');
@@ -254,17 +221,39 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và sản phẩm cần nhập');
             return false;
         }
-        debugger
+        else {
+            let iserror: boolean;
+            suppliers.map((s) => {
+                if (s.supplierBranchId != null && (!s.receiveDocketDetails || s.receiveDocketDetails.length == 0)) {
+                    this.context.ShowGlobalMessage('error', `Chưa nhập sản phẩm cho nhà cung cấp ${s.supplierBranchName}`);
+                    iserror = true;
+                    return;
+                }
+                let filter = s.receiveDocketDetails.find(n => Number(n.amount) < 0);
+                if (filter != null) {
+                    this.context.ShowGlobalMessage('error', 'Giá sản phẩm phải lớn hơn hoặc bằng 0');
+                    iserror = true;
+                    return;
+                }
+                let filter1 = s.receiveDocketDetails.find(n => Number(n.quantity) < 0);
+                if (filter1 != null) {
+                    this.context.ShowGlobalMessage('error', 'Số lượng sản phẩm không đúng');
+                    iserror = true;
+                    return;
+                }
+            })
+            if (iserror == true) return false;
+        }
         if (paySlipLines.length > 0) {
-            let filter = paySlipLines.find(n => n.amount < 0);
+            let filter = paySlipLines.find(n => Number(n.amount) < 0);
             if (filter != null) {
                 this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
-                return;
+                return false;
             }
-            let filter1 = paySlipLines.find(n => n.paySlipTypeId == 0 && _HString.IsNullOrEmpty(n.description));
+            let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
             if (filter1 != null) {
                 this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
-                return;
+                return false;
             }
         }
         return true;
@@ -287,7 +276,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                 if (paySlipType) {
                     model.expenditureTypeName = paySlipType.name;
                 }
-                paySlipDetails.unshift(model);
+                paySlipDetails.push(model);
             });
         }
 
@@ -305,9 +294,9 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     renderSuppliers() {
         let { suppliers } = this.state;
-        return suppliers.map((supplier, idx) => {
-            return <div key={'splr-' + supplier.supplierBranchId}>
-                <div className="panel panel-default panne-color">
+        return suppliers.map((supplier) => {
+            return <div key={supplier.supplierBranchId} ref={el => (this.itemRefs[supplier.supplierBranchId] = el)}>
+                <div className="panel panel-info panne-color">
                     <div className="panel-heading">
                         <div className="display-flex justify-content-between align-items-center">
                             <span><strong>{supplier.supplierBranchName}</strong></span>
@@ -452,7 +441,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={5} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td colSpan={6} className="text-right"><strong>Tổng tiền:</strong> </td>
                             <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
@@ -507,41 +496,41 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </div>
                     </div>
                 </div>
-                <div className="panel panel-default">
-                    <div className="panel-heading">Nhà cung cấp</div>
+                {this.renderSuppliers()}
+                <div className="panel panel-info">
                     <div className="panel-body">
                         <div className='col-sm-12'>
-                            <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)} />
+                            <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)}/>
                         </div>
                     </div>
                 </div>
-                {this.renderSuppliers()}
             </div>
         );
     }
     renderTabExpend() {
         let { paySlipTypes, paySlipDetails, paySlipLines } = this.state;
-        return <div id="expend" className="fade" >
-            <div className="text-right mg-bt-15">
-                <button className="btn btn-primary" onClick={this.addLinePaySlip.bind(this)}>Thêm</button>
-            </div>
-            <div className="tab-pane">
+        return <div id="expend" className="tab-pane fade" >
             <div className="panel panel-info">
                 <div className="panel-body">
-                    <div className="col-sm-12">
-                        <div className="table-responsive p-relative">
-                            <table className="table table-striped table-hover paysliptable">
-                                <thead>
-                                    <tr>
-                                        <th>Chi phí</th>
-                                        <th>Nội dung chi phí</th>
-                                        <th>Số tiền (đã gồm VAT)</th>
-                                        <th className="th-sm-1"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                        {paySlipLines.length > 0 ?
-                                            paySlipLines.map((m, index) => {
+                    <div className="text-right">
+                        <button className="btn btn-link" onClick={this.addLinePaySlip.bind(this)}>
+                            Thêm chi phí <Glyphicon glyph='plus-sign'></Glyphicon>
+                        </button>
+                    </div>
+                    {paySlipLines && paySlipLines.length > 0 ?
+                        <div className="col-sm-12">
+                            <div className="table-responsive p-relative">
+                                <table className="table table-striped table-hover paysliptable">
+                                    <thead>
+                                        <tr>
+                                            <th>Chi phí</th>
+                                            <th>Nội dung chi phí</th>
+                                            <th>Số tiền (đã gồm VAT)</th>
+                                            <th className="th-sm-1"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {paySlipLines.map((m, index) => {
                                             return <tr key={index}>
                                                 <td> <LabeledSelect
                                                     name={'paySlipTypeId'}
@@ -559,7 +548,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                                     inputType={'text'}
                                                     placeHolder={'Nội dung'}
                                                     error={this.state.errorList['description']}
-                                                    valueChange={(e) => this.onPaySlipRowChange(e,index)}
+                                                    valueChange={(e) => this.onPaySlipRowChange(e, index)}
                                                 /></td>
                                                 <td> <LabeledInput
                                                     inputType='currency'
@@ -571,16 +560,14 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                                 /></td>
                                                 <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.removeLinePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
                                             </tr>
-                                        }) : <tr>
-                                            <td className="text-center" colSpan={4}>Chưa có chi phí nào</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                        })
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div> : null
+                    }
                 </div>
-            </div>
             </div>
         </div>
     }

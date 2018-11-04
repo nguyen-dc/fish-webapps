@@ -174,7 +174,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         model.issueDocket = issueDocket;
         let response = await ExportAPICaller.Create(model);
         if (!response.hasError && response.data) {
-            this.props.history.push(this.props.location.pathname + '/' + response.data);
+            this.props.history.push('/quanlyxuat/' + response.data);
         }
         else
             this.context.ShowGlobalMessageList('error', response.errors);
@@ -197,6 +197,18 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         if (!docketDetails || docketDetails.length == 0) {
             this.context.ShowGlobalMessage('error', 'Xin chọn sản phẩm cần xuất');
             return false;
+        }
+        if (docketDetails.length > 0) {
+            let filter = docketDetails.find(n => Number(n.amount) < 0);
+            if (filter != null) {
+                this.context.ShowGlobalMessage('error', 'Giá sản phẩm phải lớn hơn hoặc bằng 0');
+                return false;
+            }
+            let filter1 = docketDetails.find(n => Number(n.quantity) < 0);
+            if (filter1 != null) {
+                this.context.ShowGlobalMessage('error', 'Số lượng sản phẩm không đúng');
+                return false;
+            }
         }
         return true;
     }
@@ -263,7 +275,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                                 <span>
                                                     Khách hàng đã chọn: <strong>{receipt.partnerName}</strong>
                                                 </span>
-                                                <span onClick={() => this.onRemoveCustomer()} className="glyphicon glyphicon-trash cursor-pointer" aria-hidden="true"></span>
+                                                <span onClick={() => this.onRemoveCustomer()} className="glyphicon glyphicon-remove cursor-pointer" aria-hidden="true"></span>
                                             </div>
                                             <div className='col-sm-12'>
                                                 <LabeledInput
@@ -393,7 +405,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={4} className="text-right">Tổng tiền:</td>
+                            <td colSpan={5} className="text-right">Tổng tiền:</td>
                             <td colSpan={2}><strong>{_HNumber.FormatCurrency(this.state.totalAmount)}</strong></td>
                         </tr>
                     </tfoot>
@@ -428,7 +440,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                         <li className="breadcrumb-item active" aria-current="page">Xuất bán hàng hóa thông thường</li>
                     </ol>
                 </nav>
-                <div className='col-lg-9'>
+                <div>
                     {this.renderTabInfo()}
                     {this.renderCustomer()}
                 </div>
