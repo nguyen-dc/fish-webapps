@@ -30,10 +30,10 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                         <div className="menu" href="/browse">
                             Nhập xuất hàng hóa
                             <ul>
-                                <li><a >Quản lý nhập</a></li>
-                                <li><a>Nhập mua hàng hóa thông thường</a></li>
-                                <li><a>Quản lý xuất</a></li>
-                                <li><a>Xuất bán hàng hóa thông thường</a></li>
+                                <li><NavLink to="/quanlynhap" className="a-active">Quản lý nhập</NavLink></li>
+                                <li><NavLink to="/quanlynhap/nhaphang" className="a-active">Nhập mua hàng</NavLink></li>
+                                <li><NavLink to="/quanlyxuat" className="a-active">Quản lý xuất</NavLink></li>
+                                <li><NavLink to="/quanlyxuat/xuathang" className="a-active">Xuất bán hàng</NavLink></li>
                             </ul>
                         </div>
                         <div className="menu" href="/docs">Thu chi

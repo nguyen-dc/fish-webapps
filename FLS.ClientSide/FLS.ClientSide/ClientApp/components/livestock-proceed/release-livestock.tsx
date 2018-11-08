@@ -541,7 +541,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
-            //<UnderConstructor /> ||
+            <UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">

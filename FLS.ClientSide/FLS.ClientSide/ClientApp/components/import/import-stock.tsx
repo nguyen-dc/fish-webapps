@@ -450,7 +450,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             </div>
         );
     }
-    renderTabInfo() {
+    renderInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
@@ -504,13 +504,13 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </div>
                     </div>
                 </div>
+                {this.renderExpend()}
             </div>
         );
     }
-    renderTabExpend() {
-        let { paySlipTypes, paySlipDetails, paySlipLines } = this.state;
-        return <div id="expend" className="tab-pane fade" >
-            <div className="panel panel-info">
+    renderExpend() {
+        let { paySlipTypes, paySlipLines } = this.state;
+        return  <div className="panel panel-info">
                 <div className="panel-body">
                     <div className="text-right">
                         <button className="btn btn-link" onClick={this.addLinePaySlip.bind(this)}>
@@ -569,7 +569,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     }
                 </div>
             </div>
-        </div>
     }
     renderReview() {
         let productQuantity = 0;
@@ -600,7 +599,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
     }
     render() {
         return (
-            //<UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">
@@ -613,14 +611,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                         </nav>
                     </div>
                 </div>
-                <ul className="nav nav-tabs">
-                    <li className="active"><a data-toggle="tab" href="#info">Thông tin phiếu nhập</a></li>
-                    <li><a data-toggle="tab" href="#expend">Chi phí nhập</a></li>
-                </ul>
-                <div className="tab-content">
-                    {this.renderTabInfo()}
-                    {this.renderTabExpend()}
-                </div>
+                {this.renderInfo()}
                 {this.renderReview()}
             </div>
         );
