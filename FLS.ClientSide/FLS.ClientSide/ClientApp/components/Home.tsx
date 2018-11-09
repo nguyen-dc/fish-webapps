@@ -67,7 +67,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                                 <li><a>Theo dõi doanh thu</a></li>
                             </ul>
                         </div>
-                        <div className="menu" href="/say_thanks">Hệ thống
+                        <div className="menu" href="/saythanks">Hệ thống
                              <ul>
                                 <li><a>Người dùng</a></li>
                                 <li><a>Quyền người dùng</a></li>
@@ -99,7 +99,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Màn hình danh sách phiếu nhập hàng</div>
+                                    <div className="title">Màn hình danh sách phiếu nhập hàng</div>
                                     <div className="info">
                                         <p>Hiển thị, tìm kiếm phiếu nhập hàng</p>
                                         <p>Danh sách phiếu nhập</p>
@@ -112,7 +112,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Màn hình chi tiết phiếu xuất hàng</div>
+                                    <div className="title">Màn hình chi tiết phiếu xuất hàng</div>
                                     <div className="info">
                                         <p>Hiển thị chi tiết 1 phiếu xuất hàng</p>
                                         <p>Bao gồm: thông tin phiếu, thông tin khách hàng, danh sách sản phẩm</p>
@@ -125,7 +125,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Màn hình chi tiết phiếu nhập hàng</div>
+                                    <div className="title">Màn hình chi tiết phiếu nhập hàng</div>
                                     <div className="info">
                                         <p>Hiển thị chi tiết 1 phiếu nhập hàng</p>
                                         <p>Bao gồm: thông tin phiếu, danh sách nhà cung cấp, danh sách sản phẩm, danh sách các phụ phí nếu có</p>
@@ -150,7 +150,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Màn hình xuất hàng</div>
+                                    <div className="title">Màn hình xuất hàng</div>
                                     <div className="info">
                                         <p>Lên màn hình xuất hàng hóa</p>
                                     </div>
@@ -162,7 +162,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                             </li>
                             <li>
                                 <div>
-                                    <div className="title expect">Màn hình nhập hàng</div>
+                                    <div className="title">Màn hình nhập hàng</div>
                                     <div className="info">
                                         <p>Lên màn hình nhập hàng hóa thông thường</p>
                                     </div>
