@@ -185,7 +185,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         this.setState({ totalAmount: totalAmount });
     }
     validateExport() {
-        let { receipt, docketDetails, issueDocket } = this.state;
+        let { docketDetails, issueDocket } = this.state;
         if (!issueDocket.stockIssueDocketTypeId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu xuất');
             return false;
@@ -199,7 +199,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             return false;
         }
         if (docketDetails.length > 0) {
-            let filter = docketDetails.find(n => Number(n.amount) < 0);
+            let filter = docketDetails.find(n => Number(n.unitPrice) < 0);
             if (filter != null) {
                 this.context.ShowGlobalMessage('error', 'Giá sản phẩm phải lớn hơn hoặc bằng 0');
                 return false;
