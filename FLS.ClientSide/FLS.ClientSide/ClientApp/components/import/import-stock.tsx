@@ -229,7 +229,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                     iserror = true;
                     return;
                 }
-                let filter = s.receiveDocketDetails.find(n => Number(n.amount) < 0);
+                let filter = s.receiveDocketDetails.find(n => Number(n.unitPrice) < 0);
                 if (filter != null) {
                     this.context.ShowGlobalMessage('error', 'Giá sản phẩm phải lớn hơn hoặc bằng 0');
                     iserror = true;
@@ -450,64 +450,6 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             </div>
         );
     }
-    renderInfo() {
-        return (
-            <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-info">
-                    <div className="panel-body">
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'stockReceiveDocketTypeId'}
-                                value={this.state.receiveDocket.stockReceiveDocketTypeId}
-                                title={'Loại phiếu nhập'}
-                                placeHolder={'Loại phiếu nhập'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={this.state.stockReceiveDocketTypes} />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'warehouseId'}
-                                value={this.state.receiveDocket.warehouseId}
-                                title={'Kho nhập'}
-                                placeHolder={'Kho nhập'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={this.state.warehouses} />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledSingleDatePicker
-                                name={'receiveDate'}
-                                title={'Ngày tạo phiếu'}
-                                date={Moment()}
-                                dateChange={(e) => this.onReceiveDocketDateChange(e)} />
-                        </div>
-                        <div className="col-md-12">
-                            <LabeledTextArea
-                                rows={1}
-                                name={'description'}
-                                value={this.state.receiveDocket.description}
-                                title={'Ghi chú'}
-                                placeHolder={'Ghi chú'}
-                                error={this.state.errorList['description']}
-                                valueChange={this.onDocketFieldChange.bind(this)} />
-                        </div>
-                    </div>
-                </div>
-                {this.renderSuppliers()}
-                <div className="panel panel-info">
-                    <div className="panel-body">
-                        <div className='col-sm-12'>
-                            <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)}/>
-                        </div>
-                    </div>
-                </div>
-                {this.renderExpend()}
-            </div>
-        );
-    }
     renderExpend() {
         let { paySlipTypes, paySlipLines } = this.state;
         return  <div className="panel panel-info">
@@ -570,20 +512,78 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                 </div>
             </div>
     }
+    renderInfo() {
+        return (
+            <div id="info" className="tab-pane fade in active">
+                <div className="panel panel-info">
+                    <div className="panel-body">
+                        <div className="col-md-4">
+                            <LabeledSelect
+                                name={'stockReceiveDocketTypeId'}
+                                value={this.state.receiveDocket.stockReceiveDocketTypeId}
+                                title={'Loại phiếu nhập'}
+                                placeHolder={'Loại phiếu nhập'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onDocketFieldChange.bind(this)}
+                                options={this.state.stockReceiveDocketTypes} />
+                        </div>
+                        <div className="col-md-4">
+                            <LabeledSelect
+                                name={'warehouseId'}
+                                value={this.state.receiveDocket.warehouseId}
+                                title={'Kho nhập'}
+                                placeHolder={'Kho nhập'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onDocketFieldChange.bind(this)}
+                                options={this.state.warehouses} />
+                        </div>
+                        <div className="col-md-4">
+                            <LabeledSingleDatePicker
+                                name={'receiveDate'}
+                                title={'Ngày tạo phiếu'}
+                                date={Moment()}
+                                dateChange={(e) => this.onReceiveDocketDateChange(e)} />
+                        </div>
+                        <div className="col-md-12">
+                            <LabeledTextArea
+                                rows={1}
+                                name={'description'}
+                                value={this.state.receiveDocket.description}
+                                title={'Ghi chú'}
+                                placeHolder={'Ghi chú'}
+                                error={this.state.errorList['description']}
+                                valueChange={this.onDocketFieldChange.bind(this)} />
+                        </div>
+                    </div>
+                </div>
+                {this.renderSuppliers()}
+                <div className="panel panel-info">
+                    <div className="panel-body">
+                        <div className='col-sm-12'>
+                            <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)}/>
+                        </div>
+                    </div>
+                </div>
+                {this.renderExpend()}
+            </div>
+        );
+    }
     renderReview() {
         let productQuantity = 0;
         let productTotalAmount = 0;
         let expendQuantity = 0;
         let expendTotalAmount = 0;
 
-        let { suppliers, paySlipDetails } = this.state;
+        let { suppliers, paySlipLines } = this.state;
         suppliers.forEach((item) => {
             productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
 
-        expendQuantity = paySlipDetails.length;
-        paySlipDetails.forEach((item) => {
+        expendQuantity = paySlipLines.length;
+        paySlipLines.forEach((item) => {
             expendTotalAmount += Number(item.amount);
         });
        

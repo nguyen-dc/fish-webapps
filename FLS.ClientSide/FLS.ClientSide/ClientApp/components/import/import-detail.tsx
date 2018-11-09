@@ -158,8 +158,7 @@ export class ImportDetail extends React.Component<RouteComponentProps<any>, Impo
             productQuantity += item.details.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
-
-        let totalExpend = receiveDocket.totalAmount - productTotalAmount;
+        let totalExpend = Math.round(receiveDocket.totalAmount) - Math.round(productTotalAmount);
         return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
             <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
             <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
