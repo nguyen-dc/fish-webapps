@@ -49,12 +49,20 @@ interface IIdNameModel {
     id: number;
     name: string;
     description: string;
+    value: any;
+    check: boolean;
+    parentId: number;
+    belongId: number;
 }
 
 export class IdNameModel implements IIdNameModel {
     id = 0;
     name = '';
     description = '';
+    value: null;
+    check: false;
+    parentId: 0;
+    belongId: 0;
 }
 
 interface IErrorItem {
