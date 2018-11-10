@@ -31,7 +31,8 @@ interface ImportStockStates {
     paySlipTypes: IdNameModel[],
     errorList: {},
     costs: CostsModel,
-    paySlipLines: paySlipLineModel[]
+    paySlipLines: paySlipLineModel[],
+    paySlipType: number | null,
 }
 
 class paySlipLineModel {
@@ -52,7 +53,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             paySlipTypes: [],
             errorList: {},
             costs: new CostsModel(),
-            paySlipLines: []
+            paySlipLines: [],
+            paySlipType: null,
         }
     }
     itemRefs = {};
@@ -73,6 +75,23 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                 ...this.state.receiveDocket,
                 [model.name]: model.value,
             }
+        };
+        this.setState(nextState);
+    }
+    onDocketTypeChange(model: any) {
+        let paySlipType = null;
+        if (model.value && model.value > 0) {
+            let payslip = this.state.stockReceiveDocketTypes.find(t => t.id == model.value);
+            if (payslip)
+                paySlipType = payslip.belongId;
+        }
+        const nextState = {
+            ...this.state,
+            receiveDocket: {
+                ...this.state.receiveDocket,
+                stockReceiveDocketTypeId: model.value,
+            },
+            paySlipType: paySlipType
         };
         this.setState(nextState);
     }
@@ -208,7 +227,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
     validateImport(): boolean {
-        let { receiveDocket, suppliers, paySlipDetails, paySlipLines} = this.state;
+        let { receiveDocket, suppliers, paySlipLines} = this.state;
         if (!receiveDocket.stockReceiveDocketTypeId) {
             this.context.ShowGlobalMessage('error', 'Xin chọn loại phiếu nhập');
             return false;
@@ -293,7 +312,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
             this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
-        let { suppliers } = this.state;
+        let { suppliers, paySlipType } = this.state;
         return suppliers.map((supplier) => {
             return <div key={supplier.supplierBranchId} ref={el => (this.itemRefs[supplier.supplierBranchId] = el)}>
                 <div className="panel panel-info panne-color">
@@ -309,42 +328,47 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                 <div className="panel-heading">
                                     Thông tin hóa đơn
                                 </div>
-                                <div className="panel-body">
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billTemplateCode'}
-                                            value={supplier.billTemplateCode}
-                                            title={'Mẫu số hóa đơn'}
-                                            placeHolder={'Mẫu số hóa đơn'}
-                                            error={this.state.errorList['billTemplateCode']}
-                                            valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
+                                { paySlipType == null || paySlipType > 0 ?
+                                    <div className="panel-body">
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billTemplateCode'}
+                                                value={supplier.billTemplateCode}
+                                                title={'Mẫu số hóa đơn'}
+                                                placeHolder={'Mẫu số hóa đơn'}
+                                                error={this.state.errorList['billTemplateCode']}
+                                                valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billSerial'}
+                                                value={supplier.billSerial}
+                                                title={'Số hiệu hóa đơn'}
+                                                placeHolder={'Số hiệu hóa đơn'}
+                                                error={this.state.errorList['billSerial']}
+                                                valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billCode'}
+                                                value={supplier.billCode}
+                                                title={'Số hóa đơn'}
+                                                placeHolder={'Số hóa đơn'}
+                                                error={this.state.errorList['billCode']}
+                                                valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledSingleDatePicker
+                                                name={'billDate'}
+                                                title={'Ngày hóa đơn'}
+                                                date={Moment()}
+                                                dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                    </div> :
+                                    <div className="panel-body">
+                                        <div className='alert alert-warning text-center'>Loại nhập hàng này không có phiếu chi</div>
                                     </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billSerial'}
-                                            value={supplier.billSerial}
-                                            title={'Số hiệu hóa đơn'}
-                                            placeHolder={'Số hiệu hóa đơn'}
-                                            error={this.state.errorList['billSerial']}
-                                            valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billCode'}
-                                            value={supplier.billCode}
-                                            title={'Số hóa đơn'}
-                                            placeHolder={'Số hóa đơn'}
-                                            error={this.state.errorList['billCode']}
-                                            valueChange={(e) => this.onImportStockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledSingleDatePicker
-                                            name={'billDate'}
-                                            title={'Ngày hóa đơn'}
-                                            date={Moment()}
-                                            dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                </div>
+                                }
                             </div>
                         </div>
                         <div className="col-md-8">
@@ -371,7 +395,8 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         })
     }
     renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
-        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
+        let { paySlipType } = this.state;
+        let totalPrice = (paySlipType == null || paySlipType > 0) ? docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0) : 0;
         return (
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover mg-0">
@@ -404,14 +429,16 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                     </td>
                                     <td>{detail.productUnitId}</td>
                                     <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='unitPrice'
-                                            value={detail.unitPrice}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        />
+                                        {paySlipType == null || paySlipType > 0 ?
+                                            <FormatedInput
+                                                type="currency"
+                                                className="form-control"
+                                                min={0}
+                                                name='unitPrice'
+                                                value={detail.unitPrice}
+                                                onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                            /> : _HNumber.FormatCurrency(0)
+                                        }
                                     </td>
 
                                     <td>
@@ -421,14 +448,17 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                         {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
                                     </td>
                                     <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='totalAmount'
-                                            value={detail.totalAmount}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        /></td>
+                                        {paySlipType == null || paySlipType > 0 ?
+                                            <FormatedInput
+                                                type="currency"
+                                                className="form-control"
+                                                min={0}
+                                                name='totalAmount'
+                                                value={detail.totalAmount}
+                                                onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                            /> : _HNumber.FormatCurrency(0)
+                                        }
+                                    </td>
                                     <td>
                                         <Button bsStyle='default' className='btn-sm'
                                             onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
@@ -525,7 +555,7 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
                                 placeHolder={'Loại phiếu nhập'}
                                 valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
+                                valueChange={(m) => this.onDocketTypeChange(m)}
                                 options={this.state.stockReceiveDocketTypes} />
                         </div>
                         <div className="col-md-4">
@@ -576,12 +606,14 @@ export class ImportStocks extends React.Component<RouteComponentProps<{}>, Impor
         let expendQuantity = 0;
         let expendTotalAmount = 0;
 
-        let { suppliers, paySlipLines } = this.state;
+        let { suppliers, paySlipLines, paySlipType } = this.state;
         suppliers.forEach((item) => {
             productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
-
+        if (paySlipType == null || paySlipType > 0) {
+            productTotalAmount = 0;
+        }
         expendQuantity = paySlipLines.length;
         paySlipLines.forEach((item) => {
             expendTotalAmount += Number(item.amount);

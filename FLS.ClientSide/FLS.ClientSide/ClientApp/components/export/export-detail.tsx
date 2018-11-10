@@ -124,13 +124,9 @@ export class ExportDetail extends React.Component<RouteComponentProps<any>, Expo
 
         let { details, issueDocket } = this.state.model;
         productQuantity += details.reduce((d, l) => d + (Number(l.quantity)), 0);
-        productTotalAmount += details.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
 
-        let totalExpend = issueDocket.totalAmount - productTotalAmount;
         return <div key='review' className="col-md-6 col-sm-8 col-xs-12 pull-right">
             <SummaryText value={_HNumber.FormatNumber(productQuantity)} title='Số lượng sản phẩm:' />
-            <SummaryText value={_HNumber.FormatCurrency(productTotalAmount)} title='Tổng tiền sản phẩm:' />
-            <SummaryText value={_HNumber.FormatCurrency(totalExpend)} title='Tổng chi phí khác:' />
             <SummaryText value={_HNumber.FormatCurrency(issueDocket.totalAmount)} title='Tổng tiền trên phiếu:' />
         </div>
     }

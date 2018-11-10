@@ -28,7 +28,8 @@ interface ExportStockStates {
     warehouses: IdNameModel[],
     stockIssueDocketTypes: IdNameModel[],
     errorList: {},
-    totalAmount: number
+    totalAmount: number,
+    receiptType: number,
 }
 export class ExportStocks extends React.Component<RouteComponentProps<{}>, ExportStockStates> {
     constructor(props: any) {
@@ -41,7 +42,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
             errorList: {},
             warehouses: [],
             stockIssueDocketTypes: [],
-            totalAmount: 0
+            totalAmount: 0,
+            receiptType: null,
         }
     }
 
@@ -61,6 +63,23 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                 ...this.state.issueDocket,
                 [model.name]: model.value,
             }
+        };
+        this.setState(nextState);
+    }
+    onDocketTypeChange(model: any) {
+        let receiptType = null;
+        if (model.value && model.value > 0) {
+            let receipt = this.state.stockIssueDocketTypes.find(t => t.id == model.value);
+            if (receipt)
+                receiptType = receipt.belongId;
+        }
+        const nextState = {
+            ...this.state,
+            issueDocket: {
+                ...this.state.issueDocket,
+                stockIssueDocketTypeId: model.value,
+            },
+            receiptType: receiptType
         };
         this.setState(nextState);
     }
@@ -226,7 +245,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                             valueKey={'id'}
                             nameKey={'name'}
                             options={stockIssueDocketTypes}
-                            valueChange={this.onDocketFieldChange.bind(this)} />
+                            valueChange={(m) => this.onDocketTypeChange(m)} />
                     </div>
                     <div className="col-md-4">
                         <LabeledSelect
@@ -260,60 +279,69 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         );
     }
     renderCustomer() {
-        let { receipt, docketDetails } = this.state;
+        let { receipt, docketDetails, receiptType } = this.state;
         return (
             <div className="row">
                 <div className="col-md-4">
                     <div className="panel panel-info">
                         <div className="panel-body">
-                            <div className="col-sm-12">
-                                <CustomerSimpleSearch onChooseCustomer={(customer) => this.onChooseCustomer(customer)} />
-                                {receipt.partnerId ?
-                                    (
-                                        <div className="row">
-                                            <div className='col-sm-12 mg-bt-15 mg-t-15 line-customer display-flex justify-content-between'>
-                                                <span>
-                                                    Khách hàng đã chọn: <strong>{receipt.partnerName}</strong>
-                                                </span>
-                                                <span onClick={() => this.onRemoveCustomer()} className="glyphicon glyphicon-remove cursor-pointer" aria-hidden="true"></span>
+                                <div className="col-sm-12">
+                                    <CustomerSimpleSearch onChooseCustomer={(customer) => this.onChooseCustomer(customer)} />
+                                    {receipt.partnerId ?
+                                        (
+                                            <div className="row">
+                                                <div className='col-sm-12 mg-bt-15 mg-t-15 line-customer display-flex justify-content-between'>
+                                                    <span>
+                                                        Khách hàng đã chọn: <strong>{receipt.partnerName}</strong>
+                                                    </span>
+                                                    <span onClick={() => this.onRemoveCustomer()} className="glyphicon glyphicon-remove cursor-pointer" aria-hidden="true"></span>
+                                                </div>
+
+                                            {receiptType == null || receiptType > 0 ?
+                                                [
+                                                    <div className='col-sm-12'>
+                                                        <LabeledInput
+                                                            name={'billTemplateCode'}
+                                                            value={this.state.receipt.billTemplateCode}
+                                                            title={'Mẫu số hóa đơn'}
+                                                            placeHolder={'Mẫu số hóa đơn'}
+                                                            error={this.state.errorList['billTemplateCode']}
+                                                            valueChange={this.onReceiptFieldChange.bind(this)} />
+                                                    </div>,
+                                                    <div className='col-sm-12'>
+                                                        <LabeledInput
+                                                            name={'billSerial'}
+                                                            value={this.state.receipt.billSerial}
+                                                            title={'Số hiệu hóa đơn'}
+                                                            placeHolder={'Số hiệu hóa đơn'}
+                                                            error={this.state.errorList['billSerial']}
+                                                            valueChange={this.onReceiptFieldChange.bind(this)} />
+                                                    </div>,
+                                                    <div className='col-sm-12'>
+                                                        <LabeledInput
+                                                            name={'billCode'}
+                                                            value={this.state.receipt.billCode}
+                                                            title={'Số hóa đơn'}
+                                                            placeHolder={'Số hóa đơn'}
+                                                            error={this.state.errorList['billCode']}
+                                                            valueChange={this.onReceiptFieldChange.bind(this)} />
+                                                    </div>,
+                                                    <div className='col-sm-12'>
+                                                        <LabeledSingleDatePicker
+                                                            name={'billDate'}
+                                                            title={'Ngày hóa đơn'}
+                                                            date={Moment()}
+                                                            dateChange={this.onFieldDateChange.bind(this)} />
+                                                    </div>
+                                                ] :
+                                                <div className="col-sm-12">
+                                                    <div className='alert alert-warning text-center'>Loại xuất hàng này không có phiếu thu</div>
+                                                </div>
+                                            }
                                             </div>
-                                            <div className='col-sm-12'>
-                                                <LabeledInput
-                                                    name={'billTemplateCode'}
-                                                    value={this.state.receipt.billTemplateCode}
-                                                    title={'Mẫu số hóa đơn'}
-                                                    placeHolder={'Mẫu số hóa đơn'}
-                                                    error={this.state.errorList['billTemplateCode']}
-                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
-                                            </div>
-                                            <div className='col-sm-12'>
-                                                <LabeledInput
-                                                    name={'billSerial'}
-                                                    value={this.state.receipt.billSerial}
-                                                    title={'Số hiệu hóa đơn'}
-                                                    placeHolder={'Số hiệu hóa đơn'}
-                                                    error={this.state.errorList['billSerial']}
-                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
-                                            </div>
-                                            <div className='col-sm-12'>
-                                                <LabeledInput
-                                                    name={'billCode'}
-                                                    value={this.state.receipt.billCode}
-                                                    title={'Số hóa đơn'}
-                                                    placeHolder={'Số hóa đơn'}
-                                                    error={this.state.errorList['billCode']}
-                                                    valueChange={this.onReceiptFieldChange.bind(this)} />
-                                            </div>
-                                            <div className='col-sm-12'>
-                                                <LabeledSingleDatePicker
-                                                    name={'billDate'}
-                                                    title={'Ngày hóa đơn'}
-                                                    date={Moment()}
-                                                    dateChange={this.onFieldDateChange.bind(this)} />
-                                            </div>
-                                        </div>
-                                    ) : null}
-                            </div>
+                                        ) : null
+                                    }
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -338,7 +366,8 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         )
     }
     renderProductsTable() {
-        let { docketDetails } = this.state;
+        let { docketDetails, receiptType } = this.state;
+        let totalPrice = (receiptType == null || receiptType > 0) ? docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0) : 0;
         return (
             <div className="table-responsive p-relative mg-t-15">
                 <table className="table table-striped table-hover mg-0">
@@ -369,14 +398,16 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                         />
                                     </td>
                                     <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='unitPrice'
-                                            value={detail.unitPrice}
-                                            onValueChange={(e) => this.onChangeRowInput(e, idx)}
-                                        />
+                                        {receiptType == null || receiptType > 0 ?
+                                            <FormatedInput
+                                                type="currency"
+                                                className="form-control"
+                                                min={0}
+                                                name='unitPrice'
+                                                value={detail.unitPrice}
+                                                onValueChange={(e) => this.onChangeRowInput(e, idx)}
+                                            /> : _HNumber.FormatCurrency(0)
+                                        }
                                     </td>
                                     <td>
                                         {detail.vatPercent ? detail.vatPercent : 0} %
@@ -385,14 +416,17 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                                         {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
                                     </td>
                                     <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='totalAmount'
-                                            value={detail.totalAmount}
-                                            onValueChange={(e) => this.onChangeRowInput(e, idx)}
-                                        /></td>
+                                        {receiptType == null || receiptType > 0 ?
+                                            <FormatedInput
+                                                type="currency"
+                                                className="form-control"
+                                                min={0}
+                                                name='totalAmount'
+                                                value={detail.totalAmount}
+                                                onValueChange={(e) => this.onChangeRowInput(e, idx)}
+                                            /> : _HNumber.FormatCurrency(0)
+                                        }
+                                    </td>
                                     <td>
                                         <Button bsStyle='default' className='btn-sm'
                                             onClick={this.onRemoveProduct.bind(this, detail.productId)}>
@@ -406,7 +440,7 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
                     <tfoot>
                         <tr>
                             <td colSpan={5} className="text-right">Tổng tiền:</td>
-                            <td colSpan={2}><strong>{_HNumber.FormatCurrency(this.state.totalAmount)}</strong></td>
+                            <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
                     </tfoot>
                 </table>
@@ -417,10 +451,11 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
         let productQuantity = 0;
         let productTotalAmount = 0;
 
-        let { docketDetails } = this.state;
+        let { docketDetails, receiptType } = this.state;
         productQuantity += docketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
-        productTotalAmount += docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
-
+        if (receiptType == null || receiptType > 0) {
+            productTotalAmount += docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
+        }
         let totalAmount = productTotalAmount;
         return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
             <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
@@ -431,7 +466,6 @@ export class ExportStocks extends React.Component<RouteComponentProps<{}>, Expor
     }
     render() {
         return (
-            // <UnderConstructor /> ||
             <div className="content-wapper">
                 <nav aria-label="breadcrumb">
                     <ol className="breadcrumb">
