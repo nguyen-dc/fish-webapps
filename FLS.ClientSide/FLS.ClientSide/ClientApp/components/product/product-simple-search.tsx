@@ -142,13 +142,14 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
         </Popover>
     }
     render() {
-        let { isPopUp, searchModel } = this.state;
+        let { isPopUp, searchModel, type } = this.state;
         let placement = this.props.popPlacement ? this.props.popPlacement : 'bottom';
         let wrapperClass = {
             className: isPopUp ? 'input-group popover-front' : 'input-group'
         }
+        let placeholder = type == 'stock' ? 'Chọn sản phẩm...' : 'Chọn con giống...';
         return <div {...wrapperClass} ref={thisref => { this.target = thisref }}>
-            <input type="text" className="form-control" name="search" placeholder="Chọn sản phẩm..." value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onOpenPopover()}/>
+            <input type="text" className="form-control" name="search" placeholder={placeholder} value={searchModel.key} onChange={this.onSearchKeyChange.bind(this)} onKeyPress={this.onSearchKeyPress.bind(this)} onClick={() => this.onOpenPopover()} />
             <span className="input-group-btn">
                 <button className="btn btn-default" type="button" onClick={() => this.onSearchButtonClick()}><span className="glyphicon glyphicon-search"></span></button>
             </span>

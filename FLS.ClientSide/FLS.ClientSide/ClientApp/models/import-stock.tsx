@@ -19,3 +19,18 @@ export class CostsModel {
     description: string = "";
     amount: number = 0;
 }
+
+export class ReleaseLivestockModel {
+    livestockDocket: ReleaseLivestockDocketModel;
+    suppliers: ImportStockSupplierModel[];
+    paySlipDetails: ExpenditureDocketDetailModel[];
+}
+export class ReleaseLivestockDocketModel {
+    fishPondWarehouseId: number;
+    receiveDate: Date | null;
+    isActuallyReceived: boolean;
+    vat: number;
+    amount: number;
+    totalAmount: number;
+    description: string;
+}

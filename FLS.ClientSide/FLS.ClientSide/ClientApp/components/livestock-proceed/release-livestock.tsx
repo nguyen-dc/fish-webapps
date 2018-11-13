@@ -7,45 +7,52 @@ import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber, _HString } from "../../handles/handles";
 import { ProductModel } from "../../models/product";
 import PropTypes from 'prop-types';
-import { ImportStockModel, CostsModel } from "../../models/import-stock";
+import { ReleaseLivestockModel, ReleaseLivestockDocketModel, CostsModel } from "../../models/import-stock";
 import { IdNameModel } from "../../models/shared";
 import { ProductSimpleSearch } from "../product/product-simple-search";
 import { SupplierSimpleSearch } from "../supplier/supplier-simple-search";
 import { SupplierModel } from "../../models/supplier";
-import { StockReceiveDocketModel } from "../../models/stock-receive-docket";
 import { ImportStockSupplierModel } from "../../models/import-stock-supplier";
 import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-detait";
-import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
 import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
-import { ImportAPICaller } from "../../api-callers/import";
 import { FormatedInput } from "../shared/input/formated-input";
 import { SummaryText } from "../shared/view-only";
-import { SystemIDEnum } from "../../enums/system-default-key-enum";
-import { UnderConstructor } from "../shared/under-constructor";
+import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
+import { LivestockProceedAPICaller } from "../../api-callers/livestock-proceed";
 
 interface ReleaseLivestockStates {
-    receiveDocket: StockReceiveDocketModel;
+    releaseDocket: ReleaseLivestockDocketModel;
     suppliers: ImportStockSupplierModel[];
     paySlipDetails: ExpenditureDocketDetailModel[];
     fishPonds: IdNameModel[],
     paySlipTypes: IdNameModel[],
     errorList: {},
-    costs: CostsModel
+    costs: CostsModel,
+    paySlipLines: paySlipLineModel[],
 }
+
+class paySlipLineModel {
+    paySlipTypeId: number = 0;
+    description: string = '';
+    amount: number = 0;
+}
+
 export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, ReleaseLivestockStates> {
     constructor(props: any) {
         super(props)
         this.state = {
-            receiveDocket: new StockReceiveDocketModel(),
+            releaseDocket: new ReleaseLivestockDocketModel(),
             suppliers: [] as ImportStockSupplierModel[],
             paySlipDetails: [] as ExpenditureDocketDetailModel[],
             fishPonds: [],
             paySlipTypes: [],
             errorList: {},
-            costs: new CostsModel()
+            costs: new CostsModel(),
+            paySlipLines: [],
         }
     }
+    itemRefs = {};
     async componentDidMount() {
         var fishPonds = await CacheAPI.FishPond();
         var paySlipTypes = await CacheAPI.PayslipType();
@@ -58,27 +65,24 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     onDocketFieldChange(model: any) {
         const nextState = {
             ...this.state,
-            receiveDocket: {
-                ...this.state.receiveDocket,
+            releaseDocket: {
+                ...this.state.releaseDocket,
                 [model.name]: model.value,
             }
         };
         this.setState(nextState);
-    }
-    onProductFieldChange(model: any) {
-        //
     }
     onChooseSupplier(supplier: SupplierModel) {
         let { suppliers } = this.state;
         let model = new ImportStockSupplierModel();
         let index = suppliers.findIndex(d => d.supplierBranchId == supplier.id);
         if (index >= 0) {
-            model = suppliers[index];
-            suppliers[index] = model;
+            this.itemRefs[supplier.id].scrollIntoView();
+            return;
         } else {
             model.supplierBranchId = supplier.id;
             model.supplierBranchName = supplier.name;
-            suppliers.unshift(model);
+            suppliers.push(model);
         }
         this.setState({ suppliers: suppliers });
     }
@@ -140,9 +144,9 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     onReceiveDocketDateChange(evt) {
         let date = evt.value as Moment.Moment;
-        let receiveDocket = this.state.receiveDocket;
-        receiveDocket[evt.name] = date;
-        this.setState({ receiveDocket: receiveDocket });
+        let releaseDocket = this.state.releaseDocket;
+        releaseDocket[evt.name] = date;
+        this.setState({ releaseDocket });
     }
     onChangeRowInput(event, supplierId, index) {
         let suppliers = this.state.suppliers;
@@ -164,6 +168,18 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
             this.setState({ suppliers: suppliers });
         }
     }
+    onPaySlipRowChange(model, index) {
+        var { paySlipLines } = this.state;
+        var payslip = paySlipLines[index];
+        if (payslip) {
+            if (model.name !== "description")
+                payslip[model.name] = parseInt(model.value);
+            else
+                payslip[model.name] = model.value;
+
+            this.setState({ paySlipLines: paySlipLines });
+        }
+    }
     onPaySlipFieldChange(model: any) {
         const nextState = {
             ...this.state,
@@ -174,70 +190,101 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         };
         this.setState(nextState);
     }
-    addPaySlip() {
-        let { costs } = this.state;
-        if (costs.paySlipTypeId > 0 || !_HString.IsNullOrEmpty(costs.description)) {
-            if (costs.amount < 0) {
-                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
-                return;
-            }
-            var model = new ExpenditureDocketDetailModel();
-            model.amount = costs.amount;
-            model.totalAmount = costs.amount;
-            model.expenditureTypeId = costs.paySlipTypeId;
-            model.title = costs.description;
-            var paySlipType = this.state.paySlipTypes.find(n => n.id == costs.paySlipTypeId);
-            if (paySlipType) {
-                model.expenditureTypeName = paySlipType.name;
-            }
-            //---------------------------------
-            let { paySlipDetails } = this.state;
-            paySlipDetails.unshift(model);
-
-            this.setState({ paySlipDetails: paySlipDetails, costs: new CostsModel() });
-        }
-        else {
-            this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
-        }
+    addLinePaySlip() {
+        var { paySlipLines } = this.state;
+        paySlipLines.push(new paySlipLineModel());
+        this.setState({ paySlipLines: paySlipLines });
     }
-    onRemovePaySlip(index: number) {
-        let { paySlipDetails } = this.state;
-        this.setState({ paySlipDetails: paySlipDetails.filter(m => m != paySlipDetails[index]) });
+    removeLinePaySlip(index: number) {
+        let { paySlipLines } = this.state;
+        this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
-    validateImport() {
-        let { receiveDocket, suppliers } = this.state;
-        if (!receiveDocket.warehouseId) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn ao thả');
+    validateImport(): boolean {
+        let { releaseDocket, suppliers, paySlipLines } = this.state;
+        if (!releaseDocket.fishPondWarehouseId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn ao');
             return false;
         }
         if (!suppliers || suppliers.length == 0) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và cá giống');
+            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và con giống cần nhập');
             return false;
+        }
+        else {
+            let iserror: boolean;
+            suppliers.map((s) => {
+                if (s.supplierBranchId != null && (!s.receiveDocketDetails || s.receiveDocketDetails.length == 0)) {
+                    this.context.ShowGlobalMessage('error', `Chưa nhập con giống cho nhà cung cấp ${s.supplierBranchName}`);
+                    iserror = true;
+                    return;
+                }
+                let filter = s.receiveDocketDetails.find(n => Number(n.unitPrice) < 0);
+                if (filter != null) {
+                    this.context.ShowGlobalMessage('error', 'Giá con giống phải lớn hơn hoặc bằng 0');
+                    iserror = true;
+                    return;
+                }
+                let filter1 = s.receiveDocketDetails.find(n => Number(n.quantity) < 0);
+                if (filter1 != null) {
+                    this.context.ShowGlobalMessage('error', 'Số lượng con giống không đúng');
+                    iserror = true;
+                    return;
+                }
+            })
+            if (iserror == true) return false;
+        }
+        if (paySlipLines.length > 0) {
+            let filter = paySlipLines.find(n => Number(n.amount) < 0);
+            if (filter != null) {
+                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+                return false;
+            }
+            let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
+            if (filter1 != null) {
+                this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+                return false;
+            }
         }
         return true;
     }
     async onCreateReleaseLivestock() {
         if (!this.validateImport())
             return;
-        let { receiveDocket, paySlipDetails, suppliers } = this.state;
-        receiveDocket.stockReceiveDocketTypeId = SystemIDEnum.releaseLiveStockType;
-        var model = new ImportStockModel();
-        model.receiveDocket = receiveDocket;
+        let { releaseDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
+
+        let paySlipDetails = [] as ExpenditureDocketDetailModel[];
+        // payslip
+        if (paySlipLines.length > 0) {
+            paySlipLines.forEach(function (item) {
+                var model = new ExpenditureDocketDetailModel();
+                model.amount = item.amount;
+                model.totalAmount = item.amount;
+                model.expenditureTypeId = item.paySlipTypeId;
+                model.title = item.description;
+                var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
+                if (paySlipType) {
+                    model.expenditureTypeName = paySlipType.name;
+                }
+                paySlipDetails.push(model);
+            });
+        }
+
+        var model = new ReleaseLivestockModel();
+        model.livestockDocket = releaseDocket;
         model.suppliers = suppliers;
         model.paySlipDetails = paySlipDetails;
-        model.receiveDocket.isActuallyReceived = true;
-        let response = await ImportAPICaller.Create(model);
+        model.livestockDocket.isActuallyReceived = true;
+        let response = await LivestockProceedAPICaller.Release(model);
         if (!response.hasError && response.data) {
-            this.props.history.push('/quanlynhap/' + response.data);
+            this.props.history.push('/');
         }
         else
             this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
         let { suppliers } = this.state;
-        return suppliers.map((supplier, idx) => {
-            return <div key={'splr-' + supplier.supplierBranchId}>
-                <div className="panel panel-default panne-color">
+        return suppliers.map((supplier) => {
+            return <div key={supplier.supplierBranchId} ref={el => (this.itemRefs[supplier.supplierBranchId] = el)}>
+                <div className="panel panel-info panne-color">
                     <div className="panel-heading">
                         <div className="display-flex justify-content-between align-items-center">
                             <span><strong>{supplier.supplierBranchName}</strong></span>
@@ -250,42 +297,42 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                 <div className="panel-heading">
                                     Thông tin hóa đơn
                                 </div>
-                                <div className="panel-body">
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billTemplateCode'}
-                                            value={supplier.billTemplateCode}
-                                            title={'Mẫu số hóa đơn'}
-                                            placeHolder={'Mẫu số hóa đơn'}
-                                            error={this.state.errorList['billTemplateCode']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                    <div className="panel-body">
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billTemplateCode'}
+                                                value={supplier.billTemplateCode}
+                                                title={'Mẫu số hóa đơn'}
+                                                placeHolder={'Mẫu số hóa đơn'}
+                                                error={this.state.errorList['billTemplateCode']}
+                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billSerial'}
+                                                value={supplier.billSerial}
+                                                title={'Số hiệu hóa đơn'}
+                                                placeHolder={'Số hiệu hóa đơn'}
+                                                error={this.state.errorList['billSerial']}
+                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledInput
+                                                name={'billCode'}
+                                                value={supplier.billCode}
+                                                title={'Số hóa đơn'}
+                                                placeHolder={'Số hóa đơn'}
+                                                error={this.state.errorList['billCode']}
+                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                        </div>
+                                        <div className='col-sm-12'>
+                                            <LabeledSingleDatePicker
+                                                name={'billDate'}
+                                                title={'Ngày hóa đơn'}
+                                                date={Moment()}
+                                                dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
+                                        </div>
                                     </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billSerial'}
-                                            value={supplier.billSerial}
-                                            title={'Số hiệu hóa đơn'}
-                                            placeHolder={'Số hiệu hóa đơn'}
-                                            error={this.state.errorList['billSerial']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledInput
-                                            name={'billCode'}
-                                            value={supplier.billCode}
-                                            title={'Số hóa đơn'}
-                                            placeHolder={'Số hóa đơn'}
-                                            error={this.state.errorList['billCode']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12'>
-                                        <LabeledSingleDatePicker
-                                            name={'billDate'}
-                                            title={'Ngày hóa đơn'}
-                                            date={Moment()}
-                                            dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div className="col-md-8">
@@ -293,14 +340,16 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                 <div className="panel-heading">Sản phẩm</div>
                                 <div className="panel-body">
                                     <div className='col-sm-12 mg-bt-15'>
-                                        <ProductSimpleSearch type='livestock' onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)} />
+                                        <ProductSimpleSearch
+                                            onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)}
+                                            type='livestock' />
                                     </div>
                                     {
                                         supplier.receiveDocketDetails && supplier.receiveDocketDetails.length > 0 ?
                                             <div className='col-sm-12'>
                                                 {this.renderProductsTable(supplier.supplierBranchId, supplier.receiveDocketDetails)}
                                             </div> : <div className='col-sm-12 text-center'>
-                                                Chưa có sản phẩm nào được chọn
+                                                Chưa có con giống nào được chọn
                                             </div>
                                     }
                                 </div>
@@ -318,8 +367,10 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                 <table className="table table-striped table-hover mg-0">
                     <thead>
                         <tr>
-                            <th>Tên sản phẩm</th>
-                            <th>Số lượng</th>
+                            <th>Tên con giống</th>
+                            <th>Kích cỡ giống</th>
+                            <th>Số lượng (con)</th>
+                            <th>Tổng trọng lượng (kg)</th>
                             <th>Đơn giá</th>
                             <th>%VAT</th>
                             <th>VAT</th>
@@ -332,6 +383,26 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                             docketDetails.map((detail, idx) => {
                                 return <tr key={'prdt-' + detail.productId}>
                                     <td>{detail.productName}</td>
+                                    <td>
+                                        <FormatedInput
+                                            type="number"
+                                            className="form-control max-w-100"
+                                            min={0}
+                                            name='livestockSize'
+                                            value={detail.livestockSize}
+                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                        />
+                                    </td>
+                                    <td>
+                                        <FormatedInput
+                                            type="number"
+                                            className="form-control max-w-100"
+                                            min={1}
+                                            name='livestockQuantity'
+                                            value={detail.livestockQuantity}
+                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                        />
+                                    </td>
                                     <td>
                                         <FormatedInput
                                             type="number"
@@ -352,6 +423,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                             onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
                                         />
                                     </td>
+
                                     <td>
                                         {detail.vatPercent ? detail.vatPercent : 0} %
                                     </td>
@@ -359,14 +431,15 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                         {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
                                     </td>
                                     <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control"
-                                            min={0}
-                                            name='totalAmount'
-                                            value={detail.totalAmount}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        /></td>
+                                            <FormatedInput
+                                                type="currency"
+                                                className="form-control"
+                                                min={0}
+                                                name='totalAmount'
+                                                value={detail.totalAmount}
+                                                onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
+                                            />
+                                    </td>
                                     <td>
                                         <Button bsStyle='default' className='btn-sm'
                                             onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
@@ -379,7 +452,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={5} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td colSpan={6} className="text-right"><strong>Tổng tiền:</strong> </td>
                             <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
@@ -388,15 +461,77 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
             </div>
         );
     }
-    renderTabInfo() {
+    renderExpend() {
+        let { paySlipTypes, paySlipLines } = this.state;
+        return <div className="panel panel-info">
+            <div className="panel-body">
+                <div className="text-right">
+                    <button className="btn btn-link" onClick={this.addLinePaySlip.bind(this)}>
+                        Thêm chi phí <Glyphicon glyph='plus-sign'></Glyphicon>
+                    </button>
+                </div>
+                {paySlipLines && paySlipLines.length > 0 ?
+                    <div className="col-sm-12">
+                        <div className="table-responsive p-relative">
+                            <table className="table table-striped table-hover paysliptable">
+                                <thead>
+                                    <tr>
+                                        <th>Chi phí</th>
+                                        <th>Nội dung chi phí</th>
+                                        <th>Số tiền (đã gồm VAT)</th>
+                                        <th className="th-sm-1"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {paySlipLines.map((m, index) => {
+                                        return <tr key={index}>
+                                            <td> <LabeledSelect
+                                                name={'paySlipTypeId'}
+                                                value={m.paySlipTypeId}
+                                                inputType={'number'}
+                                                placeHolder={'Loại chi phí'}
+                                                valueKey={'id'}
+                                                nameKey={'name'}
+                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                options={paySlipTypes}
+                                            /></td>
+                                            <td> <LabeledInput
+                                                name={'description'}
+                                                value={m.description}
+                                                inputType={'text'}
+                                                placeHolder={'Nội dung'}
+                                                error={this.state.errorList['description']}
+                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                            /></td>
+                                            <td> <LabeledInput
+                                                inputType='currency'
+                                                name={'amount'}
+                                                value={m.amount}
+                                                placeHolder={'Số tiền'}
+                                                error={this.state.errorList['amount']}
+                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                            /></td>
+                                            <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.removeLinePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
+                                        </tr>
+                                    })
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div> : null
+                }
+            </div>
+        </div>
+    }
+    renderInfo() {
         return (
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'warehouseId'}
-                                value={this.state.receiveDocket.warehouseId}
+                                name={'fishPondWarehouseId'}
+                                value={this.state.releaseDocket.fishPondWarehouseId}
                                 title={'Ao nuôi'}
                                 placeHolder={'Ao nuôi'}
                                 valueKey={'belongId'}
@@ -415,7 +550,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                             <LabeledTextArea
                                 rows={1}
                                 name={'description'}
-                                value={this.state.receiveDocket.description}
+                                value={this.state.releaseDocket.description}
                                 title={'Ghi chú'}
                                 placeHolder={'Ghi chú'}
                                 error={this.state.errorList['description']}
@@ -423,94 +558,17 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                         </div>
                     </div>
                 </div>
-                <div className="panel panel-default">
-                    <div className="panel-heading">Nhà cung cấp</div>
+                {this.renderSuppliers()}
+                <div className="panel panel-info">
                     <div className="panel-body">
                         <div className='col-sm-12'>
                             <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)} />
                         </div>
                     </div>
                 </div>
-                {this.renderSuppliers()}
+                {this.renderExpend()}
             </div>
         );
-    }
-    renderTabExpend() {
-        let { paySlipTypes, paySlipDetails } = this.state;
-        return <div id="expend" className="tab-pane fade">
-            <div className="panel panel-info">
-                <div className="panel-body">
-                    <div className="mg-bt-15">
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'paySlipTypeId'}
-                                value={this.state.costs.paySlipTypeId}
-                                title={'Loại chi phí'}
-                                placeHolder={'Loại chi phí'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                                options={paySlipTypes}
-                            />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledInput
-                                name={'description'}
-                                value={this.state.costs.description}
-                                title={'Nội dung'}
-                                placeHolder={'Nội dung'}
-                                error={this.state.errorList['description']}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                            />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledInput
-                                inputType='currency'
-                                name={'amount'}
-                                value={this.state.costs.amount}
-                                title={'Số tiền'}
-                                placeHolder={'Số tiền'}
-                                error={this.state.errorList['amount']}
-                                valueChange={this.onPaySlipFieldChange.bind(this)}
-                            />
-                        </div>
-                        <div className="col-sm-12">
-                            <div className="text-right">
-                                <button className="btn btn-primary" onClick={this.addPaySlip.bind(this)}>Thêm</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-sm-12">
-                        <div className="table-responsive p-relative">
-                            <table className="table table-striped table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Chi phí</th>
-                                        <th>Nội dung chi phí</th>
-                                        <th>Số tiền (đã gồm VAT)</th>
-                                        <th className="th-sm-1"></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {paySlipDetails.length > 0 ?
-                                        paySlipDetails.map((m, index) => {
-                                            return <tr key={index}>
-                                                <td>{m.expenditureTypeName}</td>
-                                                <td>{m.title}</td>
-                                                <td>{_HNumber.FormatCurrency(m.totalAmount)}</td>
-                                                <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.onRemovePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
-                                            </tr>
-                                        }) : <tr>
-                                            <td className="text-center" colSpan={4}>Chưa có chi phí nào</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
     }
     renderReview() {
         let productQuantity = 0;
@@ -518,21 +576,20 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         let expendQuantity = 0;
         let expendTotalAmount = 0;
 
-        let { suppliers, paySlipDetails } = this.state;
+        let { suppliers, paySlipLines } = this.state;
         suppliers.forEach((item) => {
             productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
-
-        expendQuantity = paySlipDetails.length;
-        paySlipDetails.forEach((item) => {
+        expendQuantity = paySlipLines.length;
+        paySlipLines.forEach((item) => {
             expendTotalAmount += Number(item.amount);
         });
 
         let totalAmount = productTotalAmount + expendTotalAmount;
         return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
-            <SummaryText title='Số lượng sản phẩm:' value={_HNumber.FormatNumber(productQuantity)} />
-            <SummaryText title='Tổng tiền sản phẩm:' value={_HNumber.FormatCurrency(productTotalAmount)} />
+            <SummaryText title='Số lượng con giống:' value={_HNumber.FormatNumber(productQuantity)} />
+            <SummaryText title='Tổng tiền con giống:' value={_HNumber.FormatCurrency(productTotalAmount)} />
             <SummaryText title='Chi phí đi kèm:' value={_HNumber.FormatNumber(expendQuantity)} />
             <SummaryText title='Tổng chi phí đi kèm:' value={_HNumber.FormatCurrency(expendTotalAmount)} />
             <SummaryText title='Tổng tiền trên phiếu:' value={_HNumber.FormatCurrency(totalAmount)} />
@@ -541,7 +598,6 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
-            <UnderConstructor /> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">
@@ -549,19 +605,12 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
                                 <li className="breadcrumb-item"><NavLink to="/quanlynhap">Quản lý nhập</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Nhập thả cá</li>
+                                <li className="breadcrumb-item active" aria-current="page">Nhập mua hàng hóa thông thường</li>
                             </ol>
                         </nav>
                     </div>
                 </div>
-                <ul className="nav nav-tabs">
-                    <li className="active"><a data-toggle="tab" href="#info">Thông tin phiếu nhập</a></li>
-                    <li><a data-toggle="tab" href="#expend">Chi phí nhập</a></li>
-                </ul>
-                <div className="tab-content">
-                    {this.renderTabInfo()}
-                    {this.renderTabExpend()}
-                </div>
+                {this.renderInfo()}
                 {this.renderReview()}
             </div>
         );
