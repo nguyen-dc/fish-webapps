@@ -292,50 +292,56 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                         </div>
                     </div>
                     <div className="panel-body">
-                        <div className="col-md-4">
-                            <div className="panel panel-default mg-bt-15">
-                                <div className="panel-heading">
-                                    Thông tin hóa đơn
-                                </div>
-                                    <div className="panel-body">
-                                        <div className='col-sm-12'>
-                                            <LabeledInput
-                                                name={'billTemplateCode'}
-                                                value={supplier.billTemplateCode}
-                                                title={'Mẫu số hóa đơn'}
-                                                placeHolder={'Mẫu số hóa đơn'}
-                                                error={this.state.errorList['billTemplateCode']}
-                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                        </div>
-                                        <div className='col-sm-12'>
-                                            <LabeledInput
-                                                name={'billSerial'}
-                                                value={supplier.billSerial}
-                                                title={'Số hiệu hóa đơn'}
-                                                placeHolder={'Số hiệu hóa đơn'}
-                                                error={this.state.errorList['billSerial']}
-                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                        </div>
-                                        <div className='col-sm-12'>
-                                            <LabeledInput
-                                                name={'billCode'}
-                                                value={supplier.billCode}
-                                                title={'Số hóa đơn'}
-                                                placeHolder={'Số hóa đơn'}
-                                                error={this.state.errorList['billCode']}
-                                                valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                        </div>
-                                        <div className='col-sm-12'>
-                                            <LabeledSingleDatePicker
-                                                name={'billDate'}
-                                                title={'Ngày hóa đơn'}
-                                                date={Moment()}
-                                                dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
-                                        </div>
+                        <div className="col-md-12">
+                            <div className='text-right mg-bt-15'>
+                                <Button
+                                    data-toggle="collapse"
+                                    href={'#collapse-' + supplier.supplierBranchId}
+                                    aria-expanded="false"
+                                    bsStyle="link">
+                                    Thêm thông tin hóa đơn <Glyphicon glyph='list-alt'></Glyphicon>
+                                </Button>
+                            </div>
+                            <div id={'collapse-' + supplier.supplierBranchId} className="collapse panel panel-default mg-bt-15">
+                                <div className="panel-body">
+                                    <div className='col-sm-12 col-md-6 col-lg-3'>
+                                        <LabeledInput
+                                            name={'billTemplateCode'}
+                                            value={supplier.billTemplateCode}
+                                            title={'Mẫu số hóa đơn'}
+                                            placeHolder={'Mẫu số hóa đơn'}
+                                            error={this.state.errorList['billTemplateCode']}
+                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
                                     </div>
+                                    <div className='col-sm-12 col-md-6 col-lg-3'>
+                                        <LabeledInput
+                                            name={'billSerial'}
+                                            value={supplier.billSerial}
+                                            title={'Số hiệu hóa đơn'}
+                                            placeHolder={'Số hiệu hóa đơn'}
+                                            error={this.state.errorList['billSerial']}
+                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                    </div>
+                                    <div className='col-sm-12 col-md-6 col-lg-3'>
+                                        <LabeledInput
+                                            name={'billCode'}
+                                            value={supplier.billCode}
+                                            title={'Số hóa đơn'}
+                                            placeHolder={'Số hóa đơn'}
+                                            error={this.state.errorList['billCode']}
+                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
+                                    </div>
+                                    <div className='col-sm-12 col-md-6 col-lg-3'>
+                                        <LabeledSingleDatePicker
+                                            name={'billDate'}
+                                            title={'Ngày hóa đơn'}
+                                            date={Moment()}
+                                            dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="col-md-8">
+                        <div className="col-md-12">
                             <div className="panel panel-default mg-0">
                                 <div className="panel-heading">Sản phẩm</div>
                                 <div className="panel-body">
@@ -452,7 +458,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                     </tbody>
                     <tfoot>
                         <tr>
-                            <td colSpan={6} className="text-right"><strong>Tổng tiền:</strong> </td>
+                            <td colSpan={7} className="text-right"><strong>Tổng tiền:</strong> </td>
                             <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
                         </tr>
 
@@ -605,7 +611,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
                                 <li className="breadcrumb-item"><NavLink to="/quanlynhap">Quản lý nhập</NavLink></li>
-                                <li className="breadcrumb-item active" aria-current="page">Nhập mua hàng hóa thông thường</li>
+                                <li className="breadcrumb-item active" aria-current="page">Nhập thả cá</li>
                             </ol>
                         </nav>
                     </div>

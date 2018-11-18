@@ -45,6 +45,7 @@ import { ManageUserRoles } from './components/system/manage-user-role';
 import { StockReceiveDocketEdit } from './components/import/stock-receive-edit';
 import { ImportDetail } from './components/import/import-detail';
 import { ExportDetail } from './components/export/export-detail';
+import { ProductDetail } from './components/product/product-detail';
 
 export const routes = <Layout>
     <Switch>
@@ -57,6 +58,7 @@ export const routes = <Layout>
         <Route exact path='/nhomhang' component={ProductSubGroups} />
         <Route exact path='/donvitinh' component={ProductUnits} />
         <Route exact path='/sanpham' component={Products} />
+        <Route exact path='/sanpham/:productId' component={ProductDetail} />
         <Route exact path='/khachhang' component={Customers} />
         <Route exact path='/nhacungcap' component={Suppliers} />
         <Route exact path='/loaikho' component={WarehouseTypes} />

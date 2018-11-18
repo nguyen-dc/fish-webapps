@@ -20,3 +20,28 @@ export class ProductModel implements IProduct {
     description: string = '';
     checked: boolean;
 }
+export class ProductDetailModel {
+    id: number;
+    name: string;
+    productGroupId: number;
+    productGroupName: string;
+    productSubgroupId: number;
+    productSubgroupName: string;
+    defaultUnitId: number;
+    defaultUnitName: string;
+    taxPercent: number;
+    description: string;
+    productUnits: ProductUnitProductModel[];
+}
+export class ProductUnitProductModel {
+    id: number;
+    productId: number;
+    productName: string;
+    productUnitId: number;
+    productUnitName: string;
+    unitHasScale: boolean;
+    defaultUnitValue: number;
+    constructor() {
+        this.defaultUnitValue = 1;
+    }
+}

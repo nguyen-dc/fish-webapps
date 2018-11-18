@@ -47,5 +47,26 @@ namespace FLS.ClientSide.Controllers
             ResponseConsult<bool> response = await DeleteAsync<bool>(link);
             return Ok(response);
         }
+        [HttpPost("{_productId:int}/units/add")]
+        public async Task<ActionResult> AddUnit(int _productId, [FromBody]ProductUnitProductModel _model)
+        {
+            string link = URI_API.PRODUCT_UNIT_PRODUCT_ADD.Replace("{id}", $"{_productId}"); ;
+            ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
+            return Ok(response);
+        }
+        [HttpPut("units/{_unitId:int}/modify")]
+        public async Task<ActionResult> ModifyUnit(int _unitId, [FromBody]ProductUnitProductModel _model)
+        {
+            string link = URI_API.PRODUCT_UNIT_PRODUCT_MODIFY.Replace("{id}", $"{_unitId}");
+            ResponseConsult<bool> response = await PutAsJsonAsync<bool>(link, _model);
+            return Ok(response);
+        }
+        [HttpDelete("units/{_unitId:int}/remove")]
+        public async Task<ActionResult> RemoveUnit(int _unitId)
+        {
+            string link = URI_API.PRODUCT_UNIT_PRODUCT_REMOVE.Replace("{id}", $"{_unitId}");
+            ResponseConsult<bool> response = await DeleteAsync<bool>(link);
+            return Ok(response);
+        }
     }
 }

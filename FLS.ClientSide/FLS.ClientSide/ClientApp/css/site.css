@@ -12,6 +12,9 @@ body{
 .pd-0{
     padding:0;
 }
+.pd-bt-0{
+    padding-bottom: 0;
+}
 .padding-lr-15{
     padding:0 15px;
 }
