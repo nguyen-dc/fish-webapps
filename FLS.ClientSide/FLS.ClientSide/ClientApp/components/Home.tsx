@@ -46,7 +46,7 @@ export class Home extends React.Component<RouteComponentProps<{}>, {}> {
                         <div className="menu" href="/stats">Quản lý nuôi cá
                              <ul>
                                 <li><NavLink to="/dotnuoi" className="a-active">Đợt nuôi</NavLink></li>
-                                <li><a>Nhập thả cá</a></li>
+                                <li><NavLink to="/nhapthaca">Nhập thả cá</NavLink></li>
                                 <li><a>Cho ăn</a></li>
                                 <li><a>Rãi thuốc</a></li>
                                 <li><a>Kiểm tra cá chết</a></li>

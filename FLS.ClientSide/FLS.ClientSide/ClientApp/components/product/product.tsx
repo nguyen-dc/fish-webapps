@@ -47,14 +47,14 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
             lastSearchModel: new PageFilterModel(),
         };
     }
+    static contextTypes = {
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
+    }
     async componentWillMount() {
         var productGroups = await CacheAPI.ProductGroup();
         this.setState({ productGroups: productGroups.data });
         await this.onPageChange(1, true);
-    }
-    static contextTypes = {
-        ShowGlobalMessage: PropTypes.func,
-        ShowGlobalMessageList: PropTypes.func,
     }
     async loadData(page: number, newSearch: boolean) {
         let searchModel = this.state.lastSearchModel;
@@ -227,7 +227,6 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                         <th>Nhóm hàng</th>
                         <th>Đơn vị tính</th>
                         <th>Thuế</th>
-                        <th className="th-sm-2"></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -237,11 +236,14 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                             products.map(m =>
                                 <tr key={m.id}>
                                     <td>{m.id}</td>
-                                    <td>{m.name}</td>
+                                    <td>
+                                        <NavLink to={`/sanpham/${ m.id }`}>{m.name}</NavLink>
+                                    </td>
                                     <td>{m.productGroupId}</td>
                                     <td>{m.productSubgroupId}</td>
                                     <td>{m.defaultUnitId}</td>
                                     <td>{m.taxPercent}%</td>
+                                    {/*
                                     <td className="text-right">
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
@@ -257,6 +259,7 @@ export class Products extends React.Component<RouteComponentProps<{}>, ProductSt
                                                 onClickYes={() => this.onDelete(m.id)} />
                                         </ButtonGroup>
                                     </td>
+                                    */}
                                 </tr>
                             )
                     }

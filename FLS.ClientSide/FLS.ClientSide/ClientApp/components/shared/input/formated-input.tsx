@@ -3,7 +3,7 @@ import { isEqual } from 'lodash';
 import { _HNumber } from '../../../handles/handles';
 interface FormatedInputProps {
     className?: string,
-    type?: 'number' | 'currency',
+    type: 'number' | 'currency',
     id?: number | string,
     name?: string,
     value?: number | string,

@@ -1,172 +1,121 @@
 ﻿import * as React from "react";
 import PropTypes from 'prop-types';
 import { RouteComponentProps } from "react-router";
+import { NavLink } from "react-router-dom";
+import { _HString, _HNumber } from "../../handles/handles";
+import { ProductAPICaller } from "../../api-callers";
+import { ProductDetailModel } from "../../models/product";
+import { SummaryText, EmptyTableMessage } from "../shared/view-only";
+import { ProductUnitProductRow } from "./unit/product-unit-product-row";
+import { ProductUnitProductNew } from "./unit/product-unit-product-new";
 
-export class ProductDetail extends React.Component<RouteComponentProps<any>, any>{
+interface ProductDetailStates {
+    product: ProductDetailModel,
+    isLoading: boolean,
+}
+export class ProductDetail extends React.Component<RouteComponentProps<any>, ProductDetailStates>{
+    productId: number;
     constructor(props: any) {
         super(props)
         this.props = props;
+        this.state = {
+            product: null,
+            isLoading: true,
+        }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: PropTypes.func,
+        ShowGlobalMessageList: PropTypes.func,
+    }
+    componentDidMount() {
+        var params = this.props.match.params;
+        if (_HNumber.IsNumber(params.productId)) {
+            this.productId = Number(params.productId);
+            this.getProductDetail();
+        }
+        else {
+            this.context.ShowGlobalMessage('error', 'Mã sản phẩm không hợp lệ');
+            this.props.history.push('/sanpham');
+        }
+    }
+    async getProductDetail() {
+        let detail = await ProductAPICaller.Detail(this.productId);
+        if (detail.hasError) {
+            this.context.ShowGlobalMessageList('error', detail.errors);
+            this.setState({ product: null, isLoading: false });
+        }
+        else {
+            this.setState({ product: detail.data, isLoading: false });
+        }
+        if (detail.hasWarning) {
+            this.context.ShowGlobalMessageList('warning', detail.warnings);
+        }
+    }
+    onEditUnit(unit) {
+        console.log(unit)
+    }
+    private renderBody() {
+        let { product } = this.state;
+        if (!product) return null;
+        return <div id="info">
+            <div className="panel panel-info">
+                <div className="panel-body pd-bt-0">
+                    <div className='row'>
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.id} title='Mã' />
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.name} title='Tên' />
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.productGroupId} title='Ngành hàng' />
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.productSubgroupId} title='Nhóm hàng' />
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.defaultUnitId} title='Đơn vị tính chuẩn' />
+                        <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.taxPercent + '%'} title='Thuế' />
+                    </div>
+                    {product.productUnits ? <table className="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th>Mã</th>
+                                <th>Đơn vị</th>
+                                <th>Giá trị đơn vị tính chuẩn</th>
+                                <th className="th-sm-2"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <ProductUnitProductNew
+                                productId={product.id}
+                                defaultUnitId={product.defaultUnitId}
+                                defaultUnitName={product.defaultUnitName}
+                                afterUpdate={() => { this.getProductDetail() }} />
+                            {product.productUnits.length == 0 ?
+                                null :
+                                product.productUnits.map(unit => {
+                                    return <ProductUnitProductRow
+                                        key={unit.id}
+                                        defaultUnitId={product.defaultUnitId}
+                                        defaultUnitName={product.defaultUnitName}
+                                        model={unit}
+                                        afterUpdate={() => { this.getProductDetail() }}
+                                    />
+                                })
+                            }
+                        </tbody>
+                    </table> : null
+                    }
+                </div>
+            </div>
+        </div>
     }
     render() {
-        return (
+        return <div className="content-wapper">
             <div className="row">
-                <form className="form-horizontal" action="/examples/actions/confirmation.php" method="post">
-                    <div className="col-md-6">
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="inputEmail">Email Address:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="email" className="form-control" id="inputEmail" placeholder="Email Address" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="phoneNumber">Phone Number:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="tel" className="form-control" id="phoneNumber" placeholder="Phone Number" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3">Date of Birth:</label>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Date</option>
-                                </select>
-                            </div>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Month</option>
-                                </select>
-                            </div>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Year</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="postalAddress">Postal Address:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <textarea className="form-control" id="postalAddress" placeholder="Postal Address" required></textarea>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="ZipCode">Zip Code:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="text" className="form-control" id="ZipCode" placeholder="Zip Code" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3">Gender:</label>
-                            <div className="col-xs-3">
-                                <label className="radio-inline">
-                                    <input type="radio" name="genderRadios" value="male" required /> Male
-                             </label>
-                            </div>
-                            <div className="col-xs-3">
-                                <label className="radio-inline">
-                                    <input type="radio" name="genderRadios" value="female" required /> Female
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <label className="checkbox-inline">
-                                    <input type="checkbox" value="news" /> Send me latest news and updates.
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <label className="checkbox-inline">
-                                    <input type="checkbox" value="agree" />  I agree to the <a href="#">Terms and Conditions</a>.
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <input type="submit" className="btn btn-primary mg-r-15" value="Submit" />
-                                <input type="reset" className="btn btn-default" value="Reset" />
-                            </div>
-                        </div>
-                    </div>
-                    <div className="col-md-6">
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="inputEmail">Email Address:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="email" className="form-control" id="inputEmail" placeholder="Email Address" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="phoneNumber">Phone Number:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="tel" className="form-control" id="phoneNumber" placeholder="Phone Number" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3">Date of Birth:</label>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Date</option>
-                                </select>
-                            </div>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Month</option>
-                                </select>
-                            </div>
-                            <div className="col-xs-3">
-                                <select className="form-control">
-                                    <option>Year</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="postalAddress">Postal Address:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <textarea className="form-control" id="postalAddress" placeholder="Postal Address" required></textarea>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3" htmlFor="ZipCode">Zip Code:</label>
-                            <div className="col-xs-12 col-sm-9 col-md-9">
-                                <input type="text" className="form-control" id="ZipCode" placeholder="Zip Code" required />
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <label className="control-label col-xs-12 col-sm-3 col-md-3">Gender:</label>
-                            <div className="col-xs-3">
-                                <label className="radio-inline">
-                                    <input type="radio" name="genderRadios" value="male" required /> Male
-                             </label>
-                            </div>
-                            <div className="col-xs-3">
-                                <label className="radio-inline">
-                                    <input type="radio" name="genderRadios" value="female" required /> Female
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <label className="checkbox-inline">
-                                    <input type="checkbox" value="news" /> Send me latest news and updates.
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <label className="checkbox-inline">
-                                    <input type="checkbox" value="agree" />  I agree to the <a href="#">Terms and Conditions</a>.
-                </label>
-                            </div>
-                        </div>
-                        <div className="form-group">
-                            <div className="col-xs-offset-0 col-sm-offset-3 col-xs-9">
-                                <input type="submit" className="btn btn-primary mg-r-15" value="Submit" />
-                                <input type="reset" className="btn btn-default" value="Reset" />
-                            </div>
-                        </div>
-                    </div>
-                </form>
+                <div className="col-sm-12">
+                    <nav aria-label="breadcrumb">
+                        <ol className="breadcrumb">
+                            <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                            <li className="breadcrumb-item"><NavLink to="/sanpham">Sản phẩm</NavLink></li>
+                            <li className="breadcrumb-item active" aria-current="page">Chi tiết</li>
+                        </ol>
+                    </nav>
+                </div>
             </div>
-        );
+            {this.renderBody()}
+        </div>
     }
 }
