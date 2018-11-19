@@ -7,6 +7,7 @@ import { Button, Glyphicon, ButtonGroup } from "react-bootstrap";
 import { cloneDeep } from 'lodash';
 import { FormatedInput } from "../../shared/input/formated-input";
 import { ConfirmButton } from "../../shared/button/ConfirmButton";
+import { InputNumber } from "../../shared/input/input-number";
 
 interface ProductUnitProductNewProps {
     productId: number,
@@ -88,15 +89,15 @@ export class ProductUnitProductNew extends React.Component<ProductUnitProductNew
                     </select>
                     </td>
                 <td>
-                    <FormatedInput
-                        type="number"
-                        className='form-control'
+                    <InputNumber
+                        hasScale={true}
+                        suffix={this.props.defaultUnitName}
                         value={stateModel.defaultUnitValue}
-                        onValueChange={(e) => {
-                            stateModel.defaultUnitValue = e.value;
+                        onChange={(e) => {
+                            stateModel.defaultUnitValue = e;
                             this.setState({ model: stateModel })
                         }} />
-                    {this.props.defaultUnitName}</td>
+                </td>
                 <td className="text-right">
                     <ButtonGroup>
                         <Button bsStyle="default"

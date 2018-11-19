@@ -5,8 +5,8 @@ import { ProductAPICaller } from "../../../api-callers";
 import { ProductUnitProductModel } from "../../../models/product";
 import { Button, Glyphicon, ButtonGroup } from "react-bootstrap";
 import { cloneDeep } from 'lodash';
-import { FormatedInput } from "../../shared/input/formated-input";
 import { ConfirmButton } from "../../shared/button/ConfirmButton";
+import { InputNumber } from "../../shared/input/input-number";
 
 interface ProductUnitProductRowProps {
     defaultUnitId: number,
@@ -72,15 +72,15 @@ export class ProductUnitProductRow extends React.Component<ProductUnitProductRow
                 <td>{stateModel.productUnitId}</td>
                 <td> 1 {stateModel.productUnitName}</td>
                 <td>
-                    <FormatedInput
-                        type="number"
-                        className='form-control'
+                    <InputNumber
+                        hasScale={true}
+                        suffix={this.props.defaultUnitName}
                         value={stateModel.defaultUnitValue}
-                        onValueChange={(e) => {
-                            stateModel.defaultUnitValue = e.value;
-                            this.setState({model: stateModel})
+                        onChange={(e) => {
+                            stateModel.defaultUnitValue = e;
+                            this.setState({ model: stateModel })
                         }} />
-                    {this.props.defaultUnitName}</td>
+                    </td>
                 <td className="text-right">
                     <ButtonGroup>
                         <Button bsStyle="default"

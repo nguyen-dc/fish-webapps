@@ -1,0 +1,26 @@
+﻿.input-control {
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    display: flex;
+    flex-wrap: nowrap;
+}
+    .input-control > input {
+        border: none;
+        border-radius: 3px;
+        width: 100%;
+        height: 32px;
+        line-height: 32px;
+        padding: 0 9px;
+    }
+    .input-control > .prefix, .input-control > .suffix {
+        color: #31708f;
+        padding: 6px;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+    .input-control > .prefix {
+        border-right: 1px solid #ccc;
+    }
+    .input-control > .suffix {
+        border-left: 1px solid #ccc;
+    }
