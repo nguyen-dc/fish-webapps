@@ -1,6 +1,8 @@
 ﻿import * as React from 'react';
 import '../index.css'
 import { _HNumber } from '../../../handles/handles';
+import * as _ from 'lodash';
+
 interface InputNumberProps {
     value?: number,
     className?: string,
@@ -10,7 +12,6 @@ interface InputNumberProps {
     onChange: Function,
 }
 interface InputNumberState {
-    value: string | number;
     formated: string;
     isFocus: boolean;
 }
@@ -20,13 +21,17 @@ export class InputNumber extends React.Component<InputNumberProps, InputNumberSt
     constructor(props: any) {
         super(props);
         this.state = {
-            value: props.value,
             formated: this.format(props.value),
             isFocus: false,
         }
         this.oldValue = props.value ? props.value : 0;
     }
     oldValue: number = 0;
+    componentWillReceiveProps(nextProps) {
+        if (!_.isEqual(this.props.value, nextProps.value)) {
+            this.setState({ formated: this.format(nextProps.value) });
+        }
+    }
     format(value) {
         return _HNumber.FormatNumber(value);
     }
@@ -61,15 +66,14 @@ export class InputNumber extends React.Component<InputNumberProps, InputNumberSt
                 }
             }
         }
-        this.setState({ value });
+        this.props.onChange(Number(value));
     }
     private onFocus() {
         this.setState({ isFocus: true })
     }
     private onBlur() {
-        let formated = _HNumber.FormatNumber(this.state.value);
+        let formated = _HNumber.FormatNumber(this.props.value);
         this.setState({ formated, isFocus: false })
-        this.props.onChange(this.state.value);
     }
     public render() {
         let { ...props } = this.props;
@@ -78,7 +82,7 @@ export class InputNumber extends React.Component<InputNumberProps, InputNumberSt
             {props.prefix ? <div className='prefix'>{props.prefix}</div> : null}
             <input
                 className={props.className}
-                value={state.isFocus == true ? state.value : state.formated}
+                value={state.isFocus == true ? props.value : state.formated}
                 onChange={(e) => this.onChange(e)}
                 onFocus={() => this.onFocus()}
                 onBlur={() => this.onBlur()}
