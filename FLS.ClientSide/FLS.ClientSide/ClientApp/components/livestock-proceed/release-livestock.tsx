@@ -275,7 +275,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         model.livestockDocket.isActuallyReceived = true;
         let response = await LivestockProceedAPICaller.Release(model);
         if (!response.hasError && response.data) {
-            this.props.history.push('/');
+            this.props.history.push('/quanlynhap/' + response.data);
         }
         else
             this.context.ShowGlobalMessageList('error', response.errors);
@@ -581,20 +581,26 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         let productTotalAmount = 0;
         let expendQuantity = 0;
         let expendTotalAmount = 0;
-
+        let totalLiveStock = 0;
         let { suppliers, paySlipLines } = this.state;
         suppliers.forEach((item) => {
+            totalLiveStock += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.livestockQuantity)), 0);
+            
             productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
             productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
         });
+
         expendQuantity = paySlipLines.length;
         paySlipLines.forEach((item) => {
             expendTotalAmount += Number(item.amount);
         });
 
         let totalAmount = productTotalAmount + expendTotalAmount;
+
+
         return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
-            <SummaryText title='Số lượng con giống:' value={_HNumber.FormatNumber(productQuantity)} />
+            <SummaryText title='Tổng trọng lượng con giống:' value={_HNumber.FormatNumber(productQuantity)} />
+            <SummaryText title='Tổng số lượng con giống:' value={_HNumber.FormatNumber(totalLiveStock)} />
             <SummaryText title='Tổng tiền con giống:' value={_HNumber.FormatCurrency(productTotalAmount)} />
             <SummaryText title='Chi phí đi kèm:' value={_HNumber.FormatNumber(expendQuantity)} />
             <SummaryText title='Tổng chi phí đi kèm:' value={_HNumber.FormatCurrency(expendTotalAmount)} />
