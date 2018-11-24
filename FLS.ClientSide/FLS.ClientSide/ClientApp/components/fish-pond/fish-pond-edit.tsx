@@ -15,7 +15,7 @@ interface IFishPondProps {
     onFormAfterSubmit?: any,
     isEdit: boolean,
     model?: FishPondModel
-    farmRegions: any
+    farmRegions: any,
 }
 
 interface IFishPondState {
@@ -23,7 +23,9 @@ interface IFishPondState {
     model?: FishPondModel,
     errorList: any,
     farmRegions: any,
-    warehouses: any
+    warehouses: any,
+    isDisable: boolean,
+    warehousesFilter: any,
 }
 
 export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState> {
@@ -34,22 +36,20 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
             model: props.model ? props.model : new FishPondModel(),
             errorList: {},
             farmRegions: [],
-            warehouses: []
+            warehouses: [],
+            warehousesFilter: [],
+            isDisable: true
         }
     }
+
     static contextTypes = {
         ShowGlobalMessage: PropTypes.func,
         ShowGlobalMessageList: PropTypes.func,
     }
 
     async componentWillMount() {
-        //init comboboxes
-        await this._loadDataCache();
-    }
-
-    private async _loadDataCache() {
         var warehouses = await CacheAPI.Warehouse();
-        this.setState({ warehouses: warehouses.data });
+        this.setState({ warehouses: warehouses.data});
     }
 
     componentWillReceiveProps(nextProps) {
@@ -70,6 +70,18 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
             }
         };
         this.setState(nextState);
+        if (model.name == "farmRegionId") {
+            if (Number(model.value) > 0) {
+                let { warehouses } = this.state;
+                let warehousesByFarmRegion = warehouses.filter(function (item) {
+                    return item.parentId == model.value;
+                });
+                this.setState({ warehousesFilter: warehousesByFarmRegion, isDisable: false });
+            }
+            else {
+                this.setState({ warehousesFilter: [], isDisable: true });
+            }
+        }
     }
     onEdgeValueChange(model) {
         const nextState = {
@@ -177,11 +189,12 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                             error={this.state.errorList['farmRegionId']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
-                            options={this.state.warehouses}
+                            options={this.state.warehousesFilter}
                             name={'defaultWarehouseId'}
                             value={this.state.model.defaultWarehouseId}
                             title={'Kho'}
                             placeHolder={'Chọn kho'}
+                            disabled={this.state.isDisable}
                             error={this.state.errorList['defaultWarehouseId']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledInput

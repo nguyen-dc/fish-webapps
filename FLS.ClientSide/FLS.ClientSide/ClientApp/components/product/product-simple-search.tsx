@@ -6,9 +6,11 @@ import { ProductAPICaller } from "../../api-callers/product";
 import { ProductModel } from "../../models/product";
 import { EmptyTableMessage } from "../shared/view-only";
 import Pagination from "react-js-pagination";
+import { FilterEnum } from "../../enums/filter-enum";
 
 interface ProductSimpleSearchProps {
     type?: 'stock' | 'livestock',
+    productGroupId?: number,
     popPlacement?: 'top' | 'right' | 'bottom' | 'left',
     stayPop?: boolean,
     onChooseProduct?: Function,
@@ -51,6 +53,10 @@ export class ProductSimpleSearch extends React.Component<ProductSimpleSearchProp
         if (newSearch) {
             searchModel = this.state.searchModel;
             searchModel.page = 1;
+        }
+        if (this.props.productGroupId) {
+            searchModel.filters[0].key = FilterEnum.productGroup;
+            searchModel.filters[0].value = this.props.productGroupId;
         }
         return await ProductAPICaller.GetList(searchModel, this.state.type);
     }

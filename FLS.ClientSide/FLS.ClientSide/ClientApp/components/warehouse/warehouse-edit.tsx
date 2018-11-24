@@ -6,7 +6,6 @@ import PropTypes from 'prop-types';
 import { LabeledInput, LabeledSelect } from "../shared/input/labeled-input";
 import { WarehouseAPICaller } from "../../api-callers/warehouse";
 import { _HString } from "../../handles/handles";
-import { CacheAPI } from "../../api-callers";
 
 export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseState> {
     constructor(props: IWarehouseProps) {
@@ -15,21 +14,21 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
             isShow: props.isShow,
             model: props.model ? props.model : new WarehouseModel(),
             warehouseTypes: this.props.warehouseTypes,
+            farmRegions: this.props.farmRegions,
             errorList: {}
         }
     }
+    
     static contextTypes = {
         ShowGlobalMessage: PropTypes.func,
         ShowGlobalMessageList: PropTypes.func,
     }
-    async componentWillMount() {
-        let warehouseTypes = await CacheAPI.WarehouseTypes();
-        this.setState({ warehouseTypes: warehouseTypes });
-    }
+    //async componentWillMount() {
+    //    let warehouseTypes = await CacheAPI.WarehouseTypes();
+    //    this.setState({ warehouseTypes: warehouseTypes });
+    //}
     componentWillReceiveProps(props) {
-        // call load data by this.props.model.id from server
-        ////
-        this.setState({ model: props.model, isShow: props.isShow, warehouseTypes: props.warehouseTypes });
+        this.setState({ model: props.model, isShow: props.isShow, warehouseTypes: props.warehouseTypes, farmRegions: props.farmRegions });
     }
     onCloseModal() {
         this.setState({ errorList: {} });
@@ -110,6 +109,14 @@ export class WarehouseEdit extends React.Component<IWarehouseProps, IWarehouseSt
                                 : null
                         }
                         <LabeledSelect
+                            name={'farmRegionId'}
+                            value={this.state.model.farmRegionId}
+                            title={'Khu vực'}
+                            options={this.state.farmRegions}
+                            placeHolder={'Khu vực'}
+                            error={this.state.errorList['farmRegionId']}
+                            valueChange={this.onFieldValueChange.bind(this)} />
+                        <LabeledSelect
                             name={'warehouseTypeId'}
                             value={this.state.model.warehouseTypeId}
                             title={'Loại kho'}
@@ -142,12 +149,14 @@ interface IWarehouseProps {
     onFormAfterSubmit?: any,
     isEdit: boolean,
     model?: WarehouseModel,
-    warehouseTypes: any
+    warehouseTypes: any,
+    farmRegions: any
 }
 
 interface IWarehouseState {
     isShow: boolean,
     model?: WarehouseModel,
     errorList: any,
-    warehouseTypes: any
+    warehouseTypes: any,
+    farmRegions: any
 }

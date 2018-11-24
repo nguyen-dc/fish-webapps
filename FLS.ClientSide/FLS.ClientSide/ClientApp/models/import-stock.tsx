@@ -2,6 +2,7 @@
 import { StockReceiveDocketModel } from "./stock-receive-docket";
 import { ExpenditureDocketDetailModel } from "./expenditure-docket-detait";
 import { ImportStockSupplierModel } from "./import-stock-supplier";
+import { StockIssueDocketDetailModel } from "./stock_issue_docket_detail";
 
 export class ImportStockModel {
     receiveDocket: StockReceiveDocketModel;
@@ -33,4 +34,10 @@ export class ReleaseLivestockDocketModel {
     amount: number;
     totalAmount: number;
     description: string;
+}
+
+export class FeedingLivestockModel {
+    fishPondWarehouseId: number;
+    feedDate: Date | null;
+    details: StockIssueDocketDetailModel[];
 }

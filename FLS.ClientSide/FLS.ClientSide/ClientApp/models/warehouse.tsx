@@ -14,4 +14,5 @@ export class WarehouseModel implements IWarehouse {
     defaultWarehouseId?: number;
     warehouseTypeId?: number;
     warehouseTypeName: string;
+    farmRegionId?: number;
 }
