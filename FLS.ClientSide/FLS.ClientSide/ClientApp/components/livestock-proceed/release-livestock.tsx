@@ -422,7 +422,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                     <td>
                                         <FormatedInput
                                             type="currency"
-                                            className="form-control"
+                                            className="form-control min-w-140"
                                             min={0}
                                             name='unitPrice'
                                             value={detail.unitPrice}
