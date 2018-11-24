@@ -28,9 +28,11 @@ interface IProductState {
     model?: ProductModel,
     errorList: any,
     productSubGroups: any;
+    productSubGroupFilter: any;
     productGroups: any;
     productUnits: any;
     taxPercents: any;
+    isDisable: any;
 }
 
 export class ProductEdit extends React.Component<IProductProps, IProductState> {
@@ -41,9 +43,11 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
             model: props.model ? props.model : new ProductModel(),
             errorList: {},
             productSubGroups: [],
+            productSubGroupFilter: [],
             productGroups: [],
             productUnits: [],
-            taxPercents:[]
+            taxPercents: [],
+            isDisable: true
         }
     }
     static contextTypes = {
@@ -80,6 +84,18 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
             }
         };
         this.setState(nextState);
+        if (model.name == "productGroupId") {
+            if (Number(model.value) > 0) {
+                let { productSubGroups } = this.state;
+                let productSubGroupFilter = productSubGroups.filter(function (item) {
+                    return item.parentId == model.value;
+                });
+                this.setState({ productSubGroupFilter: productSubGroupFilter, isDisable: false });
+            }
+            else {
+                this.setState({ productSubGroupFilter: [], isDisable: true });
+            }
+        }
     }
 
     private _validate() {
@@ -172,11 +188,12 @@ export class ProductEdit extends React.Component<IProductProps, IProductState> {
                             error={this.state.errorList['productGroupId']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect
-                            options={this.state.productSubGroups}
+                            options={this.state.productSubGroupFilter}
                             name={'productSubgroupId'}
                             value={this.state.model.productSubgroupId}
                             title={'Nhóm hàng'}
                             placeHolder={'Chọn nhóm hàng'}
+                            disabled={this.state.isDisable}
                             error={this.state.errorList['productSubgroupId']}
                             valueChange={this.onFieldValueChange.bind(this)} />
                         <LabeledSelect

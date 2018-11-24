@@ -247,11 +247,13 @@ export class LabeledSelect extends React.PureComponent<LabeledSelectProps & Labe
             value: nextProps.value ? nextProps.value : '',
             title: nextProps.title ? nextProps.title : '',
             error: nextProps.error ? nextProps.error : '',
+            disabled: nextProps.disabled ? nextProps.disabled : false,
             readOnly: nextProps.readOnly ? nextProps.readOnly : false
         });
     }
     componentWillReceiveProps(nextProps) {
         this.setState({
+            disabled: nextProps.disabled,
             value: nextProps.value,
             options: nextProps.options
         });

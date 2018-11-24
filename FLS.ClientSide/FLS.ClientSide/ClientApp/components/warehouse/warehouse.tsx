@@ -33,12 +33,14 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
             editModalTitle: '',
             selectedFilter: selectedFilter,
             searchModel: new PageFilterModel(),
-            lastSearchModel: new PageFilterModel()
+            lastSearchModel: new PageFilterModel(),
+            farmRegions: []
         };
     }
     async componentWillMount() {
         let warehouseTypes = await CacheAPI.WarehouseTypes();
-        this.setState({ warehouseTypes: warehouseTypes.data });
+        let farmRegions = await CacheAPI.FarmRegion();
+        this.setState({ warehouseTypes: warehouseTypes.data, farmRegions: farmRegions.data });
         await this.onPageChange(1, true);
     }
     static contextTypes = {
@@ -195,6 +197,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                     isEdit={this.state.selectedModel.id > 0}
                     model={this.state.selectedModel}
                     warehouseTypes={this.state.warehouseTypes}
+                    farmRegions={this.state.farmRegions}
                     onFormAfterSubmit={this.onFormAfterSubmit.bind(this)}
                 />
             </div>
@@ -210,6 +213,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                         <th>Mã kho</th>
                         <th>Tên kho</th>
                         <th>Loại kho</th>
+                        <th>Khu vực</th>
                         <th className="th-sm-2"></th>
                     </tr>
                 </thead>
@@ -222,6 +226,7 @@ export class Warehouses extends React.Component<RouteComponentProps<{}>, any> {
                                     <td>{m.id}</td>
                                     <td>{m.name}</td>
                                     <td>{m.warehouseTypeName} {m.warehouseTypeId}</td>
+                                    <td>{m.farmRegionId}</td>
                                     <td className="text-right">
                                         <ButtonGroup>
                                             <Button bsStyle="default" className="btn-sm" onClick={() => this.onOpenEdit(m)}>
