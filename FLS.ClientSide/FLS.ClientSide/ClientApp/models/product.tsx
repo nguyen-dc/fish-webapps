@@ -18,7 +18,7 @@ export class ProductModel implements IProduct {
     defaultUnitId = 0;
     taxPercent;
     description: string = '';
-    checked: boolean;
+    checked?: boolean = false;
 }
 export class ProductDetailModel {
     id: number;
@@ -32,6 +32,7 @@ export class ProductDetailModel {
     taxPercent: number;
     description: string;
     productUnits: ProductUnitProductModel[];
+    checked?: boolean;
 }
 export class ProductUnitProductModel {
     id: number;
