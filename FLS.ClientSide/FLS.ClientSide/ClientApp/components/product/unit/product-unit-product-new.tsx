@@ -14,6 +14,7 @@ interface ProductUnitProductNewProps {
     defaultUnitId: number,
     defaultUnitName: string,
     afterUpdate?: Function,
+    listUnitForProduct: any,
 }
 interface ProductUnitProductNewState {
     model: ProductUnitProductModel,
@@ -46,6 +47,14 @@ export class ProductUnitProductNew extends React.Component<ProductUnitProductNew
             this.context.ShowGlobalMessage('error', 'Chưa chọn Đơn vị tính');
             return;
         }
+        //check exist
+        let { listUnitForProduct } = this.props;
+        let exist = listUnitForProduct.find(n => n.productUnitId == model.productUnitId);
+        if (exist != null) {
+            this.context.ShowGlobalMessage('error', 'Đã tồn tại đơn vị tính');
+            return;
+        }
+
         // Gọi API update:
         let response = await ProductAPICaller.CreateUnit(model);
         if (response.hasError) {
@@ -66,7 +75,7 @@ export class ProductUnitProductNew extends React.Component<ProductUnitProductNew
         return this.state.isEditMode == true ?
             <tr>
                 <td>{stateModel.productUnitId}</td>
-                <td> 1
+                <td>
                     <select
                         className="form-control"
                         value={stateModel.productUnitId}
@@ -75,7 +84,7 @@ export class ProductUnitProductNew extends React.Component<ProductUnitProductNew
                             this.setState({ model: stateModel })
                         }}
                         placeholder='đơn vị tính'>
-                        <option value=''>- Đơn vi tính -</option>
+                        <option value=''>- Đơn vị tính -</option>
                         {this.state.productUnits != null ?
                             this.state.productUnits.map(opt => {
                                 let disabled = opt.id == stateModel.productUnitId ? true : false;

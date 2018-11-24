@@ -60,7 +60,7 @@ export class ProductDetail extends React.Component<RouteComponentProps<any>, Pro
         return <div id="info">
             <div className="panel panel-info">
                 <div className="panel-body pd-bt-0">
-                    <div className='row'>
+                    <div>
                         <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.id} title='Mã' />
                         <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.name} title='Tên' />
                         <SummaryText className='col-sm-12 col-md-6 col-lg-4' value={product.productGroupId} title='Ngành hàng' />
@@ -80,6 +80,7 @@ export class ProductDetail extends React.Component<RouteComponentProps<any>, Pro
                         <tbody>
                             <ProductUnitProductNew
                                 productId={product.id}
+                                listUnitForProduct={product.productUnits}
                                 defaultUnitId={product.defaultUnitId}
                                 defaultUnitName={product.defaultUnitName}
                                 afterUpdate={() => { this.getProductDetail() }} />
