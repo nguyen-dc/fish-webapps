@@ -207,6 +207,7 @@ class FeedLivestockProduct extends React.Component<FeedLivestockProductProps, an
                 <InputNumber
                     suffix={model.productUnitName + ''}
                     value={model.quantity}
+                    hasScale={true}
                     onChange={(e) => { model.quantity = e; this.props.onChange(); } }
                 />
             </td>
