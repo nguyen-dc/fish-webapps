@@ -55,6 +55,18 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
     componentWillReceiveProps(nextProps) {
         // call load data by this.props.model.id from server
         this.setState({ model: nextProps.model, isShow: nextProps.isShow, farmRegions: nextProps.farmRegions });
+
+        let { model } = nextProps;
+        if (model.farmRegionId > 0) {
+            let { warehouses } = this.state;
+            let warehousesByFarmRegion = warehouses.filter(function (item) {
+                return item.parentId == model.farmRegionId;
+            });
+            this.setState({ warehousesFilter: warehousesByFarmRegion, isDisable: false });
+        }
+        else {
+            this.setState({ warehousesFilter: [], isDisable: true });
+        }
     }
     onCloseModal() {
         this.setState({ errorList: {} });
