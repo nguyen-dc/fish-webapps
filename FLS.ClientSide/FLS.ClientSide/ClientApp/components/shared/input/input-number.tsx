@@ -66,7 +66,7 @@ export class InputNumber extends React.Component<InputNumberProps, InputNumberSt
                 }
             }
         }
-        this.props.onChange(Number(value));
+        this.props.onChange(value);
     }
     private onFocus() {
         this.setState({ isFocus: true })

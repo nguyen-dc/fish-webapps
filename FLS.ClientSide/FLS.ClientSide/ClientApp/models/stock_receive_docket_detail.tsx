@@ -24,8 +24,8 @@ export class StockReceiveDocketDetailModel implements IStockReceiveDocketDetail 
     vat: number = 0;
     amount: number = 0;
     totalAmount: number = 0;
-    livestockSize: number;
-    livestockQuantity: number;
+    livestockSize: number =0;
+    livestockQuantity: number = 0;
     //----
     productName: string;
 
