@@ -19,7 +19,7 @@ import { StockIssueDocketTypes } from './components/stock-issue-docket-type/stoc
 import { ExpenditureTypes } from './components/expenditure-type/expenditure-type';
 import { ReleaseLivestocks } from './components/livestock-proceed/release-livestock';
 import { FeedLivestock } from './components/livestock-proceed/feed-livestock';
-import { SpreadMedicines } from './components/livestock-proceed/spread-medicine';
+import { SpreadMedicine } from './components/livestock-proceed/spread-medicine';
 import { CollectDeadstocks } from './components/livestock-proceed/collect-deadstock';
 import { CheckLivestockInfos } from './components/livestock-proceed/check-livestock-info';
 import { ManageImports } from './components/import/manage-import';
@@ -78,7 +78,7 @@ export const routes = <Layout>
         <Route exact path='/taophieuchi' component={NewStockReceivePayslip} />
         <Route exact path='/nhapthaca' component={ReleaseLivestocks} />
         <Route exact path='/choan' component={FeedLivestock} />
-        <Route exact path='/raithuoc' component={SpreadMedicines} />
+        <Route exact path='/raithuoc' component={SpreadMedicine} />
         <Route exact path='/kiemcachet' component={CollectDeadstocks} />
         <Route exact path='/kiemtratangtrong' component={CheckLivestockInfos} />
         <Route exact path='/xuatbanca' component={ExportLivestocks} />

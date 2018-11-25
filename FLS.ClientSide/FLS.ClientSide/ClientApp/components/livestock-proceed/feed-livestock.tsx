@@ -76,7 +76,7 @@ export class FeedLivestock extends React.Component<RouteComponentProps<{}>, Feed
         }
         let err = state.docketDetails.find(d => !d.quantity || d.quantity <= 0);
         if (err) {
-            this.context.ShowGlobalMessage('error', 'Số lượng sản phẩm không đúng');
+            this.context.ShowGlobalMessage('error', 'Số lượng thức ăn không đúng');
             return false;
         }
         let model = {
@@ -121,7 +121,7 @@ export class FeedLivestock extends React.Component<RouteComponentProps<{}>, Feed
     }
     renderCustomer() {
         let { docketDetails } = this.state;
-        let totalQuantity = (!docketDetails || docketDetails.length == 0) ? 0 : docketDetails.reduce((d, l) => d + l.quantity, 0);
+        let totalQuantity = (!docketDetails || docketDetails.length == 0) ? 0 : docketDetails.reduce((d, l) => d + Number(l.quantity), 0);
         return (
             <div className="panel panel-info">
                 <div className="panel-body">
@@ -137,7 +137,7 @@ export class FeedLivestock extends React.Component<RouteComponentProps<{}>, Feed
                                         <table className="table table-striped table-hover mg-0">
                                             <thead>
                                                 <tr>
-                                                    <th>Tên sản phẩm</th>
+                                                    <th>Tên thức ăn</th>
                                                     <th>Số lượng</th>
                                                     <th className='th-sm-1'></th>
                                                 </tr>

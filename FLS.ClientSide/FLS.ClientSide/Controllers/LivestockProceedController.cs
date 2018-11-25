@@ -28,5 +28,12 @@ namespace FLS.ClientSide.Controllers
             ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
             return Ok(response);
         }
+        [HttpPost("cure")]
+        public async Task<ActionResult> Cure([FromBody]FeedingLivestockModel _model)
+        {
+            string link = URI_API.LIVESTOCK_PROCEED_CURE;
+            ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
+            return Ok(response);
+        }
     }
 }
