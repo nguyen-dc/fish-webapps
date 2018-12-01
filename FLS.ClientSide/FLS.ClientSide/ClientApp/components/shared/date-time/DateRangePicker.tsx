@@ -25,7 +25,7 @@ interface IComboDatePickerState {
     endDate: Moment.Moment,
     title?: string,
     model: IDateRangeModel
-    //ranges: any,
+    ranges: any,
 }
 
 class DateRangePicker extends React.Component<IComboDatePickerProps, IComboDatePickerState>{
@@ -39,15 +39,15 @@ class DateRangePicker extends React.Component<IComboDatePickerProps, IComboDateP
             title: props.title,
             startDate: Moment().startOf('month'),
             endDate: Moment(),
-            model: {} as IDateRangeModel
-            //ranges: {
-            //    'Hôm nay': [Moment(), Moment()],
-            //    'Hôm qua': [Moment().subtract(1, 'days'), Moment().subtract(1, 'days')],
-            //    '7 ngày trước': [Moment().subtract(6, 'days'), Moment()],
-            //    '30 ngày trước': [Moment().subtract(29, 'days'), Moment()],
-            //    'Tháng này': [Moment().startOf('month'), Moment().endOf('month')],
-            //    'Tháng trước': [Moment().subtract(1, 'month').startOf('month'), Moment().subtract(1, 'month').endOf('month')],
-            //},
+            model: {} as IDateRangeModel,
+            ranges: {
+                'Hôm nay': [Moment(), Moment()],
+                'Hôm qua': [Moment().subtract(1, 'days'), Moment().subtract(1, 'days')],
+                '7 ngày trước': [Moment().subtract(6, 'days'), Moment()],
+                '30 ngày trước': [Moment().subtract(29, 'days'), Moment()],
+                'Tháng này': [Moment().startOf('month'), Moment().endOf('month')],
+                'Tháng trước': [Moment().subtract(1, 'month').startOf('month'), Moment().subtract(1, 'month').endOf('month')],
+            },
         };
     }
 
@@ -81,7 +81,7 @@ class DateRangePicker extends React.Component<IComboDatePickerProps, IComboDateP
                 <DatetimeRangePicker
                     startDate={this.state.startDate}
                     endDate={this.state.endDate}
-                    //ranges={this.state.ranges}
+                    ranges={this.state.ranges}
                     onApply={this.handleApply.bind(this)}
                 >
                     <Button className="selected-date-range-btn" style={buttonStyle}>
@@ -99,5 +99,4 @@ class DateRangePicker extends React.Component<IComboDatePickerProps, IComboDateP
         );
     }
 }
-
 export default DateRangePicker;
