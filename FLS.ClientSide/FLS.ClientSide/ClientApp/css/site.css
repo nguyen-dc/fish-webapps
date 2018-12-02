@@ -728,3 +728,6 @@ tr.clickable {
     border: 1px solid #ccc;
     padding: 5px;
 }
+.scroll-x{
+    overflow-x:auto;
+}

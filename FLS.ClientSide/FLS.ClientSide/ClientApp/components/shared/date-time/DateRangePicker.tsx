@@ -81,7 +81,7 @@ class DateRangePicker extends React.Component<IComboDatePickerProps, IComboDateP
                 <DatetimeRangePicker
                     startDate={this.state.startDate}
                     endDate={this.state.endDate}
-                    ranges={this.state.ranges}
+                    //ranges={this.state.ranges}
                     onApply={this.handleApply.bind(this)}
                 >
                     <Button className="selected-date-range-btn" style={buttonStyle}>

@@ -1,14 +1,23 @@
 ﻿import * as React from "react";
 import * as Moment from 'moment';
 import { RouteComponentProps } from 'react-router';
-import { LabeledSelect, LabeledTextArea } from "../shared/input/labeled-input";
-import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
-import { EmptyTableMessage } from "../shared/view-only";
+import { LabeledSelect } from "../shared/input/labeled-input";
 import { _HDateTime } from "../../handles/handles";
-import DateRangePicker from "../shared/date-time/DateRangePicker";
+import { ReportLivestockHistoryDetail } from "../../models/report-livestock-history-detail";
+import { CacheAPI } from "../../api-callers/cache";
+
+class Filter {
+    farmRegionId: number;
+    fishPondId: number;
+    farmingSeasonId: number;
+}
 
 interface ReleaseLivestockStates {
-    model: any,
+    model: ReportLivestockHistoryDetail[],
+    modelFilter: Filter,
+    farmRegions: any,
+    fishPonds: any,
+    farmingSeasons: any,
     errorList: {}
 }
 
@@ -17,12 +26,23 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
         super(props)
         this.state = {
             model: [],
+            farmRegions: [],
+            modelFilter: {} as Filter,
+            fishPonds: [],
+            farmingSeasons:[],
             errorList: {}
         }
     }
 
-    componentDidMount() {
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
+    }
 
+    async componentDidMount() {
+        var farmRegions = await CacheAPI.FarmRegion();
+        var fishPonds = await CacheAPI.FishPond();
+        this.setState({ farmRegions: farmRegions.data, fishPonds: fishPonds.data });
     }
 
     onDocketFieldChange(model: any) {
@@ -38,7 +58,6 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
     onReceiveDocketDateChange(evt) {
         let startDate = evt.startDate as Moment.Moment;
         let endDate = evt.endDate as Moment.Moment;
-        debugger
         //let releaseDocket = this.state.releaseDocket;
         //releaseDocket[evt.name] = date;
         //this.setState({ releaseDocket });
@@ -50,95 +69,100 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
 
     private renderTable(models: any) {
         return (
-            <table className="table-responsive table table-striped table-hover border">
-                <thead>
-                    <tr className="text-center">
-                        <td rowSpan={2}>Ngày</td>
-                        <td rowSpan={2}>Thao tác</td>
-                        <td rowSpan={2}>Trọng lượng(gr/con)</td>
-                        <td rowSpan={2}>SL con giống(con)</td>
-                        <td colSpan={2}>Thức ăn</td>
-                        <td colSpan={3}>Cá chết</td>
-                        <td colSpan={3}>Xử lý thuốc, mối, vôi</td>
-                        <td colSpan={4}>Môi trường ao nuôi</td>
-                        <td rowSpan={2}>Ghi chú</td>
-                    </tr>
-                    <tr className="text-center">
-                        <td>Bao</td>
-                        <td>Tấn</td>
-                        <td>Kg</td>
-                        <td>HS</td>
-                        <td>Con</td>
-                        <td>Tên thuốc</td>
-                        <td>ĐVT</td>
-                        <td>SL</td>
-                        <td>HS</td>
-                        <td>DO</td>
-                        <td>T</td>
-                        <td>pH</td>
-                    </tr>
-                </thead>
-                <tbody className="text-center">
-                    <tr>
-                        <td>28/07/2018</td>
-                        <td>Rãi thuốc</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>Muối</td>
-                        <td>Bao</td>
-                        <td>1.0</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                    <tr>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                        <td>&nbsp;</td>
-                    </tr>
-                </tbody>
-
-            </table>
+            <div className="scroll-x">
+                <table className="table-responsive table table-striped table-hover border">
+                    <thead>
+                        <tr className="text-center">
+                            <td rowSpan={2}>Ngày</td>
+                            <td rowSpan={2}>Thao tác</td>
+                            <td rowSpan={2}>Trọng lượng(gr/con)</td>
+                            <td rowSpan={2}>SL con giống(con)</td>
+                            <td colSpan={3}>Thức ăn</td>
+                            <td colSpan={3}>Cá chết</td>
+                            <td colSpan={3}>Xử lý thuốc, mối, vôi</td>
+                            <td colSpan={4}>Môi trường ao nuôi</td>
+                            <td rowSpan={2}>Ghi chú</td>
+                        </tr>
+                        <tr className="text-center">
+                            <td>Kg</td>
+                            <td>Bao</td>
+                            <td>Tấn</td>
+                            <td>Kg</td>
+                            <td>HS</td>
+                            <td>Con</td>
+                            <td>Tên thuốc</td>
+                            <td>ĐVT</td>
+                            <td>SL</td>
+                            <td>HS</td>
+                            <td>DO</td>
+                            <td>T</td>
+                            <td>pH</td>
+                        </tr>
+                    </thead>
+                    <tbody className="text-center">
+                        <tr>
+                            <td>28/07/2018</td>
+                            <td>Rãi thuốc</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>Muối</td>
+                            <td>Bao</td>
+                            <td>1.0</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                            <td>&nbsp;</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         );
     }
 
@@ -147,60 +171,42 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
                     <div className="panel-body">
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
-                                title={'Năm'}
-                                placeHolder={'Năm'}
-                                valueKey={'belongId'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
-                        </div>
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'farmRegionId'}
+                                value={this.state.modelFilter.farmRegionId}
                                 title={'Vùng nuôi'}
                                 placeHolder={'Vùng nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                options={this.state.farmRegions} />
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'fishPondId'}
+                                value={this.state.modelFilter.fishPondId}
                                 title={'Ao nuôi'}
                                 placeHolder={'Ao nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                options={this.state.fishPonds} />
                         </div>
-
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'farmingSeasonId'}
+                                value={this.state.modelFilter.farmingSeasonId}
                                 title={'Đợt nuôi'}
                                 placeHolder={'Đợt nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                options={this.state.farmingSeasons} />
                         </div>
-                        <div className="col-md-4">
-                            <DateRangePicker
-                                name={'receiveDate'}
-                                title={'Thời gian đợt nuôi'}
-                                dateChange={(e) => this.onReceiveDocketDateChange(e)} />
-                        </div>
-                        <div className="col-md-4">
-                            <label className="control-label min-w-140 float-left"></label>
-                            <button className="btn btn-primary" onClick={this.GetReport}>Xem báo cáo</button>
+                        <div className="col-md-3 text-right">
+                            <button className="btn btn-primary mg-r-15" onClick={this.GetReport}>Xem báo cáo</button>
+                            <button className="btn btn-default" onClick={this.GetReport}>Xuất excel</button>
                         </div>
                     </div>
                 </div>
