@@ -9,6 +9,7 @@ import { PageFilterModel, FilterModel } from "../../models/shared";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FarmingSeasonAPICaller } from "../../api-callers";
 import { LiveStockHistoryDetailAPICaller } from "../../api-callers/report";
+import { EmptyTableMessage } from "../shared/view-only";
 
 class Filter {
     farmRegionId: number = 0;
@@ -34,7 +35,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             farmRegions: [],
             modelFilter: {} as Filter,
             fishPonds: [],
-            fishPondChangeByFarmRegion:[],
+            fishPondChangeByFarmRegion: [],
             farmingSeasons: [],
             errorList: {}
         }
@@ -109,7 +110,6 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
     }
 
     async GetReport() {
-        debugger
         let { modelFilter } = this.state;
         if (Number(modelFilter.farmRegionId) <= 0 || modelFilter.farmRegionId == undefined) {
             this.context.ShowGlobalMessage('warning', "Chưa chọn vùng nuôi");
@@ -140,6 +140,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
     }
 
     render() {
+        let dataTable = this.renderTable(this.state.model);
         return (
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
@@ -185,14 +186,14 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                 </div>
                 <div className="row">
                     <div className='col-sm-12'>
-                        {this.renderTable(this.state.model)}
+                        {dataTable}
                     </div>
                 </div>
             </div>
         );
     }
 
-    private renderTable(models: any) {
+    private renderTable(model: ReportLivestockHistoryDetail[]) {
         return (
             <div className="scroll-x">
                 <table className="table-responsive table table-striped table-hover border">
@@ -225,66 +226,32 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                         </tr>
                     </thead>
                     <tbody className="text-center">
-                        <tr>
-                            <td>28/07/2018</td>
-                            <td>Rãi thuốc</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>Muối</td>
-                            <td>Bao</td>
-                            <td>1.0</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
-                        <tr>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                            <td>&nbsp;</td>
-                        </tr>
+                        {
+                            model.length == 0 ?
+                                <EmptyTableMessage /> :
+                                model.map((m, index) =>
+                                    (<tr key={index}>
+                                        <td>{new Date().toLocaleTimeString()}</td>
+                                        <td>{m.ActionType}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Quantity}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.MassAmount}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>Muối</td>
+                                        <td>Bao</td>
+                                        <td>1.0</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                        <td>{m.Weight}</td>
+                                    </tr>
+                                    ))
+                        }
                     </tbody>
                 </table>
             </div>
