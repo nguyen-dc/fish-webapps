@@ -7,23 +7,22 @@ import { CacheAPI } from "../../api-callers/cache";
 import { _HDateTime, _HArray, _HNumber, _HString } from "../../handles/handles";
 import { ProductModel } from "../../models/product";
 import PropTypes from 'prop-types';
-import { ReleaseLivestockModel, ReleaseLivestockDocketModel, CostsModel } from "../../models/import-stock";
+import { ReleaseLivestockModel, ReleaseLivestockDocketModel, CostsModel, ReleaseStockSupplierModel } from "../../models/import-stock";
 import { IdNameModel } from "../../models/shared";
 import { ProductSimpleSearch } from "../product/product-simple-search";
 import { SupplierSimpleSearch } from "../supplier/supplier-simple-search";
 import { SupplierModel } from "../../models/supplier";
-import { ImportStockSupplierModel } from "../../models/import-stock-supplier";
 import { ExpenditureDocketDetailModel } from "../../models/expenditure-docket-detait";
 import { Button, Glyphicon } from "react-bootstrap";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
-import { FormatedInput } from "../shared/input/formated-input";
 import { SummaryText } from "../shared/view-only";
-import { StockReceiveDocketDetailModel } from "../../models/stock_receive_docket_detail";
 import { LivestockProceedAPICaller } from "../../api-callers/livestock-proceed";
+import { UnderConstructor } from "../shared/under-constructor";
 
 interface ReleaseLivestockStates {
     releaseDocket: ReleaseLivestockDocketModel;
-    suppliers: ImportStockSupplierModel[];
+    suppliers: ReleaseStockSupplierModel[];
+    livestock: ProductModel;
     paySlipDetails: ExpenditureDocketDetailModel[];
     fishPonds: IdNameModel[],
     paySlipTypes: IdNameModel[],
@@ -43,7 +42,8 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         super(props)
         this.state = {
             releaseDocket: new ReleaseLivestockDocketModel(),
-            suppliers: [] as ImportStockSupplierModel[],
+            suppliers: [] as ReleaseStockSupplierModel[],
+            livestock: null,
             paySlipDetails: [] as ExpenditureDocketDetailModel[],
             fishPonds: [],
             paySlipTypes: [],
@@ -74,7 +74,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     onChooseSupplier(supplier: SupplierModel) {
         let { suppliers } = this.state;
-        let model = new ImportStockSupplierModel();
+        let model = new ReleaseStockSupplierModel();
         let index = suppliers.findIndex(d => d.supplierBranchId == supplier.id);
         if (index >= 0) {
             this.itemRefs[supplier.id].scrollIntoView();
@@ -82,65 +82,13 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         } else {
             model.supplierBranchId = supplier.id;
             model.supplierBranchName = supplier.name;
+            model.massAmount = 0;
+            model.pricePerKg = 0;
+            model.quantity = 0;
+            model.size = 0;
             suppliers.push(model);
+            this.setState({ suppliers: suppliers });
         }
-        this.setState({ suppliers: suppliers });
-    }
-    onRemoveSupplier(supplierId: number) {
-        let { suppliers } = this.state;
-        let index = suppliers.findIndex(s => s.supplierBranchId == supplierId);
-        suppliers.splice(index, 1);
-        this.setState({ suppliers: suppliers });
-    }
-    onChooseProduct(product: ProductModel, supplierId: number) {
-        let { suppliers } = this.state;
-        let supplier = new ImportStockSupplierModel();
-        let supplierIndex = suppliers.findIndex(s => s.supplierBranchId == supplierId);
-        if (supplierIndex >= 0)
-            supplier = suppliers[supplierIndex];
-
-        let detail = new StockReceiveDocketDetailModel();
-        detail.unitPrice = 0;
-        let index = supplier.receiveDocketDetails.findIndex(d => d.productId == product.id);
-        if (index >= 0) {
-            detail = supplier.receiveDocketDetails[index];
-            detail.quantity = Number(detail.quantity) + 1;
-            detail.amount = detail.quantity * detail.unitPrice;
-            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
-            detail.totalAmount = (detail.quantity * detail.unitPrice) + detail.vat;
-            supplier.receiveDocketDetails[index] = detail;
-        } else {
-            detail.productId = product.id;
-            detail.productName = product.name;
-            detail.productUnitId = product.defaultUnitId;
-            detail.quantity = 1;
-            detail.vatPercent = product.taxPercent;
-            supplier.receiveDocketDetails.push(detail);
-        }
-        suppliers[supplierIndex] = supplier;
-        this.setState({ suppliers: suppliers });
-    }
-    onRemoveProduct(supplierId: number, productId: number) {
-        let { suppliers } = this.state;
-        let index = suppliers.findIndex(s => s.supplierBranchId == supplierId);
-        let supplier = suppliers[index];
-        let productIndex = supplier.receiveDocketDetails.findIndex(p => p.productId == productId);
-        supplier.receiveDocketDetails.splice(productIndex, 1);
-        suppliers[index] = supplier;
-        this.setState({ suppliers: suppliers });
-    }
-    onReleaseLivestockSupplierChange(evt, _supplierId: number) {
-        let suppliers = this.state.suppliers;
-        var index = suppliers.findIndex(n => n.supplierBranchId == _supplierId);
-        suppliers[index][evt.name] = evt.value;
-        this.setState({ suppliers: suppliers });
-    }
-    onSupplierBillDateChange(evt, _supplierId) {
-        let date = evt.value as Moment.Moment;
-        let suppliers = this.state.suppliers;
-        var index = suppliers.findIndex(n => n.supplierBranchId == _supplierId);
-        suppliers[index][evt.name] = date;
-        this.setState({ suppliers: suppliers });
     }
     onReceiveDocketDateChange(evt) {
         let date = evt.value as Moment.Moment;
@@ -148,26 +96,26 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         releaseDocket[evt.name] = date;
         this.setState({ releaseDocket });
     }
-    onChangeRowInput(event, supplierId, index) {
-        let suppliers = this.state.suppliers;
-        var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
-        if (indexSupplier > -1 && index >= 0) {
-            let products = suppliers[indexSupplier].receiveDocketDetails;
-            let detail = products[index];
-            detail[event.name] = event.value;
+    //onChangeRowInput(event, supplierId, index) {
+    //    let suppliers = this.state.suppliers;
+    //    var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
+    //    if (indexSupplier > -1 && index >= 0) {
+    //        let products = suppliers[indexSupplier].receiveDocketDetails;
+    //        let detail = products[index];
+    //        detail[event.name] = event.value;
 
-            if (event.name == "totalAmount") {
-                detail.unitPrice = (event.value / _HNumber.Sum(100, detail.vatPercent) * 100 / detail.quantity);
-                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
-            }
-            else {
-                detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
-                detail.totalAmount = (detail.unitPrice * detail.quantity) + detail.vat;
-            }
-            products[index] = detail;
-            this.setState({ suppliers: suppliers });
-        }
-    }
+    //        if (event.name == "totalAmount") {
+    //            detail.unitPrice = (event.value / _HNumber.Sum(100, detail.vatPercent) * 100 / detail.quantity);
+    //            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+    //        }
+    //        else {
+    //            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
+    //            detail.totalAmount = (detail.unitPrice * detail.quantity) + detail.vat;
+    //        }
+    //        products[index] = detail;
+    //        this.setState({ suppliers: suppliers });
+    //    }
+    //}
     onPaySlipRowChange(model, index) {
         var { paySlipLines } = this.state;
         var payslip = paySlipLines[index];
@@ -199,273 +147,167 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         let { paySlipLines } = this.state;
         this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
-    validateImport(): boolean {
-        let { releaseDocket, suppliers, paySlipLines } = this.state;
-        if (!releaseDocket.fishPondWarehouseId) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn ao');
-            return false;
-        }
-        if (!suppliers || suppliers.length == 0) {
-            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và con giống cần nhập');
-            return false;
-        }
-        else {
-            let iserror: boolean;
-            suppliers.map((s) => {
-                if (s.supplierBranchId != null && (!s.receiveDocketDetails || s.receiveDocketDetails.length == 0)) {
-                    this.context.ShowGlobalMessage('error', `Chưa nhập con giống cho nhà cung cấp ${s.supplierBranchName}`);
-                    iserror = true;
-                    return;
-                }
-                let filter = s.receiveDocketDetails.find(n => Number(n.unitPrice) < 0);
-                if (filter != null) {
-                    this.context.ShowGlobalMessage('error', 'Giá con giống phải lớn hơn hoặc bằng 0');
-                    iserror = true;
-                    return;
-                }
-                let filter1 = s.receiveDocketDetails.find(n => Number(n.quantity) < 0);
-                if (filter1 != null) {
-                    this.context.ShowGlobalMessage('error', 'Số lượng con giống không đúng');
-                    iserror = true;
-                    return;
-                }
-            })
-            if (iserror == true) return false;
-        }
-        if (paySlipLines.length > 0) {
-            let filter = paySlipLines.find(n => Number(n.amount) < 0);
-            if (filter != null) {
-                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
-                return false;
-            }
-            let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
-            if (filter1 != null) {
-                this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
-                return false;
-            }
-        }
-        return true;
-    }
+    //validateImport(): boolean {
+    //    let { releaseDocket, suppliers, paySlipLines } = this.state;
+    //    if (!releaseDocket.fishPondWarehouseId) {
+    //        this.context.ShowGlobalMessage('error', 'Xin chọn ao');
+    //        return false;
+    //    }
+    //    if (!suppliers || suppliers.length == 0) {
+    //        this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và con giống cần nhập');
+    //        return false;
+    //    }
+    //    else {
+    //        let iserror: boolean;
+    //        suppliers.map((s) => {
+    //            if (s.supplierBranchId != null && (!s.receiveDocketDetails || s.receiveDocketDetails.length == 0)) {
+    //                this.context.ShowGlobalMessage('error', `Chưa nhập con giống cho nhà cung cấp ${s.supplierBranchName}`);
+    //                iserror = true;
+    //                return;
+    //            }
+    //            let filter = s.receiveDocketDetails.find(n => Number(n.unitPrice) < 0);
+    //            if (filter != null) {
+    //                this.context.ShowGlobalMessage('error', 'Giá con giống phải lớn hơn hoặc bằng 0');
+    //                iserror = true;
+    //                return;
+    //            }
+    //            let filter1 = s.receiveDocketDetails.find(n => Number(n.quantity) < 0);
+    //            if (filter1 != null) {
+    //                this.context.ShowGlobalMessage('error', 'Số lượng con giống không đúng');
+    //                iserror = true;
+    //                return;
+    //            }
+    //        })
+    //        if (iserror == true) return false;
+    //    }
+    //    if (paySlipLines.length > 0) {
+    //        let filter = paySlipLines.find(n => Number(n.amount) < 0);
+    //        if (filter != null) {
+    //            this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+    //            return false;
+    //        }
+    //        let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
+    //        if (filter1 != null) {
+    //            this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+    //            return false;
+    //        }
+    //    }
+    //    return true;
+    //}
     async onCreateReleaseLivestock() {
-        if (!this.validateImport())
-            return;
-        let { releaseDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
+        //    if (!this.validateImport())
+        //        return;
+        //    let { releaseDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
 
-        let paySlipDetails = [] as ExpenditureDocketDetailModel[];
-        // payslip
-        if (paySlipLines.length > 0) {
-            paySlipLines.forEach(function (item) {
-                var model = new ExpenditureDocketDetailModel();
-                model.amount = item.amount;
-                model.totalAmount = item.amount;
-                model.expenditureTypeId = item.paySlipTypeId;
-                model.title = item.description;
-                var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
-                if (paySlipType) {
-                    model.expenditureTypeName = paySlipType.name;
-                }
-                paySlipDetails.push(model);
-            });
-        }
+        //    let paySlipDetails = [] as ExpenditureDocketDetailModel[];
+        //    // payslip
+        //    if (paySlipLines.length > 0) {
+        //        paySlipLines.forEach(function (item) {
+        //            var model = new ExpenditureDocketDetailModel();
+        //            model.amount = item.amount;
+        //            model.totalAmount = item.amount;
+        //            model.expenditureTypeId = item.paySlipTypeId;
+        //            model.title = item.description;
+        //            var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
+        //            if (paySlipType) {
+        //                model.expenditureTypeName = paySlipType.name;
+        //            }
+        //            paySlipDetails.push(model);
+        //        });
+        //    }
 
-        var model = new ReleaseLivestockModel();
-        model.livestockDocket = releaseDocket;
-        model.suppliers = suppliers;
-        model.paySlipDetails = paySlipDetails;
-        model.livestockDocket.isActuallyReceived = true;
-        let response = await LivestockProceedAPICaller.Release(model);
-        if (!response.hasError && response.data) {
-            this.props.history.push('/quanlynhap/' + response.data);
-        }
-        else
-            this.context.ShowGlobalMessageList('error', response.errors);
+        //    var model = new ReleaseLivestockModel();
+        //    model.livestockDocket = releaseDocket;
+        //    model.suppliers = suppliers;
+        //    model.paySlipDetails = paySlipDetails;
+        //    model.livestockDocket.isActuallyReceived = true;
+        //    let response = await LivestockProceedAPICaller.Release(model);
+        //    if (!response.hasError && response.data) {
+        //        this.props.history.push('/quanlynhap/' + response.data);
+        //    }
+        //    else
+        //        this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
         let { suppliers } = this.state;
-        return suppliers.map((supplier) => {
-            return <div key={supplier.supplierBranchId} ref={el => (this.itemRefs[supplier.supplierBranchId] = el)}>
-                <div className="panel panel-info panne-color">
-                    <div className="panel-heading">
-                        <div className="display-flex justify-content-between align-items-center">
-                            <span><strong>{supplier.supplierBranchName}</strong></span>
-                            <span onClick={() => this.onRemoveSupplier(supplier.supplierBranchId)} className="glyphicon glyphicon-remove cursor-pointer" aria-hidden="true"></span>
-                        </div>
-                    </div>
-                    <div className="panel-body">
-                        <div className="col-md-12">
-                            <div className='text-right mg-bt-15'>
-                                <Button
-                                    data-toggle="collapse"
-                                    href={'#collapse-' + supplier.supplierBranchId}
-                                    aria-expanded="false"
-                                    bsStyle="link">
-                                    Thêm thông tin hóa đơn <Glyphicon glyph='list-alt'></Glyphicon>
-                                </Button>
-                            </div>
-                            <div id={'collapse-' + supplier.supplierBranchId} className="collapse panel panel-default mg-bt-15">
-                                <div className="panel-body">
-                                    <div className='col-sm-12 col-md-6 col-lg-3'>
-                                        <LabeledInput
-                                            name={'billTemplateCode'}
-                                            value={supplier.billTemplateCode}
-                                            title={'Mẫu số hóa đơn'}
-                                            placeHolder={'Mẫu số hóa đơn'}
-                                            error={this.state.errorList['billTemplateCode']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12 col-md-6 col-lg-3'>
-                                        <LabeledInput
-                                            name={'billSerial'}
-                                            value={supplier.billSerial}
-                                            title={'Số hiệu hóa đơn'}
-                                            placeHolder={'Số hiệu hóa đơn'}
-                                            error={this.state.errorList['billSerial']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12 col-md-6 col-lg-3'>
-                                        <LabeledInput
-                                            name={'billCode'}
-                                            value={supplier.billCode}
-                                            title={'Số hóa đơn'}
-                                            placeHolder={'Số hóa đơn'}
-                                            error={this.state.errorList['billCode']}
-                                            valueChange={(e) => this.onReleaseLivestockSupplierChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                    <div className='col-sm-12 col-md-6 col-lg-3'>
-                                        <LabeledSingleDatePicker
-                                            name={'billDate'}
-                                            title={'Ngày hóa đơn'}
-                                            date={Moment()}
-                                            dateChange={(e) => this.onSupplierBillDateChange(e, supplier.supplierBranchId)} />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-md-12">
-                            <div className="panel panel-default mg-0">
-                                <div className="panel-heading">Sản phẩm</div>
-                                <div className="panel-body">
-                                    <div className='col-sm-12 mg-bt-15'>
-                                        <ProductSimpleSearch
-                                            onChooseProduct={(product) => this.onChooseProduct(product, supplier.supplierBranchId)}
-                                            type='livestock' />
-                                    </div>
-                                    {
-                                        supplier.receiveDocketDetails && supplier.receiveDocketDetails.length > 0 ?
-                                            <div className='col-sm-12'>
-                                                {this.renderProductsTable(supplier.supplierBranchId, supplier.receiveDocketDetails)}
-                                            </div> : <div className='col-sm-12 text-center'>
-                                                Chưa có con giống nào được chọn
-                                            </div>
-                                    }
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        })
-    }
-    renderProductsTable(supplierId: number, docketDetails: StockReceiveDocketDetailModel[]) {
-        let totalPrice = docketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
-        return (
+        return suppliers ?
+        <div className='col-sm-12'>
             <div className="table-responsive p-relative">
                 <table className="table table-striped table-hover mg-0">
                     <thead>
                         <tr>
-                            <th>Tên con giống</th>
-                            <th>Kích cỡ giống</th>
-                            <th>Số lượng (con)</th>
-                            <th>Tổng trọng lượng (kg)</th>
-                            <th>Đơn giá</th>
-                            <th>%VAT</th>
-                            <th>VAT</th>
-                            <th>Thành tiền</th>
+                            <th>Nhà cung cấp</th>
+                            <th colSpan={4}>Thông tin hóa đơn</th>
                             <th className='th-sm-1'></th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {
-                            docketDetails.map((detail, idx) => {
-                                return <tr key={'prdt-' + detail.productId}>
-                                    <td>{detail.productName}</td>
-                                    <td>
-                                        <FormatedInput
-                                            type="number"
-                                            className="form-control max-w-100"
-                                            min={0}
-                                            name='livestockSize'
-                                            value={detail.livestockSize}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <FormatedInput
-                                            type="number"
-                                            className="form-control max-w-100"
-                                            min={1}
-                                            name='livestockQuantity'
-                                            value={detail.livestockQuantity}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <FormatedInput
-                                            type="number"
-                                            className="form-control max-w-100"
-                                            min={1}
-                                            name='quantity'
-                                            value={detail.quantity}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        />
-                                    </td>
-                                    <td>
-                                        <FormatedInput
-                                            type="currency"
-                                            className="form-control min-w-140"
-                                            min={0}
-                                            name='unitPrice'
-                                            value={detail.unitPrice}
-                                            onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                        />
-                                    </td>
-
-                                    <td>
-                                        {detail.vatPercent ? detail.vatPercent : 0} %
-                                    </td>
-                                    <td>
-                                        {_HNumber.FormatCurrency(detail.vat ? detail.vat : 0)}
-                                    </td>
-                                    <td>
-                                            <FormatedInput
-                                                type="currency"
-                                                className="form-control"
-                                                min={0}
-                                                name='totalAmount'
-                                                value={detail.totalAmount}
-                                                onValueChange={(e) => this.onChangeRowInput(e, supplierId, idx)}
-                                            />
-                                    </td>
-                                    <td>
-                                        <Button bsStyle='default' className='btn-sm'
-                                            onClick={this.onRemoveProduct.bind(this, supplierId, detail.productId)}>
-                                            <Glyphicon glyph='minus' />
+                        <tbody>
+                            {suppliers.map((supplier) => {
+                                return [
+                                    <tr className='text-right mg-bt-15'>
+                                        <Button
+                                            data-toggle="collapse"
+                                            href={'#collapse-' + supplier.supplierBranchId}
+                                            aria-expanded="false"
+                                            bsStyle="link">
+                                            Thêm thông tin hóa đơn <Glyphicon glyph='list-alt'></Glyphicon>
                                         </Button>
-                                    </td>
-                                </tr>
-                            })
-                        }
+                                    </tr>,
+                                    <tr key={'spplr-' + supplier.supplierBranchId}
+                                        id={'collapse-' + supplier.supplierBranchId}
+                                        className="collapse panel panel-default mg-bt-15">
+                                        <td colSpan={8}>
+                                            <div className='col-sm-12 col-md-6 col-lg-3'>
+                                                <LabeledInput
+                                                    name={'billTemplateCode'}
+                                                    value={supplier.billTemplateCode}
+                                                    title={'Mẫu số hóa đơn'}
+                                                    placeHolder={'Mẫu số hóa đơn'}
+                                                    error={this.state.errorList['billTemplateCode']}
+                                                    valueChange={(e) => { supplier.billTemplateCode = e.value; this.setState(this.state) }} />
+                                            </div>
+                                            <div className='col-sm-12 col-md-6 col-lg-3'>
+                                                <LabeledInput
+                                                    name={'billSerial'}
+                                                    value={supplier.billSerial}
+                                                    title={'Số hiệu hóa đơn'}
+                                                    placeHolder={'Số hiệu hóa đơn'}
+                                                    error={this.state.errorList['billSerial']}
+                                                    valueChange={(e) => { supplier.billSerial = e.value; this.setState(this.state) }} />
+                                            </div>
+                                            <div className='col-sm-12 col-md-6 col-lg-3'>
+                                                <LabeledInput
+                                                    name={'billCode'}
+                                                    value={supplier.billCode}
+                                                    title={'Số hóa đơn'}
+                                                    placeHolder={'Số hóa đơn'}
+                                                    error={this.state.errorList['billCode']}
+                                                    valueChange={(e) => { supplier.billCode = e.value; this.setState(this.state) }} />
+                                            </div>
+                                            <div className='col-sm-12 col-md-6 col-lg-3'>
+                                                <LabeledSingleDatePicker
+                                                    name={'billDate'}
+                                                    title={'Ngày hóa đơn'}
+                                                    date={Moment()}
+                                                    dateChange={(e) => { supplier.billDate = e.value; this.setState(this.state) }} />
+                                            </div>
+                                            <div className='col-sm-12 col-md-6 col-lg-3'>
+                                                <Button bsStyle='default' className='btn-sm'
+                                                    onClick={() => this.setState({ suppliers: suppliers.filter(s => s.supplierBranchId != supplier.supplierBranchId) })}>
+                                                    <Glyphicon glyph='remove' />
+                                                </Button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ]
+                            })}
                     </tbody>
-                    <tfoot>
-                        <tr>
-                            <td colSpan={7} className="text-right"><strong>Tổng tiền:</strong> </td>
-                            <td colSpan={2}><strong>{_HNumber.FormatCurrency(totalPrice)}</strong></td>
-                        </tr>
-
-                    </tfoot>
                 </table>
             </div>
-        );
+        </div> :
+        <div className='col-sm-12 text-center'>
+            Chưa có nhà cung cấp nào được chọn
+        </div>
     }
     renderExpend() {
         let { paySlipTypes, paySlipLines } = this.state;
@@ -530,6 +372,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         </div>
     }
     renderInfo() {
+        let livestock = this.state.livestock;
         return (
             <div id="info" className="tab-pane fade in active">
                 <div className="panel panel-info">
@@ -564,12 +407,53 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                         </div>
                     </div>
                 </div>
-                {this.renderSuppliers()}
+                <div className="panel panel-info">
+                    <div className="panel-body">
+                        <div className='col-sm-12 mg-bt-15'>
+                            <ProductSimpleSearch
+                                onChooseProduct={(product) => this.setState({ livestock: product })}
+                                type='livestock' />
+                        </div>
+                        {livestock ?
+                            <div className='col-sm-12'>
+                                <div className="table-responsive p-relative">
+                                    <table className="table table-striped table-hover mg-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Tên con giống</th>
+                                                <th>%VAT</th>
+                                                <th className='th-sm-1'></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr key={'prdt-' + livestock.id}>
+                                                <td>{livestock.name}</td>
+                                                <td>
+                                                    {livestock.taxPercent ? livestock.taxPercent : 0} %
+                                                </td>
+                                                <td>
+                                                    <Button bsStyle='default' className='btn-sm'
+                                                        onClick={() => this.setState({ livestock: null })}>
+                                                        <Glyphicon glyph='minus' />
+                                                    </Button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div> :
+                            <div className='col-sm-12 text-center'>
+                                Chưa có con giống nào được chọn
+                            </div>
+                        }
+                    </div>
+                </div>
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className='col-sm-12'>
                             <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)} />
                         </div>
+                        {this.renderSuppliers()}
                     </div>
                 </div>
                 {this.renderExpend()}
@@ -577,19 +461,15 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         );
     }
     renderReview() {
-        let productQuantity = 0;
-        let productTotalAmount = 0;
+        let { suppliers, paySlipLines, livestock } = this.state;
+        let livestockQuantity = suppliers.reduce((d, l) => d + (Number(l.quantity)), 0);
+        let livestockMassAmount = suppliers.reduce((d, l) => d + (Number(l.massAmount)), 0);
+        let productTotalAmount = suppliers.reduce((d, l) => d + (l.pricePerKg * l.massAmount), 0);
+        if (livestock)
+            productTotalAmount = productTotalAmount * (100 + livestock.taxPercent) / 100;
+
         let expendQuantity = 0;
         let expendTotalAmount = 0;
-        let totalLiveStock = 0;
-        let { suppliers, paySlipLines } = this.state;
-        suppliers.forEach((item) => {
-            totalLiveStock += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.livestockQuantity)), 0);
-            
-            productQuantity += item.receiveDocketDetails.reduce((d, l) => d + (Number(l.quantity)), 0);
-            productTotalAmount += item.receiveDocketDetails.reduce((d, l) => d + (l.unitPrice * l.quantity + l.vat), 0);
-        });
-
         expendQuantity = paySlipLines.length;
         paySlipLines.forEach((item) => {
             expendTotalAmount += Number(item.amount);
@@ -599,8 +479,8 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
 
 
         return <div className="col-md-6 col-sm-8 col-xs-12 pull-right">
-            <SummaryText title='Tổng trọng lượng con giống:' value={_HNumber.FormatNumber(productQuantity)} />
-            <SummaryText title='Tổng số lượng con giống:' value={_HNumber.FormatNumber(totalLiveStock)} />
+            <SummaryText title='Tổng trọng lượng con giống:' value={_HNumber.FormatNumber(livestockMassAmount)} />
+            <SummaryText title='Tổng số lượng con giống:' value={_HNumber.FormatNumber(livestockQuantity)} />
             <SummaryText title='Tổng tiền con giống:' value={_HNumber.FormatCurrency(productTotalAmount)} />
             <SummaryText title='Chi phí đi kèm:' value={_HNumber.FormatNumber(expendQuantity)} />
             <SummaryText title='Tổng chi phí đi kèm:' value={_HNumber.FormatCurrency(expendTotalAmount)} />
@@ -610,6 +490,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
+            <UnderConstructor/> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">
