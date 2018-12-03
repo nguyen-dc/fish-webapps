@@ -10,3 +10,4 @@ obj
 /FLS.ClientSide/FLS.ClientSide/.vscode/*.json
 /.vscode/launch.json
 /.vscode/tasks.json
+/FLS.ClientSide/FLS.ClientSide/*.user
