@@ -8,7 +8,7 @@ import { CacheAPI } from "../../api-callers/cache";
 import { PageFilterModel, FilterModel } from "../../models/shared";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FarmingSeasonAPICaller } from "../../api-callers";
-import { ReportFarmingSeasonAPICaller } from "../../api-callers/report-farming-season-history";
+import { LiveStockHistoryDetailAPICaller } from "../../api-callers/report";
 
 class Filter {
     farmRegionId: number = 0;
@@ -130,8 +130,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             ToDate: Moment()
         };
 
-        let result = await ReportFarmingSeasonAPICaller.GetList(objFilter);
-        debugger
+        let result = await LiveStockHistoryDetailAPICaller.GetList(objFilter);
         if (result.hasError) {
             this.context.ShowGlobalMessageList('error', result.errors);
         }
