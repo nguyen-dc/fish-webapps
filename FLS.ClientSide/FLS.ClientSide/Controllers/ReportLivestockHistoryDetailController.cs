@@ -10,7 +10,7 @@ namespace FLS.ClientSide.Controllers
     {
         public ReportLivestockHistoryDetailController(IConfiguration _config) : base(_config) { }
 
-        [HttpPost("")]
+        [HttpPost("list")]
         public async Task<ActionResult> List([FromBody]ReportLivestockHistoryDetailRequest _model)
         {
             ResponseConsult<ReportLivestockHistoryDetail> response = await PostAsJsonAsync<ReportLivestockHistoryDetail>(URI_API.REPORT_LIVESTOCK_HISTORY_DETAIL, _model);

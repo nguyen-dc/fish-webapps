@@ -2,14 +2,18 @@
 import * as Moment from 'moment';
 import { RouteComponentProps } from 'react-router';
 import { LabeledSelect } from "../shared/input/labeled-input";
-import { _HDateTime } from "../../handles/handles";
+import { _HDateTime, _HString } from "../../handles/handles";
 import { ReportLivestockHistoryDetail } from "../../models/report-livestock-history-detail";
 import { CacheAPI } from "../../api-callers/cache";
+import { PageFilterModel, FilterModel } from "../../models/shared";
+import { FilterEnum } from "../../enums/filter-enum";
+import { FarmingSeasonAPICaller } from "../../api-callers";
+import { ReportFarmingSeasonAPICaller } from "../../api-callers/report-farming-season-history";
 
 class Filter {
-    farmRegionId: number;
-    fishPondId: number;
-    farmingSeasonId: number;
+    farmRegionId: number = 0;
+    fishPondId: number = 0;
+    farmingSeasonId: number = 0;
 }
 
 interface ReleaseLivestockStates {
@@ -17,6 +21,7 @@ interface ReleaseLivestockStates {
     modelFilter: Filter,
     farmRegions: any,
     fishPonds: any,
+    fishPondChangeByFarmRegion: any,
     farmingSeasons: any,
     errorList: {}
 }
@@ -29,7 +34,8 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             farmRegions: [],
             modelFilter: {} as Filter,
             fishPonds: [],
-            farmingSeasons:[],
+            fishPondChangeByFarmRegion:[],
+            farmingSeasons: [],
             errorList: {}
         }
     }
@@ -45,15 +51,54 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
         this.setState({ farmRegions: farmRegions.data, fishPonds: fishPonds.data });
     }
 
-    onDocketFieldChange(model: any) {
-        //const nextState = {
-        //    ...this.state,
-        //    releaseDocket: {
-        //        ...this.state.releaseDocket,
-        //        [model.name]: model.value,
-        //    }
-        //};
-        //this.setState(nextState);
+    async onFilterChange(model: any) {
+        const nextState = {
+            ...this.state,
+            modelFilter: {
+                ...this.state.modelFilter,
+                [model.name]: model.value,
+            }
+        };
+        this.setState(nextState);
+
+        if (model.name == "farmRegionId") {
+            if (Number(model.value) > 0) {
+                let { fishPonds } = this.state;
+                let filter = fishPonds.filter(function (item) {
+                    return item.parentId == model.value;
+                });
+
+                this.setState({ fishPondChangeByFarmRegion: filter });
+            }
+            else {
+                this.setState({ fishPondChangeByFarmRegion: [] });
+            }
+        }
+
+        if (model.name == "fishPondId") {
+            if (Number(model.value) > 0) {
+                var modelSearch = new PageFilterModel();
+                modelSearch.page = 1;
+                modelSearch.pageSize = 20;
+                modelSearch.filters[0].key = FilterEnum.fishPond;
+                modelSearch.filters[0].value = model.value;
+
+                let farmingSeason = await FarmingSeasonAPICaller.GetList(modelSearch);
+                if (farmingSeason.hasError) {
+                    this.context.ShowGlobalMessageList('error', farmingSeason.errors);
+                }
+                else {
+                    this.setState({ farmingSeasons: farmingSeason.data.items });
+                }
+
+                if (farmingSeason.hasWarning) {
+                    this.context.ShowGlobalMessageList('warning', farmingSeason.warnings);
+                }
+            }
+            else {
+                this.setState({ farmingSeasons: [] });
+            }
+        }
     }
     onReceiveDocketDateChange(evt) {
         let startDate = evt.startDate as Moment.Moment;
@@ -63,8 +108,89 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
         //this.setState({ releaseDocket });
     }
 
-    GetReport() {
-        alert("Chưa có làm");
+    async GetReport() {
+        debugger
+        let { modelFilter } = this.state;
+        if (Number(modelFilter.farmRegionId) <= 0 || modelFilter.farmRegionId == undefined) {
+            this.context.ShowGlobalMessage('warning', "Chưa chọn vùng nuôi");
+            return;
+        }
+        if (Number(modelFilter.fishPondId) <= 0 || modelFilter.fishPondId == undefined) {
+            this.context.ShowGlobalMessage('warning', "Chưa chọn ao nuôi");
+            return;
+        }
+        if (Number(modelFilter.farmingSeasonId) <= 0 || modelFilter.farmingSeasonId == undefined) {
+            this.context.ShowGlobalMessage('warning', "Chưa chọn đợt nuôi");
+            return;
+        }
+
+        var objFilter = {
+            FarmingSeasonId: modelFilter.farmingSeasonId,
+            FromDate: Moment(),
+            ToDate: Moment()
+        };
+
+        let result = await ReportFarmingSeasonAPICaller.GetList(objFilter);
+        debugger
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+        }
+        else {
+            this.setState({ model: result.data });
+        }
+    }
+
+    render() {
+        return (
+            <div id="info" className="tab-pane fade in active">
+                <div className="panel panel-info">
+                    <div className="panel-body pd-bt-0">
+                        <div className="col-md-3">
+                            <LabeledSelect
+                                name={'farmRegionId'}
+                                value={this.state.modelFilter.farmRegionId}
+                                title={'Vùng nuôi'}
+                                placeHolder={'Vùng nuôi'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onFilterChange.bind(this)}
+                                options={this.state.farmRegions} />
+                        </div>
+                        <div className="col-md-3">
+                            <LabeledSelect
+                                name={'fishPondId'}
+                                value={this.state.modelFilter.fishPondId}
+                                title={'Ao nuôi'}
+                                placeHolder={'Ao nuôi'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onFilterChange.bind(this)}
+                                options={this.state.fishPondChangeByFarmRegion} />
+                        </div>
+                        <div className="col-md-3">
+                            <LabeledSelect
+                                name={'farmingSeasonId'}
+                                value={this.state.modelFilter.farmingSeasonId}
+                                title={'Đợt nuôi'}
+                                placeHolder={'Đợt nuôi'}
+                                valueKey={'id'}
+                                nameKey={'name'}
+                                valueChange={this.onFilterChange.bind(this)}
+                                options={this.state.farmingSeasons} />
+                        </div>
+                        <div className="col-md-3 text-right">
+                            <button className="btn btn-primary mg-r-15" onClick={this.GetReport.bind(this)}>Xem báo cáo</button>
+                            <button className="btn btn-default" onClick={this.GetReport.bind(this)}>Xuất excel</button>
+                        </div>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className='col-sm-12'>
+                        {this.renderTable(this.state.model)}
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     private renderTable(models: any) {
@@ -162,59 +288,6 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                         </tr>
                     </tbody>
                 </table>
-            </div>
-        );
-    }
-
-    render() {
-        return (
-            <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-info">
-                    <div className="panel-body">
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'farmRegionId'}
-                                value={this.state.modelFilter.farmRegionId}
-                                title={'Vùng nuôi'}
-                                placeHolder={'Vùng nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={this.state.farmRegions} />
-                        </div>
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'fishPondId'}
-                                value={this.state.modelFilter.fishPondId}
-                                title={'Ao nuôi'}
-                                placeHolder={'Ao nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={this.state.fishPonds} />
-                        </div>
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'farmingSeasonId'}
-                                value={this.state.modelFilter.farmingSeasonId}
-                                title={'Đợt nuôi'}
-                                placeHolder={'Đợt nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={this.state.farmingSeasons} />
-                        </div>
-                        <div className="col-md-3 text-right">
-                            <button className="btn btn-primary mg-r-15" onClick={this.GetReport}>Xem báo cáo</button>
-                            <button className="btn btn-default" onClick={this.GetReport}>Xuất excel</button>
-                        </div>
-                    </div>
-                </div>
-                <div className="row">
-                    <div className='col-sm-12'>
-                        {this.renderTable(this.state.model)}
-                    </div>
-                </div>
             </div>
         );
     }
