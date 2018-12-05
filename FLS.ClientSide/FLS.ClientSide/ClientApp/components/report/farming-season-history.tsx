@@ -241,10 +241,10 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                                             <td></td>
                                             <td>{m.massAmount}</td>
                                             <td>{m.deadstockRatio}</td>
-                                            <td>{m.medicineName}</td>
-                                            <td>{m.productName}</td>
-                                            <td>{m.qtyMedicine}</td>
                                             <td></td>
+                                            <td>{m.medicineName}</td>
+                                            <td>{m.productUnitName}</td>
+                                            <td>{m.qtyMedicine}</td>
                                             <td></td>
                                             <td></td>
                                             <td></td>
