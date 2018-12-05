@@ -231,24 +231,24 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                                 <EmptyTableMessage /> :
                                 model.map((m, index) =>
                                     (<tr key={index}>
-                                        <td>{new Date().toLocaleTimeString()}</td>
-                                        <td>{m.ActionType}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Quantity}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.MassAmount}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>Muối</td>
-                                        <td>Bao</td>
-                                        <td>1.0</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
-                                        <td>{m.Weight}</td>
+                                        <td>{_HDateTime.DateFormat(m.actionDate)}</td>
+                                        <td>{m.actionType}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.quantity}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.massAmount}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{'Muối'}</td>
+                                        <td>{'Bao'}</td>
+                                        <td>{'1.0'}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
+                                        <td>{m.weight}</td>
                                     </tr>
                                     ))
                         }
