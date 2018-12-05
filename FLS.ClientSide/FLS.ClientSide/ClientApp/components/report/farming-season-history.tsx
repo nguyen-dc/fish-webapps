@@ -230,26 +230,28 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                             model.length == 0 ?
                                 <EmptyTableMessage /> :
                                 model.map((m, index) =>
-                                    (<tr key={index}>
-                                        <td>{_HDateTime.DateFormat(m.actionDate)}</td>
-                                        <td>{m.actionType}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.quantity}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.massAmount}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{'Muối'}</td>
-                                        <td>{'Bao'}</td>
-                                        <td>{'1.0'}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                        <td>{m.weight}</td>
-                                    </tr>
+                                    (
+                                        <tr key={index}>
+                                            <td>{_HDateTime.DateFormat(m.actionDate)}</td>
+                                            <td>{m.actionType}</td>
+                                            <td>{m.weight}</td>
+                                            <td>{m.quantity}</td>
+                                            <td>{m.qtyFood}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td>{m.massAmount}</td>
+                                            <td>{m.deadstockRatio}</td>
+                                            <td>{m.medicineName}</td>
+                                            <td>{m.productName}</td>
+                                            <td>{m.qtyMedicine}</td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+
                                     ))
                         }
                     </tbody>
