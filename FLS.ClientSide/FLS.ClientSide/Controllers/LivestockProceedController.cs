@@ -35,5 +35,12 @@ namespace FLS.ClientSide.Controllers
             ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
             return Ok(response);
         }
+        [HttpPost("deadstocks/collect")]
+        public async Task<ActionResult> CollectDeadstock([FromBody]CollectDeadstockRequest _model)
+        {
+            string link = URI_API.LIVESTOCK_PROCEED_COLLECT_DEADSTOCK;
+            ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
+            return Ok(response);
+        }
     }
 }
