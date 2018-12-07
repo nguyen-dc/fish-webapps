@@ -45,7 +45,7 @@ module.exports = (env) => {
                     sourceMap: true
 				}}),
                 new ExtractTextPlugin('site.css'),
-                new ExtractTextPlugin('style.css'),
+                new ExtractTextPlugin('style.css')
         ])
     }];
 };

@@ -18,6 +18,7 @@ import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-pic
 import { SummaryText } from "../shared/view-only";
 import { LivestockProceedAPICaller } from "../../api-callers/livestock-proceed";
 import { UnderConstructor } from "../shared/under-constructor";
+import { ReleaseLivestockSupplier } from "./release-livestock/release-livestock-supplier";
 
 interface ReleaseLivestockStates {
     releaseDocket: ReleaseLivestockDocketModel;
@@ -27,7 +28,6 @@ interface ReleaseLivestockStates {
     fishPonds: IdNameModel[],
     paySlipTypes: IdNameModel[],
     errorList: {},
-    costs: CostsModel,
     paySlipLines: paySlipLineModel[],
 }
 
@@ -48,7 +48,6 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
             fishPonds: [],
             paySlipTypes: [],
             errorList: {},
-            costs: new CostsModel(),
             paySlipLines: [],
         }
     }
@@ -84,7 +83,9 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
             model.supplierBranchName = supplier.name;
             model.massAmount = 0;
             model.pricePerKg = 0;
+            model.totalAmount = 0;
             model.quantity = 0;
+            model.vat = 0;
             model.size = 0;
             suppliers.push(model);
             this.setState({ suppliers: suppliers });
@@ -96,48 +97,6 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         releaseDocket[evt.name] = date;
         this.setState({ releaseDocket });
     }
-    //onChangeRowInput(event, supplierId, index) {
-    //    let suppliers = this.state.suppliers;
-    //    var indexSupplier = suppliers.findIndex(n => n.supplierBranchId == supplierId);
-    //    if (indexSupplier > -1 && index >= 0) {
-    //        let products = suppliers[indexSupplier].receiveDocketDetails;
-    //        let detail = products[index];
-    //        detail[event.name] = event.value;
-
-    //        if (event.name == "totalAmount") {
-    //            detail.unitPrice = (event.value / _HNumber.Sum(100, detail.vatPercent) * 100 / detail.quantity);
-    //            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
-    //        }
-    //        else {
-    //            detail.vat = ((detail.quantity * detail.unitPrice) * detail.vatPercent) / 100;
-    //            detail.totalAmount = (detail.unitPrice * detail.quantity) + detail.vat;
-    //        }
-    //        products[index] = detail;
-    //        this.setState({ suppliers: suppliers });
-    //    }
-    //}
-    onPaySlipRowChange(model, index) {
-        var { paySlipLines } = this.state;
-        var payslip = paySlipLines[index];
-        if (payslip) {
-            if (model.name !== "description")
-                payslip[model.name] = parseInt(model.value);
-            else
-                payslip[model.name] = model.value;
-
-            this.setState({ paySlipLines: paySlipLines });
-        }
-    }
-    onPaySlipFieldChange(model: any) {
-        const nextState = {
-            ...this.state,
-            costs: {
-                ...this.state.costs,
-                [model.name]: model.value,
-            }
-        };
-        this.setState(nextState);
-    }
     addLinePaySlip() {
         var { paySlipLines } = this.state;
         paySlipLines.push(new paySlipLineModel());
@@ -147,53 +106,54 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         let { paySlipLines } = this.state;
         this.setState({ paySlipLines: paySlipLines.filter(m => m != paySlipLines[index]) });
     }
-    //validateImport(): boolean {
-    //    let { releaseDocket, suppliers, paySlipLines } = this.state;
-    //    if (!releaseDocket.fishPondWarehouseId) {
-    //        this.context.ShowGlobalMessage('error', 'Xin chọn ao');
-    //        return false;
-    //    }
-    //    if (!suppliers || suppliers.length == 0) {
-    //        this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp và con giống cần nhập');
-    //        return false;
-    //    }
-    //    else {
-    //        let iserror: boolean;
-    //        suppliers.map((s) => {
-    //            if (s.supplierBranchId != null && (!s.receiveDocketDetails || s.receiveDocketDetails.length == 0)) {
-    //                this.context.ShowGlobalMessage('error', `Chưa nhập con giống cho nhà cung cấp ${s.supplierBranchName}`);
-    //                iserror = true;
-    //                return;
-    //            }
-    //            let filter = s.receiveDocketDetails.find(n => Number(n.unitPrice) < 0);
-    //            if (filter != null) {
-    //                this.context.ShowGlobalMessage('error', 'Giá con giống phải lớn hơn hoặc bằng 0');
-    //                iserror = true;
-    //                return;
-    //            }
-    //            let filter1 = s.receiveDocketDetails.find(n => Number(n.quantity) < 0);
-    //            if (filter1 != null) {
-    //                this.context.ShowGlobalMessage('error', 'Số lượng con giống không đúng');
-    //                iserror = true;
-    //                return;
-    //            }
-    //        })
-    //        if (iserror == true) return false;
-    //    }
-    //    if (paySlipLines.length > 0) {
-    //        let filter = paySlipLines.find(n => Number(n.amount) < 0);
-    //        if (filter != null) {
-    //            this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
-    //            return false;
-    //        }
-    //        let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
-    //        if (filter1 != null) {
-    //            this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
-    //            return false;
-    //        }
-    //    }
-    //    return true;
-    //}
+    validateImport(): boolean {
+        let { releaseDocket, livestock, suppliers, paySlipLines } = this.state;
+        if (!releaseDocket.fishPondWarehouseId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn ao');
+            return false;
+        }
+        if (!livestock) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn Con giống');
+            return false;
+        }
+        if (!suppliers || suppliers.length == 0) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn Nhà cung cấp cần nhập');
+            return false;
+        }
+        let sFilter = suppliers.find(s => s.massAmount <= 0);
+        if (sFilter) {
+            this.context.ShowGlobalMessage('error', 'Trọng lượng không đúng');
+            return false;
+        }
+        sFilter = suppliers.find(s => s.pricePerKg <= 0);
+        if (sFilter) {
+            this.context.ShowGlobalMessage('error', 'Đơn giá không đúng');
+            return false;
+        }
+        sFilter = suppliers.find(s => s.quantity <= 0);
+        if (sFilter) {
+            this.context.ShowGlobalMessage('error', 'Số lượng con giống không đúng');
+            return false;
+        }
+        sFilter = suppliers.find(s => s.size <= 0);
+        if (sFilter) {
+            this.context.ShowGlobalMessage('error', 'Kích cỡ con giống không đúng');
+            return false;
+        }
+        if (paySlipLines.length > 0) {
+            let filter = paySlipLines.find(n => Number(n.amount) < 0);
+            if (filter != null) {
+                this.context.ShowGlobalMessage('error', 'Chi phí phải lớn hơn hoặc bằng 0');
+                return false;
+            }
+            let filter1 = paySlipLines.find(n => !n.paySlipTypeId && _HString.IsNullOrEmpty(n.description));
+            if (filter1 != null) {
+                this.context.ShowGlobalMessage('error', 'Chọn loại chi phí hoặc nhập nội dung chi phí');
+                return false;
+            }
+        }
+        return true;
+    }
     async onCreateReleaseLivestock() {
         //    if (!this.validateImport())
         //        return;
@@ -229,84 +189,38 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         //        this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
-        let { suppliers } = this.state;
-        return suppliers ?
-        <div className='col-sm-12'>
-            <div className="table-responsive p-relative">
-                <table className="table table-striped table-hover mg-0">
-                    <thead>
-                        <tr>
-                            <th>Nhà cung cấp</th>
-                            <th colSpan={4}>Thông tin hóa đơn</th>
-                            <th className='th-sm-1'></th>
-                        </tr>
-                    </thead>
+        let { suppliers, livestock } = this.state;
+        return suppliers && suppliers.length > 0 ?
+            <div className='col-sm-12'>
+                <div className="table-responsive p-relative">
+                    <table className="table table-striped table-hover mg-0">
+                        <thead>
+                            <tr>
+                                <th>Nhà cung cấp</th>
+                                <th>Kích cỡ</th>
+                                <th>Trọng lượng</th>
+                                <th>Đơn giá</th>
+                                <th>VAT</th>
+                                <th>Thành tiền</th>
+                                <th>Số lượng</th>
+                                <th className='th-sm-1'></th>
+                            </tr>
+                        </thead>
                         <tbody>
                             {suppliers.map((supplier) => {
-                                return [
-                                    <tr className='text-right mg-bt-15'>
-                                        <Button
-                                            data-toggle="collapse"
-                                            href={'#collapse-' + supplier.supplierBranchId}
-                                            aria-expanded="false"
-                                            bsStyle="link">
-                                            Thêm thông tin hóa đơn <Glyphicon glyph='list-alt'></Glyphicon>
-                                        </Button>
-                                    </tr>,
-                                    <tr key={'spplr-' + supplier.supplierBranchId}
-                                        id={'collapse-' + supplier.supplierBranchId}
-                                        className="collapse panel panel-default mg-bt-15">
-                                        <td colSpan={8}>
-                                            <div className='col-sm-12 col-md-6 col-lg-3'>
-                                                <LabeledInput
-                                                    name={'billTemplateCode'}
-                                                    value={supplier.billTemplateCode}
-                                                    title={'Mẫu số hóa đơn'}
-                                                    placeHolder={'Mẫu số hóa đơn'}
-                                                    error={this.state.errorList['billTemplateCode']}
-                                                    valueChange={(e) => { supplier.billTemplateCode = e.value; this.setState(this.state) }} />
-                                            </div>
-                                            <div className='col-sm-12 col-md-6 col-lg-3'>
-                                                <LabeledInput
-                                                    name={'billSerial'}
-                                                    value={supplier.billSerial}
-                                                    title={'Số hiệu hóa đơn'}
-                                                    placeHolder={'Số hiệu hóa đơn'}
-                                                    error={this.state.errorList['billSerial']}
-                                                    valueChange={(e) => { supplier.billSerial = e.value; this.setState(this.state) }} />
-                                            </div>
-                                            <div className='col-sm-12 col-md-6 col-lg-3'>
-                                                <LabeledInput
-                                                    name={'billCode'}
-                                                    value={supplier.billCode}
-                                                    title={'Số hóa đơn'}
-                                                    placeHolder={'Số hóa đơn'}
-                                                    error={this.state.errorList['billCode']}
-                                                    valueChange={(e) => { supplier.billCode = e.value; this.setState(this.state) }} />
-                                            </div>
-                                            <div className='col-sm-12 col-md-6 col-lg-3'>
-                                                <LabeledSingleDatePicker
-                                                    name={'billDate'}
-                                                    title={'Ngày hóa đơn'}
-                                                    date={Moment()}
-                                                    dateChange={(e) => { supplier.billDate = e.value; this.setState(this.state) }} />
-                                            </div>
-                                            <div className='col-sm-12 col-md-6 col-lg-3'>
-                                                <Button bsStyle='default' className='btn-sm'
-                                                    onClick={() => this.setState({ suppliers: suppliers.filter(s => s.supplierBranchId != supplier.supplierBranchId) })}>
-                                                    <Glyphicon glyph='remove' />
-                                                </Button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ]
+                                return <ReleaseLivestockSupplier
+                                    key={'lvstck-spplr-' + supplier.supplierBranchId}
+                                    taxPercent={livestock ? livestock.taxPercent : 0}
+                                    supplier={supplier}
+                                    onChange={() => this.setState(this.state)}
+                                    onRemove={() => this.setState({ suppliers: suppliers.filter(s => s.supplierBranchId != supplier.supplierBranchId) })} />
                             })}
-                    </tbody>
-                </table>
-            </div>
-        </div> :
-        <div className='col-sm-12 text-center'>
-            Chưa có nhà cung cấp nào được chọn
+                        </tbody>
+                    </table>
+                </div>
+            </div> :
+            <div className='col-sm-12 text-center'>
+                Chưa có nhà cung cấp nào được chọn
         </div>
     }
     renderExpend() {
@@ -340,7 +254,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                                 placeHolder={'Loại chi phí'}
                                                 valueKey={'id'}
                                                 nameKey={'name'}
-                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                valueChange={(e) => { m.paySlipTypeId = Number(e.value); this.setState(this.state); }}
                                                 options={paySlipTypes}
                                             /></td>
                                             <td> <LabeledInput
@@ -349,7 +263,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                                 inputType={'text'}
                                                 placeHolder={'Nội dung'}
                                                 error={this.state.errorList['description']}
-                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                valueChange={(e) => { m.description = e.value; this.setState(this.state); }}
                                             /></td>
                                             <td> <LabeledInput
                                                 inputType='currency'
@@ -357,7 +271,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                                                 value={m.amount}
                                                 placeHolder={'Số tiền'}
                                                 error={this.state.errorList['amount']}
-                                                valueChange={(e) => this.onPaySlipRowChange(e, index)}
+                                                valueChange={(e) => { m.amount = Number(e.value); this.setState(this.state); }}
                                             /></td>
                                             <td><Button bsStyle="default" className="btn-sm" onClick={(e) => this.removeLinePaySlip(index)}><Glyphicon glyph="minus" /></Button></td>
                                         </tr>
@@ -450,7 +364,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
                 </div>
                 <div className="panel panel-info">
                     <div className="panel-body">
-                        <div className='col-sm-12'>
+                        <div className='col-sm-12 mg-bt-15'>
                             <SupplierSimpleSearch onChooseSupplier={(supplier) => this.onChooseSupplier(supplier)} />
                         </div>
                         {this.renderSuppliers()}
@@ -490,7 +404,7 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
     }
     render() {
         return (
-            <UnderConstructor/> ||
+            //<UnderConstructor/> ||
             <div className="content-wapper">
                 <div className="row">
                     <div className="col-sm-12">

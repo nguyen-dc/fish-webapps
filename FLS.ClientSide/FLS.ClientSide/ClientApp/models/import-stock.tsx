@@ -48,6 +48,9 @@ export class ReleaseStockSupplierModel {
     massAmount: number;
     size: number;
     quantity: number;
+    amount: number;
+    vat: number;
+    totalAmount: number;
 }
 
 export class FeedingLivestockModel {
