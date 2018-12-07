@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.All" Version="2.0.8" />
-    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.3" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +45,7 @@
   <ItemGroup>
     <None Remove="ClientApp\components\product-group\product-subgroup - Copy.tsx" />
     <None Remove="ClientApp\components\product-group\product-subgroup-edit - Copy.tsx" />
+    <None Remove="ClientApp\components\shared\date-time\DateRangePicker.tsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -59,6 +60,10 @@
     <Reference Include="FLS.ServerSide.SharingObject">
       <HintPath>..\Libs\FLS.ServerSide.SharingObject.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\components\shared\date-time\DateRangePicker.tsx" />
   </ItemGroup>
 
   <Target Name="DebugRunWebpack" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('wwwroot\dist') ">

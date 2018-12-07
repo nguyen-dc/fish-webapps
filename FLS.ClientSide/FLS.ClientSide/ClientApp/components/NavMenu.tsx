@@ -76,8 +76,8 @@ export class NavMenu extends React.Component<{}, {}> {
                                     <li><NavLink to="/nhatkyaonuoi" >Nhật ký ao nuôi</NavLink></li>
                                     <li><NavLink to="/theodoitangtrong" >Theo dõi tăng trọng</NavLink></li>
                                     <li><NavLink to="/baocao/cagiong" >Theo dõi cá giống</NavLink></li>
+                                    <li><NavLink to="/baocao/xuatvattu" >Theo dõi vật tư</NavLink></li>
                                     <li className="divider-vertical"></li>
-                                    <li><NavLink to="/baocao/xuatvattu" >Xuất vật tư</NavLink></li>
                                     <li><NavLink to="/baocao/nhapxuatton" >Nhập xuất tồn</NavLink></li>
                                     <li className="divider-vertical"></li>
                                     <li><NavLink to="/baocao/thuchi" >Thu chi theo ao</NavLink></li>

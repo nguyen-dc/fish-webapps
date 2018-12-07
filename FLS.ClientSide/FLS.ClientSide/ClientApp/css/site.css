@@ -721,3 +721,13 @@ tr.clickable {
 .paysliptable .min-w-140 {
     display: none;
 }
+.table-responsive{
+    background-color:#fff;
+}
+.table-responsive tr, .table-responsive td {
+    border: 1px solid #ccc;
+    padding: 5px;
+}
+.scroll-x{
+    overflow-x:auto;
+}

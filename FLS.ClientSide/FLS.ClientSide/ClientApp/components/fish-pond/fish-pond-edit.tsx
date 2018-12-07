@@ -25,7 +25,7 @@ interface IFishPondState {
     farmRegions: any,
     warehouses: any,
     isDisable: boolean,
-    warehousesFilter: any,
+    warehousesFilter: any
 }
 
 export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState> {
@@ -51,11 +51,9 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
         var warehouses = await CacheAPI.Warehouse();
         this.setState({ warehouses: warehouses.data});
     }
-
+   
     componentWillReceiveProps(nextProps) {
-        // call load data by this.props.model.id from server
         this.setState({ model: nextProps.model, isShow: nextProps.isShow, farmRegions: nextProps.farmRegions });
-
         let { model } = nextProps;
         if (model.farmRegionId > 0) {
             let { warehouses } = this.state;
@@ -66,8 +64,16 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
         }
         else {
             this.setState({ warehousesFilter: [], isDisable: true });
-        }
+        }  
     }
+
+    componentWillUpdate(nextProps, nextState) {
+        console.log("componentWillUpdate");
+        console.log("nextProps: " + JSON.stringify(nextProps.model));
+        console.log("nextState: " + JSON.stringify(nextState.model));
+       // this.setState({ model: nextState.model, isShow: nextState.isShow, farmRegions: nextState.farmRegions });
+    }
+
     onCloseModal() {
         this.setState({ errorList: {} });
         if (this.props.onCloseModal)
@@ -106,32 +112,35 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
         nextState.model.waterSurfaceArea = _HNumber.Sum(nextState.model.a, nextState.model.c) * _HNumber.Sum(nextState.model.b, nextState.model.d) / 4;
         this.setState(nextState);
     }
-
-    private _validate() {
-        var errors = {};
-        if (_HString.IsNullOrEmpty(this.state.model.name)) {
-            errors['name'] = 'Chưa nhập ao nuôi';
-        }
-        if (!this.state.model.farmRegionId) {
-            errors['farmRegionId'] = 'Chưa chọn khu vực nuôi';
-        }
-        if (!this.state.model.defaultWarehouseId) {
-            errors['defaultWarehouseId'] = 'Chưa chọn kho';
-        }
-        return errors;
+    resetStateWithUpdates(stateUpdates = {}) {
+        this.setState({ ...this.state, ...stateUpdates });
     }
+    //private _validate() {
+    //    var errors = {};
+    //    if (_HString.IsNullOrEmpty(this.state.model.name)) {
+    //        errors['name'] = 'Chưa nhập ao nuôi';
+    //    }
+    //    if (!this.state.model.farmRegionId) {
+    //        errors['farmRegionId'] = 'Chưa chọn khu vực nuôi';
+    //    }
+    //    if (!this.state.model.defaultWarehouseId) {
+    //        errors['defaultWarehouseId'] = 'Chưa chọn kho';
+    //    }
+    //    return errors;
+    //}
 
     async onFormSubmit() {
-        var errors = this._validate();
-        if (Object.keys(errors).length > 0) {
-            this.setState({
-                errorList: errors
-            });
-            return;
-        }
+        //var errors = this._validate();
+        //if (Object.keys(errors).length > 0) {
+        //    this.setState({
+        //        errorList: errors
+        //    });
+        //    return;
+        //}
 
+        let { model } = this.state;
         if (this.props.isEdit) {
-            let response = await FishPondAPICaller.Update(this.state.model);
+            let response = await FishPondAPICaller.Update(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
@@ -140,14 +149,16 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                         this.props.onFormAfterSubmit(true, this.state.model);
                     this.context.ShowGlobalMessage('success', 'Cập nhật ao nuôi thành công');
                 } else {
+
                     this.context.ShowGlobalMessage('error', 'Có lỗi trong quá trình cập nhật');
                 }
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
+                this.resetStateWithUpdates({ model });
             }
 
         } else {
-            let response = await FishPondAPICaller.Create(this.state.model);
+            let response = await FishPondAPICaller.Create(model);
             if (!response.hasError) {
                 this.onCloseModal();
                 // return succeed value to parent
@@ -160,6 +171,7 @@ export class FishPondEdit extends React.Component<IFishPondProps, IFishPondState
                 }
             } else {
                 this.context.ShowGlobalMessageList('error', response.errors);
+                this.resetStateWithUpdates({ model });
             }
         }
     }

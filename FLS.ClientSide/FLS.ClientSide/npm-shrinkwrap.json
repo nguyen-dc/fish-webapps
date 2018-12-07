@@ -723,7 +723,7 @@
     "bootstrap-daterangepicker": {
       "version": "3.0.3",
       "resolved": "https://registry.npmjs.org/bootstrap-daterangepicker/-/bootstrap-daterangepicker-3.0.3.tgz",
-      "integrity": "sha1-ZwxjjcEkoVqV3fBECvNNGs7nz/w=",
+      "integrity": "sha512-RJ0iOpVornF/6bf+L1jzPr95MoPM7zp3MILtNZ7ADu5RZFoMznHD4GbPu3URkPhcPABA2RqMnhk/CvO7iyNBtw==",
       "dev": true,
       "requires": {
         "jquery": ">=1.10",

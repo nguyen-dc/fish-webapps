@@ -49,7 +49,7 @@ export class FarmingSeasons extends React.Component<RouteComponentProps<{}>, Far
             lastSearchModel: new PageFilterModel()
         };
     }
-    async componentWillMount() {
+    async componentDidMount() {
         var fishPonds = await CacheAPI.FishPond();
         this.setState({ fishPonds: fishPonds.data });
         await this.onPageChange(1, true);
