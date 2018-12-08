@@ -48,13 +48,13 @@ export class ReportFarmingSeasonRequest {
     fromDate: Date;
     toDate: Date;
 }
-export class ReportFarmingSeason {
+export class ReportFarmingSeasonModel { //report cá giống
     fishPondId: number;
     fishPondName: string;
-    A: number;
-    B: number;
-    C: number;
-    D: number;
+    a: number;
+    b: number;
+    c: number;
+    d: number;
     waterSurfaceArea: number;
     depth: number;
     farmingSeasonId: number;
