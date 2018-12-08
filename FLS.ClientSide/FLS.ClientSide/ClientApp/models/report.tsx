@@ -22,11 +22,10 @@ export class ReportLivestockHistoryDetail{
     medicineName: string;
 }
 export class ReportFarmingSeasonHistoryStockRequest {
-    farmingSeasonId: number;
-    productGroupId: number;
-    productSubgroupId: number;
-    productId: number;
-
+    farmingSeasonId: number = 0;
+    productGroupId: number = 0;
+    productSubgroupId: number = 0;
+    productId: number = 0;
 }
 export class ReportFarmingSeasonHistoryStock {
     farmingSeasonId: number;
@@ -34,13 +33,16 @@ export class ReportFarmingSeasonHistoryStock {
     startFarmDate: Date;
     finishFarmDate: Date;
     productGroupId: number;
+    productGroupName: string | null;
     productSubgroupId: number;
+    productSubgroupName: string | null;
     productId: number;
     productName: string;
     productUnitId: number;
     productUnitName: string;
     amount: number;
     capitalCost: number;
+    childs: ReportFarmingSeasonHistoryStock[];
 }
 export class ReportFarmingSeasonRequest {
     farmRegionId: number;
@@ -48,13 +50,13 @@ export class ReportFarmingSeasonRequest {
     fromDate: Date;
     toDate: Date;
 }
-export class ReportFarmingSeason {
+export class ReportFarmingSeasonModel { //report cá giống
     fishPondId: number;
     fishPondName: string;
-    A: number;
-    B: number;
-    C: number;
-    D: number;
+    a: number;
+    b: number;
+    c: number;
+    d: number;
     waterSurfaceArea: number;
     depth: number;
     farmingSeasonId: number;

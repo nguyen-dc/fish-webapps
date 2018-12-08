@@ -1,28 +1,29 @@
 ﻿import * as React from "react";
+import * as Moment from 'moment';
 import { RouteComponentProps } from 'react-router';
 import { LabeledSelect } from "../shared/input/labeled-input";
-import { CacheAPI, FarmingSeasonAPICaller } from "../../api-callers";
-import { PageFilterModel } from "../../models/shared";
-import { ReportFeedConversionRateRequest, ReportFeedConversionRate } from "../../models/report";
-import { FilterEnum } from "../../enums/filter-enum";
+import DateRangePicker from "../shared/date-time/DateRangePicker";
+import { _HDateTime, _HString, _HNumber } from "../../handles/handles";
+import { ReportFarmingSeasonRequest, ReportFarmingSeasonModel } from "../../models/report";
+import { CacheAPI } from "../../api-callers/cache";
 import { ReportAPICaller } from "../../api-callers/report";
 import { NavLink } from "react-router-dom";
 import { EmptyTableMessage } from "../shared/view-only";
-import { _HDateTime, _HNumber } from "../../handles/handles";
 
-interface IReportFeedConversionRate {
-    model: ReportFeedConversionRate[],
+interface IReportFarmingSeason {
+    model: ReportFarmingSeasonModel[],
     farmRegions: any,
     fishPonds: any,
     farmingSeasons: any[],
     farmRegionId: number,
     fishPondId: number,
-    farmingSeasonId: number,
+    fromDate: any,
+    toDate: any,
     errorList: {},
     isLoading: boolean,
 }
 
-export class FeedConversionRates extends React.Component<RouteComponentProps<{}>, IReportFeedConversionRate> {
+export class ReportFarmingSeason extends React.Component<RouteComponentProps<{}>, IReportFarmingSeason> {
     constructor(props: any) {
         super(props)
         this.state = {
@@ -32,10 +33,15 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
             farmingSeasons: [],
             farmRegionId: 0,
             fishPondId: 0,
-            farmingSeasonId: 0,
+            fromDate: Moment().startOf('month'),
+            toDate: Moment(),
             errorList: {},
             isLoading: false,
         }
+    }
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
     }
 
     async componentDidMount() {
@@ -53,16 +59,15 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
             this.context.ShowGlobalMessage('error', "Chưa chọn ao nuôi");
             return;
         }
-        if (Number(state.farmingSeasonId) <= 0 || state.farmingSeasonId == undefined) {
-            this.context.ShowGlobalMessage('error', "Chưa chọn đợt nuôi");
-            return;
-        }
         this.setState({ isLoading: true });
 
-        var objFilter = new ReportFeedConversionRateRequest();
-        objFilter.farmingSeasonId = state.farmingSeasonId;
+        var objFilter = new ReportFarmingSeasonRequest();
+        objFilter.farmRegionId = state.farmRegionId;
+        objFilter.fishPondId = state.fishPondId;
+        objFilter.fromDate = state.fromDate;
+        objFilter.toDate = state.toDate;
 
-        let result = await ReportAPICaller.GetFeedConversionRate(objFilter);
+        let result = await ReportAPICaller.GetFarmingSeason(objFilter);
         if (result.hasError) {
             this.context.ShowGlobalMessageList('error', result.errors);
             this.setState({ model: [], isLoading: false });
@@ -71,38 +76,11 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
             this.setState({ model: result.data, isLoading: false });
         }
     }
-    private async getFarmingSeason(fishPondId: number) {
-        if (Number(fishPondId) > 0) {
-            let exist = this.state.farmingSeasons.find(f => f.fishPondId == fishPondId);
 
-            if (exist) {
-                return;
-            }
-            var modelSearch = new PageFilterModel();
-            modelSearch.page = 1;
-            modelSearch.pageSize = 20;
-            modelSearch.filters[0].key = FilterEnum.fishPond;
-            modelSearch.filters[0].value = fishPondId;
-            let farmingSeasons = this.state.farmingSeasons;
-            let response = await FarmingSeasonAPICaller.GetList(modelSearch);
-            if (response.hasError) {
-                this.context.ShowGlobalMessageList('error', response.errors);
-            }
-            else {
-                farmingSeasons.push.apply(farmingSeasons, response.data.items);
-                console.log(farmingSeasons);
-                this.setState({ farmingSeasons });
-            }
-
-            if (response.hasWarning) {
-                this.context.ShowGlobalMessageList('warning', response.warnings);
-            }
-        }
-    }
-
-    static contextTypes = {
-        ShowGlobalMessage: React.PropTypes.func,
-        ShowGlobalMessageList: React.PropTypes.func,
+    onReceiveDocketDateChange(evt) {
+        let startDate = evt.startDate as Moment.Moment;
+        let endDate = evt.endDate as Moment.Moment;
+        this.setState({ fromDate: startDate, toDate: endDate });
     }
 
     render() {
@@ -115,7 +93,7 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
                             <ol className="breadcrumb">
                                 <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
                                 <li className="breadcrumb-item">Báo cáo</li>
-                                <li className="breadcrumb-item active" aria-current="page">Theo dõi tăng trọng</li>
+                                <li className="breadcrumb-item active" aria-current="page">Theo dõi cái giống</li>
                             </ol>
                         </nav>
                     </div>
@@ -130,7 +108,7 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
                                 placeHolder={'Vùng nuôi'}
                                 valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={(model) => this.setState({ farmRegionId: model.value, fishPondId: 0, farmingSeasonId: 0 })}
+                                valueChange={(model) => this.setState({ farmRegionId: model.value, fishPondId: 0 })}
                                 options={state.farmRegions} />
                         </div>
                         <div className="col-md-3">
@@ -142,25 +120,20 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
                                 valueKey={'id'}
                                 nameKey={'name'}
                                 valueChange={(model) => {
-                                    this.setState({ fishPondId: model.value, farmingSeasonId: 0 });
-                                    this.getFarmingSeason(model.value);
+                                    this.setState({ fishPondId: model.value });
                                 }}
                                 options={state.fishPonds.filter(f => f.parentId == state.farmRegionId)} />
                         </div>
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'farmingSeasonId'}
-                                value={state.farmingSeasonId}
-                                title={'Đợt nuôi'}
-                                placeHolder={'Đợt nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={(model) => this.setState({ farmingSeasonId: model.value })}
-                                options={state.farmingSeasons.filter(f => f.fishPondId == state.fishPondId)} />
+                        <div className="col-md-4">
+                            <DateRangePicker
+                                name={'receiveDate'}
+                                title={'Thời gian đợt nuôi'}
+                                dateChange={(e) => this.onReceiveDocketDateChange(e)} />
                         </div>
-                        <div className="col-md-3 text-right">
+                        <div className="col-md-4">
+                            <label className="control-label min-w-140 float-left"></label>
                             <button className="btn btn-primary mg-r-15" onClick={this.GetReport.bind(this)}>Xem báo cáo</button>
-                            <button className="btn btn-default" onClick={this.GetReport.bind(this)}>Xuất excel</button>
+                            <button className="btn btn-default" >Xuất báo cáo</button>
                         </div>
                     </div>
                 </div>
@@ -180,24 +153,37 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
             <table className="table-responsive table table-striped table-hover border">
                 <thead className="text-center">
                     <tr>
-                        <th colSpan={12}>Ao nuôi số 11 - Diện tích (m2): 8778</th>
+                        <th rowSpan={3}>Mã đợt nuôi</th>
+                        <th colSpan={8}>Thông tin vùng nuôi</th>
+                        <th colSpan={5}><p>Thông tin con giống</p></th>
+                        <th colSpan={2}>TG thu hoạch dự kiến</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
                     </tr>
                     <tr>
-                        <th rowSpan={2}>Ngày</th>
-                        <th rowSpan={2}>Trọng lượng(gr/con)</th>
+                        <th rowSpan={2}>Mã ao</th>
+                        <th rowSpan={2}>Tên ao</th>
+                        <th colSpan={4}>Diện tích ao nuôi</th>
+                        <th rowSpan={2}>DTMN(m2)</th>
+                        <th rowSpan={2}>Độ sâu(m)</th>
+                        <th rowSpan={2}>Ngày thả</th>
+                        <th colSpan={2}>Số lượng thả</th>
                         <th rowSpan={2}>Bình quân(con/kg)</th>
-                        <th colSpan={2}>Cá chết</th>
-                        <th rowSpan={2}>Thức ăn(kg)</th>
-                        <th rowSpan={2}>Khối lượng(kg)</th>
-                        <th rowSpan={2}>Số lượng(con)</th>
-                        <th rowSpan={2}>Hao hụt(%)</th>
-                        <th rowSpan={2}>Tỷ trọng(%)</th>
                         <th rowSpan={2}>Mật độ(c/m2)</th>
-                        <th rowSpan={2}>FCR</th>
+                        <th rowSpan={2}>Tháng</th>
+                        <th rowSpan={2}>Số lượng(tấn)</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
                     </tr>
                     <tr>
+                        <th>A</th>
+                        <th>B</th>
+                        <th>C</th>
+                        <th>D</th>
                         <th>Kg</th>
                         <th>Con</th>
+                        <th>&nbsp;</th>
+                        <th>&nbsp;</th>
                     </tr>
                 </thead>
                 <tbody className="text-center">
@@ -207,18 +193,24 @@ export class FeedConversionRates extends React.Component<RouteComponentProps<{}>
                             state.model.map((m, index) =>
                                 (
                                     <tr key={index}>
-                                        <td>{_HDateTime.DateFormat(m.surveyDate)}</td>
-                                        <td>{_HNumber.FormatNumber(m.weight)}</td>
+                                        <td>{m.farmingSeasonId}</td>
+                                        <td>{m.fishPondId}</td>
+                                        <td>{m.fishPondName}</td>
+                                        <td>{m.a}</td>
+                                        <td>{m.b}</td>
+                                        <td>{m.c}</td>
+                                        <td>{m.d}</td>
+                                        <td>{m.waterSurfaceArea}</td>
+                                        <td>{m.depth}</td>
+                                        <td>{_HDateTime.DateFormat(m.actionDate)}</td>
+                                        <td>{_HNumber.FormatNumber(m.massAmount)}</td>
+                                        <td>{_HNumber.FormatNumber(m.quantity)}</td>
                                         <td>{_HNumber.FormatNumber(m.averageQuantity)}</td>
-                                        <td>{_HNumber.FormatNumber(m.deadstockAmount)}</td>
-                                        <td>{_HNumber.FormatNumber(m.deadstockQuantity)}</td>
-                                        <td>{_HNumber.FormatNumber(m.foodQuantity)}</td>
-                                        <td>{_HNumber.FormatNumber(m.livestockAmount)}</td>
-                                        <td>{_HNumber.FormatNumber(m.livestockQuantity)}</td>
-                                        <td>{_HNumber.FormatNumber(m.lostPercent)}</td>
-                                        <td>{_HNumber.FormatNumber(m.proprotionPercent)}</td>
-                                        <td>{_HNumber.FormatNumber(m.density)}</td>
-                                        <td>{_HNumber.FormatNumber(m.feedConversionRateId)}</td>
+                                        <td>{m.density}</td>
+                                        <td>{_HDateTime.DateFormat(m.expectedHarvestDate)}</td>
+                                        <td>{_HNumber.FormatNumber(m.expectedHarvestQuantity)}</td>
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
                                     </tr>
                                 ))
                     }

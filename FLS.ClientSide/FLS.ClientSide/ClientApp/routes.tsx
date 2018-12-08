@@ -34,8 +34,7 @@ import { ExportLivestocks } from './components/export/export-livestock';
 import { ExportDeadstocks } from './components/export/export-deadstock';
 import { FarmingSeasonHistories } from './components/report/farming-season-history';
 import { FeedConversionRates } from './components/report/feed-conversion-rate';
-import { FarmingLivestockReports } from './components/report/farming-livestock-report';
-import { ExportReports } from './components/report/export-report';
+import { ReportFarmingSeason } from './components/report/farming-season';
 import { InventoryReports } from './components/report/inventory-report';
 import { ExpenditureReports } from './components/report/expenditure-report';
 import { CostReports } from './components/report/cost-report';
@@ -46,6 +45,7 @@ import { StockReceiveDocketEdit } from './components/import/stock-receive-edit';
 import { ImportDetail } from './components/import/import-detail';
 import { ExportDetail } from './components/export/export-detail';
 import { ProductDetail } from './components/product/product-detail';
+import { FarmingSeasonStockHistory } from './components/report/farmingseason-stock-history';
 
 export const routes = <Layout>
     <Switch>
@@ -85,8 +85,8 @@ export const routes = <Layout>
         <Route exact path='/xuatbancachet' component={ExportDeadstocks} />
         <Route exact path='/nhatkyaonuoi' component={FarmingSeasonHistories} />
         <Route exact path='/theodoitangtrong' component={FeedConversionRates} />
-        <Route exact path='/baocao/cagiong' component={FarmingLivestockReports} />
-        <Route exact path='/baocao/xuatvattu' component={ExportReports} />
+        <Route exact path='/baocao/cagiong' component={ReportFarmingSeason} />
+        <Route exact path='/baocao/xuatvattu' component={FarmingSeasonStockHistory} />
         <Route exact path='/baocao/nhapxuatton' component={InventoryReports} />
         <Route exact path='/baocao/thuchi' component={ExpenditureReports} />
         <Route exact path='/baocao/chiphi' component={CostReports} />

@@ -11,3 +11,5 @@ obj
 /.vscode/launch.json
 /.vscode/tasks.json
 /FLS.ClientSide/FLS.ClientSide/*.user
+/FLS.ClientSide/.vs/FLS.ClientSide/v15/*.suo
+*.suo

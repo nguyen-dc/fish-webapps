@@ -5,10 +5,10 @@ import { LabeledSelect } from "../shared/input/labeled-input";
 import { _HDateTime, _HString, _HNumber } from "../../handles/handles";
 import { ReportLivestockHistoryDetail, ReportLivestockHistoryDetailRequest } from "../../models/report";
 import { CacheAPI } from "../../api-callers/cache";
-import { PageFilterModel, FilterModel } from "../../models/shared";
+import { PageFilterModel } from "../../models/shared";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FarmingSeasonAPICaller } from "../../api-callers";
-import { LiveStockHistoryDetailAPICaller } from "../../api-callers/report";
+import { ReportAPICaller } from "../../api-callers/report";
 import { EmptyTableMessage } from "../shared/view-only";
 import { NavLink } from "react-router-dom";
 
@@ -65,14 +65,13 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             return;
         }
         this.setState({ isLoading: true });
-        var objFilter = new ReportLivestockHistoryDetailRequest();
-        objFilter = {
-            farmingSeasonId: state.farmingSeasonId,
-            fromDate: Moment().toDate(),
-            toDate: Moment().toDate(),
-        };
 
-        let result = await LiveStockHistoryDetailAPICaller.GetList(objFilter);
+        var objFilter = new ReportLivestockHistoryDetailRequest();
+        objFilter.farmingSeasonId = state.farmingSeasonId,
+        objFilter.fromDate = Moment().toDate();
+        objFilter.toDate = Moment().toDate();
+
+        let result = await ReportAPICaller.GetLiveStockHistoryDetail(objFilter);
         if (result.hasError) {
             this.context.ShowGlobalMessageList('error', result.errors);
             this.setState({ model: [], isLoading: false });
@@ -117,6 +116,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                     <nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                            <li className="breadcrumb-item">Báo cáo</li>
                             <li className="breadcrumb-item active" aria-current="page">Nhật ký ao nuôi</li>
                         </ol>
                     </nav>
