@@ -65,12 +65,11 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             return;
         }
         this.setState({ isLoading: true });
+
         var objFilter = new ReportLivestockHistoryDetailRequest();
-        objFilter = {
-            farmingSeasonId: state.farmingSeasonId,
-            fromDate: Moment().toDate(),
-            toDate: Moment().toDate(),
-        };
+        objFilter.farmingSeasonId = state.farmingSeasonId,
+        objFilter.fromDate = Moment().toDate();
+        objFilter.toDate = Moment().toDate();
 
         let result = await ReportAPICaller.GetLiveStockHistoryDetail(objFilter);
         if (result.hasError) {
@@ -117,6 +116,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
                     <nav aria-label="breadcrumb">
                         <ol className="breadcrumb">
                             <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                            <li className="breadcrumb-item">Báo cáo</li>
                             <li className="breadcrumb-item active" aria-current="page">Nhật ký ao nuôi</li>
                         </ol>
                     </nav>
