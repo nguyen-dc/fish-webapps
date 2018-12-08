@@ -155,38 +155,40 @@ export class ReleaseLivestocks extends React.Component<RouteComponentProps<{}>, 
         return true;
     }
     async onCreateReleaseLivestock() {
-        //    if (!this.validateImport())
-        //        return;
-        //    let { releaseDocket, suppliers, paySlipLines, paySlipTypes } = this.state;
+        if (!this.validateImport())
+            return;
+        let { releaseDocket, livestock, suppliers, paySlipLines, paySlipTypes } = this.state;
 
-        //    let paySlipDetails = [] as ExpenditureDocketDetailModel[];
-        //    // payslip
-        //    if (paySlipLines.length > 0) {
-        //        paySlipLines.forEach(function (item) {
-        //            var model = new ExpenditureDocketDetailModel();
-        //            model.amount = item.amount;
-        //            model.totalAmount = item.amount;
-        //            model.expenditureTypeId = item.paySlipTypeId;
-        //            model.title = item.description;
-        //            var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
-        //            if (paySlipType) {
-        //                model.expenditureTypeName = paySlipType.name;
-        //            }
-        //            paySlipDetails.push(model);
-        //        });
-        //    }
+        let paySlipDetails = [] as ExpenditureDocketDetailModel[];
+        // payslip
+        if (paySlipLines.length > 0) {
+            paySlipLines.forEach(function (item) {
+                var model = new ExpenditureDocketDetailModel();
+                model.amount = item.amount;
+                model.totalAmount = item.amount;
+                model.expenditureTypeId = item.paySlipTypeId;
+                model.title = item.description;
+                var paySlipType = paySlipTypes.find(n => n.id == item.paySlipTypeId);
+                if (paySlipType) {
+                    model.expenditureTypeName = paySlipType.name;
+                }
+                paySlipDetails.push(model);
+            });
+        }
 
-        //    var model = new ReleaseLivestockModel();
-        //    model.livestockDocket = releaseDocket;
-        //    model.suppliers = suppliers;
-        //    model.paySlipDetails = paySlipDetails;
-        //    model.livestockDocket.isActuallyReceived = true;
-        //    let response = await LivestockProceedAPICaller.Release(model);
-        //    if (!response.hasError && response.data) {
-        //        this.props.history.push('/quanlynhap/' + response.data);
-        //    }
-        //    else
-        //        this.context.ShowGlobalMessageList('error', response.errors);
+        var model = new ReleaseLivestockModel();
+        model.livestockDocket = releaseDocket;
+        model.livestock = livestock;
+        model.suppliers = suppliers;
+        model.paySlipDetails = paySlipDetails;
+        model.livestockDocket.isActuallyReceived = true;
+        console.log(model)
+        let response = await LivestockProceedAPICaller.Release(model);
+        if (!response.hasError && response.data) {
+            this.props.history.push('/quanlynhap/' + response.data);
+        }
+        else
+            this.context.ShowGlobalMessageList('error', response.errors);
     }
     renderSuppliers() {
         let { suppliers, livestock } = this.state;

@@ -20,7 +20,7 @@
       }
     },
     "FLS STAGING": {
-      "commandName": "Project",
+      "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "http://localhost:8400/",
       "environmentVariables": {

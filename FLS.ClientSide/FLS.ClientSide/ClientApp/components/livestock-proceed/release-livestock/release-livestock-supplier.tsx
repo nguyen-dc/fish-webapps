@@ -17,13 +17,36 @@ interface ReleaseLivestockSupplierProps {
     onChange: Function;
     onRemove: Function;
 }
-interface ReleaseLivestockSupplierState {
-}
-export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSupplierProps, ReleaseLivestockSupplierState> {
+export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSupplierProps, any> {
     constructor(props: any) {
         super(props)
-        this.state = {
+    }
+    lastChange: 'total' | 'unit' | null = null;
+    componentDidUpdate(prevProps) {
+        if (this.props.taxPercent != prevProps.taxPercent && this.lastChange != null) {
+            this.onCalculateTotal();
         }
+    }
+    onCalculateTotal() {
+        let { supplier, taxPercent } = this.props;
+        if (this.lastChange == 'total') {
+            this.onCalculateUnit()
+        } else {
+            supplier.amount = supplier.massAmount * supplier.pricePerKg;
+            supplier.vat = (supplier.amount * taxPercent) / 100;
+            supplier.totalAmount = _HNumber.Sum(supplier.amount, supplier.vat);
+            this.props.onChange();
+        }
+    }
+    onCalculateUnit() {
+        let { supplier, taxPercent } = this.props;
+        if (supplier.massAmount == 0)
+            supplier.pricePerKg = (supplier.totalAmount / _HNumber.Sum(100, taxPercent) * 100);
+        else
+            supplier.pricePerKg = (supplier.totalAmount / _HNumber.Sum(100, taxPercent) * 100 / supplier.massAmount);
+        supplier.amount = supplier.massAmount * supplier.pricePerKg;
+        supplier.vat = (supplier.amount * taxPercent) / 100;
+        this.props.onChange();
     }
     renderInfo() {
         let { supplier } = this.props;
@@ -83,7 +106,7 @@ export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSu
         ]
     }
     render() {
-        let { supplier, taxPercent } = this.props;
+        let { supplier } = this.props;
         return supplier ?
             <tr>
                 <td>{supplier.supplierBranchName}</td>
@@ -102,11 +125,7 @@ export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSu
                         hasScale={true}
                         onChange={(e) => {
                             supplier.massAmount = e;
-                            supplier.amount = supplier.massAmount * supplier.pricePerKg;
-                            supplier.vat = (supplier.amount * taxPercent) / 100;
-                            supplier.totalAmount = _HNumber.Sum(supplier.amount, supplier.vat);
-                            console.log(supplier)
-                            this.props.onChange();
+                            this.onCalculateTotal();
                         }}
                     />
                 </td>
@@ -117,14 +136,12 @@ export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSu
                         hasScale={true}
                         onChange={(e) => {
                             supplier.pricePerKg = e;
-                            supplier.amount = supplier.massAmount * supplier.pricePerKg;
-                            supplier.vat = (supplier.amount * taxPercent) / 100;
-                            supplier.totalAmount = _HNumber.Sum(supplier.amount, supplier.vat);
-                            this.props.onChange();
+                            this.lastChange = 'unit';
+                            this.onCalculateTotal();
                         }}
                     />
                 </td>
-                <td>{_HNumber.FormatDecimal(supplier.vat)}</td>
+                <td>{_HNumber.FormatNumber(supplier.vat)}</td>
                 <td>
                     <InputNumber
                         suffix='đ'
@@ -132,13 +149,8 @@ export class ReleaseLivestockSupplier extends React.Component<ReleaseLivestockSu
                         hasScale={true}
                         onChange={(value) => {
                             supplier.totalAmount = Number(value);
-                            if (supplier.massAmount == 0)
-                                supplier.pricePerKg = (supplier.totalAmount / _HNumber.Sum(100, taxPercent) * 100);
-                            else
-                                supplier.pricePerKg = (supplier.totalAmount / _HNumber.Sum(100, taxPercent) * 100 / supplier.massAmount);
-                            supplier.amount = supplier.massAmount * supplier.pricePerKg;
-                            supplier.vat = (supplier.amount * taxPercent) / 100;
-                            this.props.onChange();
+                            this.lastChange = 'total';
+                            this.onCalculateUnit();
                         }}
                     />
                 </td>
