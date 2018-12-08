@@ -33,7 +33,9 @@ export class ReportFarmingSeasonHistoryStock {
     startFarmDate: Date;
     finishFarmDate: Date;
     productGroupId: number;
+    productGroupName: string | null;
     productSubgroupId: number;
+    productSubgroupName: string | null;
     productId: number;
     productName: string;
     productUnitId: number;
