@@ -10,6 +10,7 @@ import { FilterEnum } from "../../enums/filter-enum";
 import { FarmingSeasonAPICaller } from "../../api-callers";
 import { LiveStockHistoryDetailAPICaller } from "../../api-callers/report";
 import { EmptyTableMessage } from "../shared/view-only";
+import { NavLink } from "react-router-dom";
 
 interface ReleaseLivestockStates {
     model: ReportLivestockHistoryDetail[],
@@ -111,56 +112,66 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
     render() {
         let { ...state } = this.state;
         return <div id="info" className="tab-pane fade in active">
-                <div className="panel panel-info">
-                    <div className="panel-body">
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'farmRegionId'}
-                                value={state.farmRegionId}
-                                title={'Vùng nuôi'}
-                                placeHolder={'Vùng nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={(model) => this.setState({ farmRegionId: model.value, fishPondId: 0, farmingSeasonId: 0 })}
-                                options={state.farmRegions} />
-                        </div>
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'fishPondId'}
-                                value={state.fishPondId}
-                                title={'Ao nuôi'}
-                                placeHolder={'Ao nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={(model) => {
-                                    this.setState({ fishPondId: model.value, farmingSeasonId: 0 });
-                                    this.getFarmingSeason(model.value);
-                                }}
-                                options={state.fishPonds.filter(f => f.parentId == state.farmRegionId)} />
-                        </div>
-                        <div className="col-md-3">
-                            <LabeledSelect
-                                name={'farmingSeasonId'}
-                                value={state.farmingSeasonId}
-                                title={'Đợt nuôi'}
-                                placeHolder={'Đợt nuôi'}
-                                valueKey={'id'}
-                                nameKey={'name'}
-                                valueChange={(model) => this.setState({ farmingSeasonId: model.value })}
-                                options={state.farmingSeasons.filter(f => f.fishPondId == state.fishPondId)} />
-                        </div>
-                        <div className="col-md-3 text-right">
-                            <button className="btn btn-primary mg-r-15" onClick={this.GetReport.bind(this)}>Xem báo cáo</button>
-                            <button className="btn btn-default" onClick={this.GetReport.bind(this)}>Xuất excel</button>
-                        </div>
-                    </div>
+            <div className="row">
+                <div className="col-sm-12">
+                    <nav aria-label="breadcrumb">
+                        <ol className="breadcrumb">
+                            <li className="breadcrumb-item"><NavLink to="/">Trang chủ</NavLink></li>
+                            <li className="breadcrumb-item active" aria-current="page">Nhật ký ao nuôi</li>
+                        </ol>
+                    </nav>
                 </div>
-                <div className="row">
-                    <div className='col-sm-12'>
-                        {this.renderTable()}
+            </div>
+            <div className="panel panel-info">
+                <div className="panel-body">
+                    <div className="col-md-3">
+                        <LabeledSelect
+                            name={'farmRegionId'}
+                            value={state.farmRegionId}
+                            title={'Vùng nuôi'}
+                            placeHolder={'Vùng nuôi'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            valueChange={(model) => this.setState({ farmRegionId: model.value, fishPondId: 0, farmingSeasonId: 0 })}
+                            options={state.farmRegions} />
+                    </div>
+                    <div className="col-md-3">
+                        <LabeledSelect
+                            name={'fishPondId'}
+                            value={state.fishPondId}
+                            title={'Ao nuôi'}
+                            placeHolder={'Ao nuôi'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            valueChange={(model) => {
+                                this.setState({ fishPondId: model.value, farmingSeasonId: 0 });
+                                this.getFarmingSeason(model.value);
+                            }}
+                            options={state.fishPonds.filter(f => f.parentId == state.farmRegionId)} />
+                    </div>
+                    <div className="col-md-3">
+                        <LabeledSelect
+                            name={'farmingSeasonId'}
+                            value={state.farmingSeasonId}
+                            title={'Đợt nuôi'}
+                            placeHolder={'Đợt nuôi'}
+                            valueKey={'id'}
+                            nameKey={'name'}
+                            valueChange={(model) => this.setState({ farmingSeasonId: model.value })}
+                            options={state.farmingSeasons.filter(f => f.fishPondId == state.fishPondId)} />
+                    </div>
+                    <div className="col-md-3 text-right">
+                        <button className="btn btn-primary mg-r-15" onClick={this.GetReport.bind(this)}>Xem báo cáo</button>
+                        <button className="btn btn-default" onClick={this.GetReport.bind(this)}>Xuất excel</button>
                     </div>
                 </div>
             </div>
+            <div className="row">
+                <div className='col-sm-12'>
+                    {this.renderTable()}
+                </div>
+            </div>
+        </div>
     }
 
     private renderTable() {
