@@ -1,28 +1,37 @@
 ﻿import * as React from "react";
 import * as Moment from 'moment';
-import { Link } from "react-router-dom";
 import { RouteComponentProps } from 'react-router';
-import { UnderConstructor } from "../shared/under-constructor";
 import { LabeledSelect } from "../shared/input/labeled-input";
+import { ReportFarmingSeasonHistoryStockRequest, ReportFarmingSeasonHistoryStock } from "../../models/report";
+import { ReportAPICaller } from "../../api-callers/report";
 
-interface ReleaseLivestockStates {
-    model: any,
-    errorList: {}
+interface ExportReportStates {
+    request: ReportFarmingSeasonHistoryStockRequest,
+    model: ThisModel[],
+    isLoading: boolean,
 }
+class ThisModel {
 
-export class ExportReports extends React.Component<RouteComponentProps<{}>, any> {
+    childs: ReportFarmingSeasonHistoryStock[]
+}
+export class ExportReports extends React.Component<RouteComponentProps<{}>, ExportReportStates> {
     constructor(props: any) {
         super(props)
+        let request = new ReportFarmingSeasonHistoryStockRequest();
+        request.farmingSeasonId = 1;
         this.state = {
+            request,
             model: [],
-            errorList: {}
+            isLoading: false,
         }
     }
-
+    static contextTypes = {
+        ShowGlobalMessage: React.PropTypes.func,
+        ShowGlobalMessageList: React.PropTypes.func,
+    }
     componentDidMount() {
 
     }
-
     onDocketFieldChange(model: any) {
         //const nextState = {
         //    ...this.state,
@@ -42,13 +51,45 @@ export class ExportReports extends React.Component<RouteComponentProps<{}>, any>
         //this.setState({ releaseDocket });
     }
 
-    GetReport() {
-        alert("Chưa có làm");
+    async GetReport() {
+        let { request } = this.state;
+        // validate request
+
+        // lấy dữ liệu
+        this.setState({ isLoading: true });
+        let result = await ReportAPICaller.GetFarmingSeasonHistoryStock(request);
+        if (result.hasError) {
+            this.context.ShowGlobalMessageList('error', result.errors);
+            this.setState({ model: [], isLoading: false });
+        }
+        else {
+            this.setState({ model: result.data, isLoading: false });
+            console.log(result.data)
+        }
     }
     ExportExcel() {
-        alert("Không có dữ liệu");
+        alert("chưa làm");
     }
-
+    //Test(list: ReportFarmingSeasonHistoryStock[]): ReportFarmingSeasonHistoryStock[]
+    //{
+    //    let newList  = [];
+    //    list.map(item => {
+    //        var exist = newList.find(i => i.id == item.productSubgroupId);
+    //        if (exist) {
+    //            exist.childs.push(item);
+    //        } else {
+    //            exist ;
+    //            exist.
+                
+    //            exist.childs.Add(item);
+    //            newList.Add(exist);
+    //        }
+    //        else {
+    //            exist.childs.Add(item);
+    //        }
+    //    });
+    //    return newList;
+    //}
     private renderTable(models: any) {
         return (
             <table className="table-responsive table table-striped table-hover border">
@@ -142,8 +183,10 @@ export class ExportReports extends React.Component<RouteComponentProps<{}>, any>
     }
 
     render() {
+        let { ...state } = this.state;
         return (
             <div id="info" className="tab-pane fade in active">
+                {state.isLoading == true ? <div className="icon-loading"></div> : null}
                 <div className="panel panel-info">
                     <div className="panel-body">
                         <div className="col-md-4">
@@ -214,8 +257,8 @@ export class ExportReports extends React.Component<RouteComponentProps<{}>, any>
                         </div>
                         <div className="col-md-4">
                             <label className="control-label min-w-140 float-left"></label>
-                            <button className="btn btn-primary mg-r-15" onClick={this.GetReport}>Xem báo cáo</button>
-                            <button className="btn btn-default mg-r-15" onClick={this.ExportExcel}>Xuất excel</button>
+                            <button className="btn btn-primary mg-r-15" onClick={() => this.GetReport()}>Xem báo cáo</button>
+                            <button className="btn btn-default mg-r-15" onClick={() => this.ExportExcel()}>Xuất excel</button>
                         </div>
                     </div>
                 </div>

@@ -22,11 +22,10 @@ export class ReportLivestockHistoryDetail{
     medicineName: string;
 }
 export class ReportFarmingSeasonHistoryStockRequest {
-    farmingSeasonId: number;
-    productGroupId: number;
-    productSubgroupId: number;
-    productId: number;
-
+    farmingSeasonId: number = 0;
+    productGroupId: number = 0;
+    productSubgroupId: number = 0;
+    productId: number = 0;
 }
 export class ReportFarmingSeasonHistoryStock {
     farmingSeasonId: number;
@@ -41,6 +40,7 @@ export class ReportFarmingSeasonHistoryStock {
     productUnitName: string;
     amount: number;
     capitalCost: number;
+    childs: ReportFarmingSeasonHistoryStock[];
 }
 export class ReportFarmingSeasonRequest {
     farmRegionId: number;
