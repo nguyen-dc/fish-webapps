@@ -724,10 +724,16 @@ tr.clickable {
 .table-responsive{
     background-color:#fff;
 }
-.table-responsive tr, .table-responsive td {
-    border: 1px solid #ccc;
-    padding: 5px;
-}
+    .table-responsive tr, .table-responsive td, .table-responsive th {
+        border: 1px solid #ccc;
+        padding: 5px;
+    }
+    .table-responsive th {
+        text-align: center;
+    }
+    .table-responsive td.number {
+        text-align: right;
+    }
 .scroll-x{
     overflow-x:auto;
 }
