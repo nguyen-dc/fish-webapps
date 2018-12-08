@@ -5,10 +5,10 @@ import { LabeledSelect } from "../shared/input/labeled-input";
 import { _HDateTime, _HString, _HNumber } from "../../handles/handles";
 import { ReportLivestockHistoryDetail, ReportLivestockHistoryDetailRequest } from "../../models/report";
 import { CacheAPI } from "../../api-callers/cache";
-import { PageFilterModel, FilterModel } from "../../models/shared";
+import { PageFilterModel } from "../../models/shared";
 import { FilterEnum } from "../../enums/filter-enum";
 import { FarmingSeasonAPICaller } from "../../api-callers";
-import { LiveStockHistoryDetailAPICaller } from "../../api-callers/report";
+import { ReportAPICaller } from "../../api-callers/report";
 import { EmptyTableMessage } from "../shared/view-only";
 import { NavLink } from "react-router-dom";
 
@@ -72,7 +72,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             toDate: Moment().toDate(),
         };
 
-        let result = await LiveStockHistoryDetailAPICaller.GetList(objFilter);
+        let result = await ReportAPICaller.GetLiveStockHistoryDetail(objFilter);
         if (result.hasError) {
             this.context.ShowGlobalMessageList('error', result.errors);
             this.setState({ model: [], isLoading: false });
