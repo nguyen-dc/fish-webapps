@@ -20,6 +20,8 @@ export class ReportLivestockHistoryDetail{
     qtyFood: number;
     qtyMedicine: number;
     medicineName: string;
+    qtyDeadStock: number;
+    deadStockMassAmount: number;
 }
 export class ReportFarmingSeasonHistoryStockRequest {
     farmingSeasonId: number = 0;
