@@ -8,12 +8,12 @@ import { NavLink } from "react-router-dom";
 import { LabeledSelect } from "../shared/input/labeled-input";
 import LabeledSingleDatePicker from "../shared/date-time/labeled-single-date-picker";
 import { ProductSimpleSearch } from "../product/product-simple-search";
-import { SystemIDEnum } from "../../enums/system-default-key-enum";
 import { _HNumber } from "../../handles/handles";
 import { ProductModel } from "../../models/product";
 import { InputNumber } from "../shared/input/input-number";
 import { LivestockProceedAPICaller } from "../../api-callers/livestock-proceed";
-import { FeedingLivestockModel, CollectDeadstockRequest } from "../../models/import-stock";
+import { CollectDeadstockRequest } from "../../models/import-stock";
+import { Glyphicon, Button } from "react-bootstrap";
 
 interface CollectDeadstockState {
     fishPondWarehouseId: number,
@@ -135,6 +135,7 @@ export class CollectDeadstocks extends React.Component<RouteComponentProps<{}>, 
                                                 <th>Tên cá chết</th>
                                                 <th>Tổng trọng lượng</th>
                                                 <th>Hệ số</th>
+                                                <th className='th-sm-1'></th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -154,6 +155,11 @@ export class CollectDeadstocks extends React.Component<RouteComponentProps<{}>, 
                                                         value={state.ratio}
                                                         onChange={(value) => this.setState({ ratio: value })}
                                                     />
+                                                </td>
+                                                <td>
+                                                    <Button bsStyle='default' className='btn-sm' onClick={() => this.setState({ deadstock: null })}>
+                                                        <Glyphicon glyph='minus' />
+                                                    </Button>
                                                 </td>
                                             </tr>
                                         </tbody>

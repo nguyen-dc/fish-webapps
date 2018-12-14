@@ -65,3 +65,9 @@ export class CollectDeadstockRequest {
     fishPondWarehouseId: number;
     collectDate: Date | null;
 }
+export class FCRCheckModel {
+    fishPondWarehouseId: number;
+    livestockId: number;
+    weight: number;
+    checkDate: Date | null;
+}

@@ -14,8 +14,8 @@ import { NavLink } from "react-router-dom";
 
 interface ReleaseLivestockStates {
     model: ReportLivestockHistoryDetail[],
-    farmRegions: any,
-    fishPonds: any,
+    farmRegions: any[],
+    fishPonds: any[],
     farmingSeasons: any[],
     farmRegionId: number,
     fishPondId: number,
@@ -99,7 +99,6 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             }
             else {
                 farmingSeasons.push.apply(farmingSeasons, response.data.items);
-                console.log(farmingSeasons);
                 this.setState({ farmingSeasons });
             }
 

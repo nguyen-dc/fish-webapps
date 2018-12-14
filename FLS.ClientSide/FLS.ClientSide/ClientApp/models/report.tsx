@@ -20,6 +20,8 @@ export class ReportLivestockHistoryDetail{
     qtyFood: number;
     qtyMedicine: number;
     medicineName: string;
+    qtyDeadStock: number;
+    deadStockMassAmount: number;
 }
 export class ReportFarmingSeasonHistoryStockRequest {
     farmingSeasonId: number = 0;
@@ -28,10 +30,6 @@ export class ReportFarmingSeasonHistoryStockRequest {
     productId: number = 0;
 }
 export class ReportFarmingSeasonHistoryStock {
-    farmingSeasonId: number;
-    fishPondId: number;
-    startFarmDate: Date;
-    finishFarmDate: Date;
     productGroupId: number;
     productGroupName: string | null;
     productSubgroupId: number;

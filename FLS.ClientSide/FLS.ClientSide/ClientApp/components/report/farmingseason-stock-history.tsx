@@ -5,11 +5,27 @@ import { LabeledSelect } from "../shared/input/labeled-input";
 import { ReportFarmingSeasonHistoryStockRequest, ReportFarmingSeasonHistoryStock } from "../../models/report";
 import { ReportAPICaller } from "../../api-callers/report";
 import { EmptyRowMessage } from "../shared/view-only";
-import { _HNumber } from "../../handles/handles";
+import { _HNumber, _HDateTime } from "../../handles/handles";
+import { CacheAPI, FarmingSeasonAPICaller } from "../../api-callers";
+import { PageFilterModel } from "../../models/shared";
+import { FilterEnum } from "../../enums/filter-enum";
+import { ProductModel } from "../../models/product";
+import { ProductSimpleSearch } from "../product/product-simple-search";
+import { Glyphicon, Button } from "react-bootstrap";
 
 interface FarmingSeasonStockHistoryStates {
-    request: ReportFarmingSeasonHistoryStockRequest,
     model: ThisModel[],
+    farmRegions: any[],
+    fishPonds: any[],
+    farmingSeasons: any[],
+    productGroups: any[],
+    productSubgroups: any[],
+    farmRegionId: number,
+    fishPondId: number,
+    farmingSeasonId: number,
+    productGroupId: number,
+    productSubgroupId: number,
+    product: ProductModel,
     isLoading: boolean,
 }
 class ThisModel {
@@ -20,11 +36,19 @@ class ThisModel {
 export class FarmingSeasonStockHistory extends React.Component<RouteComponentProps<{}>, FarmingSeasonStockHistoryStates> {
     constructor(props: any) {
         super(props)
-        let request = new ReportFarmingSeasonHistoryStockRequest();
-        request.farmingSeasonId = 1;
         this.state = {
-            request,
             model: [],
+            farmRegions: [],
+            fishPonds: [],
+            farmingSeasons: [],
+            productGroups: [],
+            productSubgroups: [],
+            farmRegionId: 0,
+            fishPondId: 0,
+            farmingSeasonId: 0,
+            productGroupId: 0,
+            productSubgroupId: 0,
+            product: null,
             isLoading: false,
         }
     }
@@ -32,47 +56,77 @@ export class FarmingSeasonStockHistory extends React.Component<RouteComponentPro
         ShowGlobalMessage: React.PropTypes.func,
         ShowGlobalMessageList: React.PropTypes.func,
     }
-    componentDidMount() {
+    lastFishPond = null;
+    lastFarmingSeason = null;
+    async componentDidMount() {
+        var farmRegions = await CacheAPI.FarmRegion();
+        var fishPonds = await CacheAPI.FishPond();
+        var productGroups = await CacheAPI.ProductGroup();
+        var productSubgroups = await CacheAPI.ProductSubgroup();
+        this.setState({
+            farmRegions: farmRegions.data,
+            fishPonds: fishPonds.data,
+            productGroups: productGroups.data,
+            productSubgroups: productSubgroups.data
+        });
+    }
+    private async getFarmingSeason(fishPondId: number) {
+        if (Number(fishPondId) > 0) {
+            let exist = this.state.farmingSeasons.find(f => f.fishPondId == fishPondId);
+            if (exist) {
+                return;
+            }
+            var modelSearch = new PageFilterModel();
+            modelSearch.page = 1;
+            modelSearch.pageSize = 20;
+            modelSearch.filters[0].key = FilterEnum.fishPond;
+            modelSearch.filters[0].value = fishPondId;
+            let farmingSeasons = this.state.farmingSeasons;
+            let response = await FarmingSeasonAPICaller.GetList(modelSearch);
+            if (response.hasError) {
+                this.context.ShowGlobalMessageList('error', response.errors);
+            }
+            else {
+                farmingSeasons.push.apply(farmingSeasons, response.data.items);
+                this.setState({ farmingSeasons });
+            }
 
+            if (response.hasWarning) {
+                this.context.ShowGlobalMessageList('warning', response.warnings);
+            }
+        }
     }
-    onDocketFieldChange(model: any) {
-        //const nextState = {
-        //    ...this.state,
-        //    releaseDocket: {
-        //        ...this.state.releaseDocket,
-        //        [model.name]: model.value,
-        //    }
-        //};
-        //this.setState(nextState);
-    }
-    onReceiveDocketDateChange(evt) {
-        let startDate = evt.startDate as Moment.Moment;
-        let endDate = evt.endDate as Moment.Moment;
-        debugger
-        //let releaseDocket = this.state.releaseDocket;
-        //releaseDocket[evt.name] = date;
-        //this.setState({ releaseDocket });
-    }
-
-    async GetReport() {
-        let { request } = this.state;
+    private async getReport() {
+        let { ...state } = this.state;
         // validate request
-
-        // lấy dữ liệu
+        if (!state.farmingSeasonId) {
+            this.context.ShowGlobalMessage('error', 'Xin chọn đợt nuôi');
+            return;
+        }
         this.setState({ isLoading: true });
+        let lastFishPonds = state.fishPonds.find(f => f.id == state.fishPondId);
+        let lastFarmingSeasons = state.farmingSeasons.find(f => f.id == state.farmingSeasonId);
+        let request = new ReportFarmingSeasonHistoryStockRequest();
+        request.farmingSeasonId = state.farmingSeasonId ? state.farmingSeasonId : 0;
+        request.productGroupId = state.productGroupId ? state.productGroupId : 0;
+        request.productSubgroupId = state.productSubgroupId ? state.productSubgroupId : 0;
+        request.productId = state.product ? state.product.id : 0;
+        // lấy dữ liệu
         let result = await ReportAPICaller.GetFarmingSeasonHistoryStock(request);
         if (result.hasError) {
             this.context.ShowGlobalMessageList('error', result.errors);
             this.setState({ model: [], isLoading: false });
         }
         else {
-            this.setState({ model: this.GroupingData(result.data), isLoading: false }, () => console.log(this.state.model));
+            this.lastFishPond = lastFishPonds;
+            this.lastFarmingSeason = lastFarmingSeasons;
+            this.setState({ model: this.groupingData(result.data), isLoading: false });
         }
     }
-    ExportExcel() {
+    private exportExcel() {
         alert("chưa làm");
     }
-    GroupingData(list: ReportFarmingSeasonHistoryStock[]): ThisModel[]
+    private groupingData(list: ReportFarmingSeasonHistoryStock[]): ThisModel[]
     {
         let newList: ThisModel[] = [];
         if (!list || list.length == 0)
@@ -101,16 +155,25 @@ export class FarmingSeasonStockHistory extends React.Component<RouteComponentPro
             <table className="table-responsive table table-striped table-hover border">
                 <thead>
                     <tr>
-                        <td colSpan={7}><strong>Ao số 1 - Đợt 01 từ 15/03/2018 đến 30/09/2018 - Ngày thả: 25/0/2018 05:30</strong></td>
+                        <td colSpan={7}>
+                            <strong>{this.lastFishPond.name} - {this.lastFarmingSeason.name}
+                                &nbsp;từ {_HDateTime.DateFormat(this.lastFarmingSeason.startFarmDate)} đến&nbsp;
+                                {
+                                    this.lastFarmingSeason.finishFarmDate ?
+                                        _HDateTime.DateFormat(this.lastFarmingSeason.finishFarmDate) 
+                                        : _HDateTime.DateFormat(this.lastFarmingSeason.finishFarmDateExpected) + ' (dự kiến)'
+                                }
+                            </strong>
+                        </td>
                     </tr>
                     <tr className="text-center">
-                        <td>STT</td>
-                        <td>Mã sản phẩm</td>
-                        <td>Tên sản phẩm</td>
-                        <td>ĐVT</td>
-                        <td>Số lượng</td>
-                        <td>Đơn giá BQ</td>
-                        <td>Thành tiền</td>
+                        <th>STT</th>
+                        <th>Mã sản phẩm</th>
+                        <th>Tên sản phẩm</th>
+                        <th>ĐVT</th>
+                        <th>Số lượng</th>
+                        <th>Đơn giá BQ</th>
+                        <th>Thành tiền</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -138,7 +201,6 @@ export class FarmingSeasonStockHistory extends React.Component<RouteComponentPro
             </table>
         );
     }
-
     render() {
         let { ...state } = this.state;
         return (
@@ -148,74 +210,88 @@ export class FarmingSeasonStockHistory extends React.Component<RouteComponentPro
                     <div className="panel-body">
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'farmRegionId'}
+                                value={state.farmRegionId}
                                 title={'Vùng nuôi'}
                                 placeHolder={'Vùng nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                valueChange={(model) => this.setState({ farmRegionId: model.value, fishPondId: 0, farmingSeasonId: 0 })}
+                                options={state.farmRegions} />
                         </div>
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'fishPondId'}
+                                value={state.fishPondId}
                                 title={'Ao nuôi'}
                                 placeHolder={'Ao nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                valueChange={(model) => {
+                                    this.setState({ fishPondId: model.value, farmingSeasonId: 0 });
+                                    this.getFarmingSeason(model.value);
+                                }}
+                                options={state.fishPonds.filter(f => f.parentId == state.farmRegionId)} />
                         </div>
                         <div className="col-md-4">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'farmingSeasonId'}
+                                value={state.farmingSeasonId}
                                 title={'Đợt nuôi'}
                                 placeHolder={'Đợt nuôi'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                valueChange={(model) => this.setState({ farmingSeasonId: model.value })}
+                                options={state.farmingSeasons.filter(f => f.fishPondId == state.fishPondId)} />
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'productGroupId'}
+                                value={state.productGroupId}
                                 title={'Ngành hàng'}
                                 placeHolder={'Ngành hàng'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                valueChange={(model) => this.setState({ productGroupId: model.value, productSubgroupId: 0 })}
+                                options={state.productGroups} />
                         </div>
-                        <div className="col-md-4">
+                        <div className="col-md-3">
                             <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
+                                name={'productSubgroupId'}
+                                value={state.productSubgroupId}
                                 title={'Nhóm hàng'}
                                 placeHolder={'Nhóm hàng'}
-                                valueKey={'belongId'}
+                                valueKey={'id'}
                                 nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                                valueChange={(model) => {
+                                    this.setState({ productSubgroupId: model.value});
+                                }}
+                                options={state.productSubgroups.filter(f => f.parentId == state.productGroupId)} />
                         </div>
-                        <div className="col-md-4">
-                            <LabeledSelect
-                                name={'fishPondWarehouseId'}
-                                value={0}
-                                title={'Sản phẩm'}
-                                placeHolder={'Sản phẩm'}
-                                valueKey={'belongId'}
-                                nameKey={'name'}
-                                valueChange={this.onDocketFieldChange.bind(this)}
-                                options={[]} />
+                        <div className="col-md-6">
+                            <ProductSimpleSearch
+                                stayPop={false}
+                                type="stock"
+                                productGroupId={state.productGroupId}
+                                onChooseProduct={(product) => this.setState({ product })} />
+                            {state.product ?
+                                <table className='mt-15'>
+                                    <tbody>
+                                        <tr>
+                                            <td>{state.product.name}</td>
+                                            <td>
+                                                <Button bsStyle='default' className='btn-sm' onClick={() => this.setState({ product: null })}>
+                                                <Glyphicon glyph='minus' />
+                                            </Button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table> : null
+                            }
                         </div>
-                        <div className="col-md-4">
-                            <label className="control-label min-w-140 float-left"></label>
-                            <button className="btn btn-primary mg-r-15" onClick={() => this.GetReport()}>Xem báo cáo</button>
-                            <button className="btn btn-default mg-r-15" onClick={() => this.ExportExcel()}>Xuất excel</button>
+                        <div className="col-md-12 text-right mg-t-15">
+                            <button className="btn btn-primary mg-r-15" onClick={() => this.getReport()}>Xem báo cáo</button>
+                            <button className="btn btn-default mg-r-15" onClick={() => this.exportExcel()}>Xuất excel</button>
                         </div>
                     </div>
                 </div>
