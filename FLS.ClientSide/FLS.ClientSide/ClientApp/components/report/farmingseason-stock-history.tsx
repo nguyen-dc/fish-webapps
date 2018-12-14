@@ -275,11 +275,11 @@ export class FarmingSeasonStockHistory extends React.Component<RouteComponentPro
                                 productGroupId={state.productGroupId}
                                 onChooseProduct={(product) => this.setState({ product })} />
                             {state.product ?
-                                <table className='mt-15'>
+                                <table className='table mg-t-15'>
                                     <tbody>
                                         <tr>
                                             <td>{state.product.name}</td>
-                                            <td>
+                                            <td className='text-right'>
                                                 <Button bsStyle='default' className='btn-sm' onClick={() => this.setState({ product: null })}>
                                                 <Glyphicon glyph='minus' />
                                             </Button>
