@@ -42,5 +42,12 @@ namespace FLS.ClientSide.Controllers
             ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
             return Ok(response);
         }
+        [HttpPost("fcr-check")]
+        public async Task<ActionResult> FCRCheck([FromBody]FCRCheckModel _model)
+        {
+            string link = URI_API.LIVESTOCK_PROCEED_CHECK_FCR;
+            ResponseConsult<int> response = await PostAsJsonAsync<int>(link, _model);
+            return Ok(response);
+        }
     }
 }

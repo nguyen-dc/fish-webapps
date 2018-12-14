@@ -14,8 +14,8 @@ import { NavLink } from "react-router-dom";
 
 interface ReleaseLivestockStates {
     model: ReportLivestockHistoryDetail[],
-    farmRegions: any,
-    fishPonds: any,
+    farmRegions: any[],
+    fishPonds: any[],
     farmingSeasons: any[],
     farmRegionId: number,
     fishPondId: number,
@@ -68,7 +68,7 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
 
         var objFilter = new ReportLivestockHistoryDetailRequest();
         objFilter.farmingSeasonId = state.farmingSeasonId,
-        objFilter.fromDate = Moment().toDate();
+            objFilter.fromDate = Moment().toDate();
         objFilter.toDate = Moment().toDate();
 
         let result = await ReportAPICaller.GetLiveStockHistoryDetail(objFilter);
@@ -99,7 +99,6 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
             }
             else {
                 farmingSeasons.push.apply(farmingSeasons, response.data.items);
-                console.log(farmingSeasons);
                 this.setState({ farmingSeasons });
             }
 
@@ -177,67 +176,67 @@ export class FarmingSeasonHistories extends React.Component<RouteComponentProps<
     private renderTable() {
         let { ...state } = this.state;
         return <div className="scroll-x">
-            { state.isLoading == true ? <div className="icon-loading"></div> : null }
-                <table className="table-responsive table table-striped table-hover border">
-                    <thead>
-                        <tr className="text-center">
-                            <th rowSpan={2}>Ngày</th>
-                            <th rowSpan={2}>Thao tác</th>
-                            <th rowSpan={2}>Trọng lượng(gr/con)</th>
-                            <th rowSpan={2}>SL con giống(con)</th>
-                            <th colSpan={3}>Thức ăn</th>
-                            <th colSpan={3}>Cá chết</th>
-                            <th colSpan={3}>Xử lý thuốc, mối, vôi</th>
-                            <th colSpan={4}>Môi trường ao nuôi</th>
-                            <th rowSpan={2}>Ghi chú</th>
-                        </tr>
-                        <tr className="text-center">
-                            <th>Kg</th>
-                            <th>Bao</th>
-                            <th>Tấn</th>
-                            <th>Kg</th>
-                            <th>HS</th>
-                            <th>Con</th>
-                            <th>Tên thuốc</th>
-                            <th>ĐVT</th>
-                            <th>SL</th>
-                            <th>HS</th>
-                            <th>DO</th>
-                            <th>T</th>
-                            <th>pH</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-center">
-                        {
-                            state.model.length == 0 ?
-                                <EmptyTableMessage /> :
-                                state.model.map((m, index) =>
-                                    (
-                                        <tr key={index}>
-                                            <td>{_HDateTime.DateFormat(m.actionDate)}</td>
-                                            <td>{m.actionType}</td>
-                                            <td className='number'>{_HNumber.FormatNumber(m.weight)}</td>
-                                            <td className='number'>{_HNumber.FormatInteger(m.quantity)}</td>
-                                            <td className='number'>{_HNumber.FormatDecimal(m.qtyFood)}</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td className='number'>{_HNumber.FormatNumber(m.massAmount)}</td>
-                                            <td className='number'>{_HNumber.FormatDecimal(m.deadstockRatio)}</td>
-                                            <td></td>
-                                            <td>{m.medicineName}</td>
-                                            <td>{m.productUnitName}</td>
-                                            <td className='number'>{_HNumber.FormatDecimal(m.qtyMedicine)}</td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                        </tr>
+            {state.isLoading == true ? <div className="icon-loading"></div> : null}
+            <table className="table-responsive table table-striped table-hover border">
+                <thead>
+                    <tr className="text-center">
+                        <th rowSpan={2}>Ngày</th>
+                        <th rowSpan={2}>Thao tác</th>
+                        <th rowSpan={2}>Trọng lượng(gr/con)</th>
+                        <th rowSpan={2}>SL con giống(con)</th>
+                        <th colSpan={3}>Thức ăn</th>
+                        <th colSpan={3}>Cá chết</th>
+                        <th colSpan={3}>Xử lý thuốc, mối, vôi</th>
+                        <th colSpan={4}>Môi trường ao nuôi</th>
+                        <th rowSpan={2}>Ghi chú</th>
+                    </tr>
+                    <tr className="text-center">
+                        <th>Kg</th>
+                        <th>Bao</th>
+                        <th>Tấn</th>
+                        <th>Kg</th>
+                        <th>HS</th>
+                        <th>Con</th>
+                        <th>Tên thuốc</th>
+                        <th>ĐVT</th>
+                        <th>SL</th>
+                        <th>HS</th>
+                        <th>DO</th>
+                        <th>T</th>
+                        <th>pH</th>
+                    </tr>
+                </thead>
+                <tbody className="text-center">
+                    {
+                        state.model.length == 0 ?
+                            <EmptyTableMessage /> :
+                            state.model.map((m, index) =>
+                                (
+                                    <tr key={index}>
+                                        <td>{_HDateTime.DateFormat(m.actionDate)}</td>
+                                        <td>{m.actionType}</td>
+                                        <td className='number'>{_HNumber.FormatNumber(m.weight)}</td>
+                                        <td className='number'>{_HNumber.FormatInteger(m.quantity)}</td>
+                                        <td className='number'>{_HNumber.FormatDecimal(m.qtyFood)}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td className='number'>{_HNumber.FormatNumber(m.deadStockMassAmount)}</td>
+                                        <td className='number'>{_HNumber.FormatNumber(m.deadstockRatio)}</td>
+                                        <td>{_HNumber.FormatNumber(m.qtyDeadStock)}</td>
+                                        <td>{m.medicineName}</td>
+                                        <td>{m.productUnitName}</td>
+                                        <td className='number'>{_HNumber.FormatDecimal(m.qtyMedicine)}</td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                        <td></td>
+                                    </tr>
 
-                                    ))
-                        }
-                    </tbody>
-                </table>
-            </div>
+                                ))
+                    }
+                </tbody>
+            </table>
+        </div>
     }
 }
