@@ -46,6 +46,7 @@ import { ImportDetail } from './components/import/import-detail';
 import { ExportDetail } from './components/export/export-detail';
 import { ProductDetail } from './components/product/product-detail';
 import { FarmingSeasonStockHistory } from './components/report/farmingseason-stock-history';
+import { Login } from './components/user/login';
 
 export const routes = <Layout>
     <Switch>
@@ -93,6 +94,7 @@ export const routes = <Layout>
         <Route exact path='/baocao/doanhthu' component={RevenueReports} />
         <Route exact path='/hethong/nguoidung' component={ManageUsers} />
         <Route exact path='/hethong/quyennguoidung' component={ManageUserRoles} />
+        <Route exact path='/login' component={Login} />
         {/* not match url */}
         <Route component={Code404} />
     </Switch>

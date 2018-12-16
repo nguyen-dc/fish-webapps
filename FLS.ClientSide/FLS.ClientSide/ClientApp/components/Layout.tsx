@@ -4,6 +4,7 @@ import { PropTypes } from 'prop-types';
 import './index.css';
 import { StringStringPair } from '../models/shared';
 import { LayoutFooter } from './LayoutFooter';
+import { Login } from './user/login';
 
 export interface LayoutProps {
     children?: React.ReactNode;
