@@ -3,8 +3,8 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
-  repository: draft
-  tag: dev
+  repository: 172.30.74.244:5000/phu-maiminh-gmail-com/fish-webapps
+  tag: 0.0.53
   pullPolicy: IfNotPresent
 service:
   name: fish-webapps
